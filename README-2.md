@@ -37,7 +37,7 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-Use python 3.8.5 (through pyenv) and setup a pipenv (or any other virtual env you like). Then install these packages:
+Use python 3.8.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install these packages:
 
 ```bash
 pip install wheel setuptools cmake scikit-build
