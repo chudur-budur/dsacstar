@@ -37,13 +37,19 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-We are doing this because we need access to the opencv header and static libs.
+Use python 3.8.5 (through pyenv) and setup a pipenv (or any other virtual env you like). Then install these packages:
+
+```bash
+pip install wheel setuptools cmake scikit-build
+```
+
+Install `opencv-python` to get access to headers and libs:
 
 ```bash
 cd ~
 git clone git@github.com:opencv/opencv-python.git
 cd opencv-python
-git checkout 7b7f734
+git checkout 8dc0f4d
 export ENABLE_CONTRIB=0
 export ENABLE_HEADLESS=1
 python setup.py install
