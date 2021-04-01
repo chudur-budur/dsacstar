@@ -33,8 +33,11 @@ DSAC\* requires the following python packages, and we tested it with the package
  - [opencv (3.4.2) with python binding](https://github.com/opencv/opencv/releases/tag/3.4.2) or [opencv-python (3.4.2)](https://github.com/opencv/opencv-python/tree/17)
  - [scikit-image (0.16.2)]()
 
-**Note:** The code does not support OpenCV 4.x at the moment.
-**Note:** This document describes installation with `opencv-python`. 
+**Note:** The code does not support OpenCV 4.x at the moment and this document describes installation with `opencv-python`. 
+
+### Installing `opencv-python` from source
+
+We are doing this because we need access to the opencv header and static libs. 
 
 You compile and install the C++ extension by executing:
 
