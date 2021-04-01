@@ -44,18 +44,6 @@ cd ~
 git clone git@github.com:opencv/opencv-python.git
 cd opencv-python
 git checkout 7b7f734
-git clone git@github.com:opencv/opencv.git
-cd opencv
-git checkout 9e1b1e5
-cd ..
-git clone git@github.com:matthew-brett/multibuild.git
-cd multibuild
-git checkout afbff53
-cd ..
-git clone git@github.com:opencv/opencv_contrib.git
-cd opencv_contrib
-git checkout d4e0286
-cd ..
 python setup.py install
 ``` 
 
