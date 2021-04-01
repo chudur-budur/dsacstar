@@ -40,6 +40,7 @@ DSAC\* requires the following python packages, and we tested it with the package
 We are doing this because we need access to the opencv header and static libs.
 
 ```
+cd ~
 git clone git@github.com:opencv/opencv-python.git
 cd opencv-python
 git checkout 7b7f734
