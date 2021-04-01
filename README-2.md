@@ -44,6 +44,8 @@ cd ~
 git clone git@github.com:opencv/opencv-python.git
 cd opencv-python
 git checkout 7b7f734
+export ENABLE_CONTRIB=0
+export ENABLE_HEADLESS=1
 python setup.py install
 ``` 
 
