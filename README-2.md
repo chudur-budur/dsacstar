@@ -29,11 +29,10 @@ DSAC\* is based on PyTorch, and includes a custom C++ extension which you have t
 
 DSAC\* requires the following python packages, and we tested it with the package version in brackets
 
-```
-[pytorch (1.6.0)](https://pypi.org/project/torch/1.6.0/)
-[opencv (3.4.2) with python binding](https://github.com/opencv/opencv/releases/tag/3.4.2) or [opencv-python (3.4.2)](https://github.com/opencv/opencv-python/tree/17)
-[scikit-image (0.16.2)]()
-```
+ - [pytorch (1.6.0)](https://pypi.org/project/torch/1.6.0/)
+ - [opencv (3.4.2) with python binding](https://github.com/opencv/opencv/releases/tag/3.4.2) or [opencv-python (3.4.2)](https://github.com/opencv/opencv-python/tree/17)
+ - [scikit-image (0.16.2)]()
+
 **Note:** The code does not support OpenCV 4.x at the moment.
 **Note:** This document describes installation with `opencv-python`. 
 
