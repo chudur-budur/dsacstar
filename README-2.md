@@ -37,25 +37,52 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-Use python 3.8.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install these packages:
+Use python 3.8.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
 
 ```bash
-pip install wheel setuptools cmake scikit-build
+~$ cd dsacstar/
+~$ pip install -r requirements.txt
 ```
 
 Install `opencv-python` to get access to headers and libs:
 
 ```bash
-cd ~
-git clone git@github.com:opencv/opencv-python.git
-cd opencv-python
-git checkout 8dc0f4d
-export ENABLE_CONTRIB=0
-export ENABLE_HEADLESS=1
-python setup.py install
-``` 
+~$ cd ~
+~$ git clone git@github.com:opencv/opencv-python.git
+~$ cd opencv-python
+~$ git checkout 8dc0f4d
+~$ export ENABLE_CONTRIB=0
+~$ export ENABLE_HEADLESS=1
+~$ python setup.py install
+```
+Now get out of `opencv-python` folder and test if opencv is working:
 
-You compile and install the C++ extension by executing:
+```bash
+$ cd ~
+$ python
+Python 3.8.5 (default, Apr  1 2021, 21:01:09) 
+[GCC 8.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import cv2
+>>> import numpy as np
+>>> rotm = np.random.random((3,3))
+>>> rotv = np.zeros((1,3), np.float32)
+>>> cv2.Rodrigues(rotm, rotv)
+(array([[1.85580881],
+       [1.70998598],
+       [1.48358712]]), array([[-21.54061294, -19.84802848, -17.22018769],
+       [  0.        ,   0.        ,  -6.88284019],
+       [  0.        ,   6.88284019,   0.        ],
+       [  0.        ,   0.        ,   6.88284019],
+       [-21.54061294, -19.84802848, -17.22018769],
+       [ -6.88284019,   0.        ,   0.        ],
+       [  0.        ,  -6.88284019,   0.        ],
+       [  6.88284019,   0.        ,   0.        ],
+       [-21.54061294, -19.84802848, -17.22018769]]))
+>>> 
+```
+
+If everything is fine, you should get the above output. Now you compile and install the C++ extension by executing:
 
 ```bash
 cd dsacstar
