@@ -37,7 +37,7 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-Use python 3.8.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
+Use python 3.7.0 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
 
 ```bash
 ~$ cd dsacstar/
@@ -50,7 +50,7 @@ Install `opencv-python` to get access to headers and libs:
 ~$ cd ~
 ~$ git clone git@github.com:opencv/opencv-python.git
 ~$ cd opencv-python
-~$ git checkout 8dc0f4d
+~$ git checkout 7b7f734
 ~$ export ENABLE_CONTRIB=0
 ~$ export ENABLE_HEADLESS=1
 ~$ python setup.py install
@@ -82,13 +82,18 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> 
 ```
 
-If everything is fine, you should get the above output. Now you compile and install the C++ extension by executing:
+If everything is fine, you should get the above output. Compilation requires access to OpenCV header files and libraries. If you are using Conda, the setup script will look for the OpenCV package in the current Conda environment. Otherwise (or if that fails), you have to set the OpenCV library directory and include directory yourself by editing the setup.py file. To do this, we copy the library and headers into `dsacstar/dsacstar` folder:
 
 ```bash
-cd dsacstar
+cd ~/dsacstar/dsacstar
+cp -r ~/opencv-python/_skbuild/linux-x86_64-3.6/cmake-install/lib .
+cp -r ~/opencv-python/_skbuild/linux-x86_64-3.6/cmake-install/include .
+```
+Now you can compile and install the C++ extension by executing:
+
+```bash
 python setup.py install
 ```
-Compilation requires access to OpenCV header files and libraries. If you are using Conda, the setup script will look for the OpenCV package in the current Conda environment. Otherwise (or if that fails), you have to set the OpenCV library directory and include directory yourself by editing the setup.py file.
 
 If compilation succeeds, you can `import dsacstar` in your python scripts. The extension provides four functions: `dsacstar.forward_rgb(...)`, `dsacstar.backward_rgb(...)`, `dsacstar.forward_rgbd(...)` and `dsacstar.backward_rgbd(...)`. Check our python scripts or the documentation in `dsacstar/dsacstar.cpp` for reference how to use these functions.
 
