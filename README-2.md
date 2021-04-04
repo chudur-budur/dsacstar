@@ -37,7 +37,7 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-Use python 3.7.0 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
+Use python 3.6.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
 
 ```bash
 ~$ cd dsacstar/
