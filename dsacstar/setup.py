@@ -2,11 +2,14 @@ from setuptools import setup
 from torch.utils.cpp_extension import CppExtension, BuildExtension
 import os
 
-opencv_inc_dir = '' # directory containing OpenCV header files
-opencv_lib_dir = '' # directory containing OpenCV library files
+opencv_inc_dir = './include'  # directory containing OpenCV header files
+opencv_lib_dir = './lib' # directory containing OpenCV library files
 
 #if not explicitly provided, we try to locate OpenCV in the current Conda environment
-conda_env = os.environ['CONDA_PREFIX']
+try:
+    conda_env = os.environ['CONDA_PREFIX']
+except:
+    conda_env = ""
 
 if len(conda_env) > 0 and len(opencv_inc_dir) == 0 and len(opencv_lib_dir) == 0:
 	print("Detected active conda environment:", conda_env)
