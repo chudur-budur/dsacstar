@@ -37,31 +37,20 @@ DSAC\* requires the following python packages, and we tested it with the package
 
 ### Compiling and Installing `opencv-python` from Source
 
-Use python 3.6.5 (i.e. `pyenv`) and setup a pipenv (or any other virtual environment you like). Then install all the packages from `dsacstar/requirements.txt`:
+We have used `conda` to setup the environment (in our case, we have used `anaconda3-2020.11` through `pyenv`). Install the packages through the `environment.yml` to get the optimal setup.
 
 ```bash
+~$ git clone git@github.com:chudur-budur/dsacstar.git
 ~$ cd dsacstar/
-~$ pip install -r requirements.txt
+~$ conda env create -f environment.yml
 ```
-
-Install `opencv-python` to get access to headers and libs:
-
-```bash
-~$ cd ~
-~$ git clone git@github.com:opencv/opencv-python.git
-~$ cd opencv-python
-~$ git checkout 7b7f734
-~$ export ENABLE_CONTRIB=0
-~$ export ENABLE_HEADLESS=1
-~$ python setup.py install
-```
-Now get out of `opencv-python` folder and test if opencv is working:
+If everything works fine, you should be able to use `cv2` and `dsacstar` within `python` repl. Don't forget to add the `torch` library in `LD_LIBRARY_PATH`:
 
 ```bash
 $ cd ~
-$ python
-Python 3.8.5 (default, Apr  1 2021, 21:01:09) 
-[GCC 8.3.0] on linux
+$ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.pyenv/versions/anaconda3-2020.11/envs/dsacstar/lib/python3.7/site-packages/torch/lib python
+Python 3.7.8 | packaged by conda-forge | (default, Nov 17 2020, 23:45:15) 
+[GCC 7.5.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import cv2
 >>> import numpy as np
@@ -79,23 +68,20 @@ Type "help", "copyright", "credits" or "license" for more information.
        [  0.        ,  -6.88284019,   0.        ],
        [  6.88284019,   0.        ,   0.        ],
        [-21.54061294, -19.84802848, -17.22018769]]))
+>>> import dsacstar # you should be able to import dsacstar too
 >>> 
 ```
+If everything is fine, you should get the above output. 
 
-If everything is fine, you should get the above output. Compilation requires access to OpenCV header files and libraries. If you are using Conda, the setup script will look for the OpenCV package in the current Conda environment. Otherwise (or if that fails), you have to set the OpenCV library directory and include directory yourself by editing the setup.py file. To do this, we copy the library and headers into `dsacstar/dsacstar` folder:
+Compilation requires access to OpenCV header files and libraries. If you are using `conda`, the setup script will look for the OpenCV package in the current Conda environment. Otherwise (or if that fails), you have to set the OpenCV library directory and include directory yourself by editing the setup.py file. To do this, we copy the library and headers into `dsacstar/dsacstar` folder:
 
 ```bash
 cd ~/dsacstar/dsacstar
-cp -r ~/opencv-python/_skbuild/linux-x86_64-3.6/cmake-install/lib .
-cp -r ~/opencv-python/_skbuild/linux-x86_64-3.6/cmake-install/include .
-```
-Now you can compile and install the C++ extension by executing:
-
-```bash
 python setup.py install
 ```
+If compilation succeeds, you can `import dsacstar` in your python scripts like the above. The extension provides four functions: `dsacstar.forward_rgb(...)`, `dsacstar.backward_rgb(...)`, `dsacstar.forward_rgbd(...)` and `dsacstar.backward_rgbd(...)`. Check our python scripts or the documentation in `dsacstar/dsacstar.cpp` for reference how to use these functions.
 
-If compilation succeeds, you can `import dsacstar` in your python scripts. The extension provides four functions: `dsacstar.forward_rgb(...)`, `dsacstar.backward_rgb(...)`, `dsacstar.forward_rgbd(...)` and `dsacstar.backward_rgbd(...)`. Check our python scripts or the documentation in `dsacstar/dsacstar.cpp` for reference how to use these functions.
+ and should be able to do `import dsacstar` in your python scripts. The extension provides four functions: `dsacstar.forward_rgb(...)`, `dsacstar.backward_rgb(...)`, `dsacstar.forward_rgbd(...)` and `dsacstar.backward_rgbd(...)`. Check our python scripts or the documentation in `dsacstar/dsacstar.cpp` for reference how to use these functions.
 
 ## Data Structure
 
