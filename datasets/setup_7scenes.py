@@ -25,10 +25,10 @@ def download_data(ds, rm_zip=False):
                 if rm_zip:
                     os.system('rm ' + ds + '/' + file)
     else:
-        print("File " + ds + ".zip exists, skipping download.")
+        print("Folder \'" + ds + "\' elready exists, skipping download.")
 
 
-def link_frames(target_folder, split_file, variant, size=-1):
+def link_frames(target_folder, split_file, variant, size=None):
     # create subfolders
     mkdir(target_folder + variant + '/rgb/')
     mkdir(target_folder + variant + '/poses/')
@@ -45,37 +45,48 @@ def link_frames(target_folder, split_file, variant, size=-1):
 
         # link images
         images = [f for f in files if f.endswith('color.png')]
+        count = 0
         for img in images[0:size]:
             os.system('ln -sf ' + src_folder + '/' + ds + '/' + seq + '/' + img + ' ' 
                     + target_folder + variant + '/rgb/' + seq + '-' + img)
+            count = count + 1
+        print("Linked {:d} images.".format(count))
+
         # link folders
         poses = [f for f in files if f.endswith('pose.txt')]
+        count = 0
         for pose in poses[0:size]:
             os.system('ln -sf ' + src_folder + '/' + ds + '/' + seq + '/' + pose + ' ' 
                     + target_folder + variant + '/poses/' + seq + '-' + pose)
+            count = count + 1
+        print("Linked {:d} folders.".format(count))
 
         # create calibration files
-        for i in range(len(images)):
+        count = 0 
+        for i in range(len(images[0:size])):
             with open(target_folder+variant + '/calibration/{0:s}-frame-{1:s}.calibration.txt'
                       .format(seq, str(i).zfill(6)), 'w') as f:
                 f.write(str(focallength))
+                count = count + 1
+        print("Written {:d} calibration files.".format(count))
 
 
 if __name__ == "__main__":
 
     # name of the folder where we download the original 7scenes dataset to
     # we restructure the dataset by creating symbolic links to that folder
-    src_folder = os.environ['HOME'] + '/7scenes/raw_data'
+    data_root = os.environ['DATA_HOME'] + '/' + os.environ['USER']
+    src_folder = data_root + '/7scenes/raw_data'
     focallength = 525.0
 
     # download the original 7 scenes dataset for poses and images
     mkdir(src_folder)
     os.chdir(src_folder)
 
-    # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
-    for ds in ['chess']:
+    for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
+    # for ds in ['chess']:
         download_data(ds)
-        print("Linking files...")
-        target_folder = '../7scenes_' + ds + '/'
-        link_frames(target_folder, 'TrainSplit.txt', 'train', size=10)
-        link_frames(target_folder, 'TestSplit.txt', 'test', size=10)
+        target_folder = data_root + '/7scenes/7scenes_' + ds + '/'
+        print("Linking files in ... " + target_folder)
+        link_frames(target_folder, 'TrainSplit.txt', 'train')
+        link_frames(target_folder, 'TestSplit.txt', 'test')
