@@ -83,7 +83,9 @@ if __name__ == "__main__":
     mkdir(src_folder)
     os.chdir(src_folder)
 
-    for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
+    # for ds in ['stairs']:
+    for ds in ['pumpkin', 'redkitchen']:
+    # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     # for ds in ['chess']:
         download_data(ds)
         target_folder = data_root + '/7scenes/7scenes_' + ds + '/'

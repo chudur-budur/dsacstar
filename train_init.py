@@ -4,6 +4,7 @@ import torch.optim as optim
 import time
 import argparse
 import math
+from datetime import datetime
 
 from dataset import CamLocDataset
 from network import Network
@@ -50,7 +51,9 @@ parser.add_argument('--sparse', '-sparse', action='store_true',
 parser.add_argument('--tiny', '-tiny', action='store_true',
 	help='Train a model with massively reduced capacity for a low memory footprint.')
 
-parser.add_argument('--session', '-sid', default='',
+
+now = datetime.now()
+parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
 	help='custom session name appended to output files, useful to separate different runs of a script')
 
 opt = parser.parse_args()
@@ -58,7 +61,7 @@ opt = parser.parse_args()
 use_init = opt.mode > 0
 
 # for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
-trainset = CamLocDataset("./datasets/" + opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(trainset, shuffle=True, num_workers=6)
 
 print("Found %d training images for %s." % (len(trainset), opt.scene))
@@ -100,9 +103,12 @@ optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 iteration = 0
 epochs = int(opt.iterations / len(trainset))
+# epochs=1
+print("Total epochs: {0:d}, Total iterations: {1:d}".format(epochs, opt.iterations))
 
 # keep track of training progress
-train_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
+# train_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
+train_log = open('log_init_{0:s}_{1:s}.txt'.format(opt.network, opt.session), 'w', 1)
 
 # generate grid of target reprojection pixel positions
 pixel_grid = torch.zeros((2, 
@@ -265,7 +271,7 @@ for epoch in range(epochs):
 		del loss
 
 	print('Saving snapshot of the network to %s.' % opt.network)
-	torch.save(network.state_dict(), opt.network)
+	torch.save(network.state_dict(), opt.network + '.ann')
 	
 
 print('Done without errors.')

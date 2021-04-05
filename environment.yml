@@ -1,8 +1,10 @@
 name: dsacstar
 channels:
     - conda-forge
+    - pytorch
 dependencies:
     - scikit-image=0.16.2
     - pytorch=1.6.0
     - opencv=3.4.2
-
+    - torchvision=0.7.0
+    - cudatoolkit=10.2.89
