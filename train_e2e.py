@@ -68,15 +68,23 @@ trainset = CamLocDataset(opt.scene + "/train", mode=(0 if opt.mode < 2 else opt.
 
 trainset_loader = torch.utils.data.DataLoader(trainset, shuffle=True, num_workers=6)
 
-print("Found %d training images for %s." % (len(trainset), opt.scene))
+print("Found {0:d} training images for {1:s}.".format(len(trainset), opt.scene))
+
+model_root = "models"
+if not os.path.exists(model_root):
+    raise Execption("Error: folder {0:s} not found " \
+            :+ "(you might need to run `train_init.py` first, perhaps?".format(model_root))
+    sys.exit(1)
+if not os.path.exists(opt.network_in):
+    raise Execption("Error: file {0:s} not found.".format(opt.network_in))
+    sys.exit(1)
 
 # load network
 network = Network(torch.zeros((3)), opt.tiny)
 network.load_state_dict(torch.load(opt.network_in))
 network = network.cuda()
 network.train()
-
-print("Successfully loaded %s." % opt.network_in)
+print("Successfully loaded {0:s}.".format(opt.network_in))
 
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
@@ -87,13 +95,8 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 
 # keep track of training progress
-# train_log = open('log_e2e_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
+# train_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
 train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(opt.scene, opt.session), 'w', 1)
-
-model_root = "models"
-if not os.path.exists(model_root):
-    raise Execption("Error: {0:s} folder not found.".format(model_root))
-    sys.exit(1)
 
 training_start = time.time()
 
@@ -157,10 +160,10 @@ for epoch in range(1, epochs+1):
         optimizer.zero_grad()
 
         end_time = time.time()-start_time
-        print('Iteration: %6d, Loss: %.2f, Time: %.2fs \n' %
-              (iteration, loss, end_time), flush=True)
+        print('Iteration: {0:6d},\tLoss: {1:.2f},\tTime: {2:.2f}s\n'\
+                .format(iteration, loss, end_time), flush=True)
 
-        train_log.write('%d %f\n' % (iteration, loss))
+        train_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
         iteration = iteration + 1
 
     if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
@@ -168,6 +171,5 @@ for epoch in range(1, epochs+1):
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), opt.network_out)
 
-print('Done without errors. Time: %.1f minutes.' %
-      ((time.time() - training_start) / 60))
+print('Done without errors. Time: {0:.1f} minutes.'.format((time.time() - training_start) / 60))
 train_log.close()

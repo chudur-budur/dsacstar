@@ -188,7 +188,7 @@ python train_init.py <scene_name> <network_output_file> --mode 2
 Or if you don't have `LD_LIBRARY_PATH` not set, you can run like this (ex. `7scenes_chess`):
 
 ```bash
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.pyenv/versions/anaconda3-2020.11/envs/dsacstar/lib/python3.7/site-packages/torch/lib python -u train_init.py $DATA_HOME/$USER/7scenes/7scenes_chess 7scenes_chess_rgb --mode 2 >>run.log 2>&1 &
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.pyenv/versions/anaconda3-2020.11/envs/dsacstar/lib/python3.7/site-packages/torch/lib python -u train_init.py $DATA_HOME/$USER/7scenes/7scenes_chess 7scenes_chess_rgbd_init --mode 2 >>run.log 2>&1 &
 ```
 
 This uses the `depth\` dataset folder similar to mode 1 to generate ground truth scene coordinates but optimizes a different loss for initalization (3D distance instead of reprojection error).
