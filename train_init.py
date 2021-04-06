@@ -300,7 +300,7 @@ for epoch in range(1,epochs+1):
 
         del loss
 
-    if epochs % 25 == 0 or epoch == 1 or epoch == epochs:
+    if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
