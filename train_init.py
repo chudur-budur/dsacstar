@@ -300,7 +300,7 @@ for epoch in range(epochs):
 
         del loss
 
-    model_path = os.path.join(model_root, "{0:s}-{0:d}.ann".format(opt.network, epoch))
+    model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
     print('Saving snapshot of the network to {:s}.'.format(model_path))
     torch.save(network.state_dict(), model_path)
 
