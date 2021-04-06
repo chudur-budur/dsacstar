@@ -135,7 +135,9 @@ pixel_grid = pixel_grid.cuda()
 
 for epoch in range(epochs):
 
-    print("=== Epoch: %d ======================================" % epoch)
+    now = datetime.now()
+    print("========== Stamp: {0:s} / Epoch: {1:d} =========="
+            .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
     for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
 
