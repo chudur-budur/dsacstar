@@ -1,9 +1,25 @@
-#!/usr/bin/gnuplot
+#!/bin/bash
 
-set term png
-set output "convergence.png"
-set xlabel "Iterations"
-set ylabel "Loss"
-unset key
-plot "log_init_7scenes_chess_rgb_06-04-21-02-48-14.txt" using 1:2 every 4000 with lines
-set term wxt
+lastinit=$(ls -t | grep log_init | head -n 1)
+
+gnuplot -persist <<-EOFMarker
+    set term png
+    set output "convergence-init.png"
+    set xlabel "Iterations"
+    set ylabel "Loss"
+    unset key
+    plot "$lastinit" using 1:2 every 4000 with lines
+    set term wxt
+EOFMarker
+
+laste2e=$(ls -t | grep log_e2e | head -n 1)
+
+gnuplot -persist <<-EOFMarker
+    set term png
+    set output "convergence-e2e.png"
+    set xlabel "Iterations"
+    set ylabel "Loss"
+    unset key
+    plot "$laste2e" using 1:2 every 4000 with lines
+    set term wxt
+EOFMarker
