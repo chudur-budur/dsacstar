@@ -96,7 +96,7 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
 
 # keep track of training progress
 # train_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
-train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(opt.scene, opt.session), 'w', 1)
+train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(opt.network_out, opt.session), 'w', 1)
 
 training_start = time.time()
 
