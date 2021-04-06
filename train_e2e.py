@@ -72,11 +72,11 @@ print("Found {0:d} training images for {1:s}.".format(len(trainset), opt.scene))
 
 model_root = "models"
 if not os.path.exists(model_root):
-    raise Execption("Error: folder {0:s} not found, ".format(model_root)
+    raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
             + "you might need to run `train_init.py` first?")
     sys.exit(1)
 if not os.path.exists(opt.network_in):
-    raise Execption("Error: file {0:s} not found.".format(opt.network_in))
+    raise FileNotFoundError("Error: file {0:s} not found.".format(opt.network_in))
     sys.exit(1)
 
 # load network
