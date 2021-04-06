@@ -106,7 +106,7 @@ optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 iteration = 0
 epochs = int(opt.iterations / len(trainset))
-epochs = 1
+# epochs = 1
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 
@@ -133,7 +133,7 @@ if not os.path.exists(model_root):
 
 pixel_grid = pixel_grid.cuda()
 
-for epoch in range(epochs):
+for epoch in range(1,epochs+1):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
@@ -300,9 +300,10 @@ for epoch in range(epochs):
 
         del loss
 
-    model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
-    print('Saving snapshot of the network to {:s}.'.format(model_path))
-    torch.save(network.state_dict(), model_path)
+    if epochs % 25 == 0 or epoch == 1 or epoch == epochs-1:
+        model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
+        print('Saving snapshot of the network to {:s}.'.format(model_path))
+        torch.save(network.state_dict(), model_path)
 
 print('Done without errors.')
 train_log.close()
