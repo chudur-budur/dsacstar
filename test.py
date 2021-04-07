@@ -10,6 +10,7 @@ import sys
 import time
 import argparse
 import math
+from datetime import datetime
 
 from dataset import CamLocDataset
 from network import Network
