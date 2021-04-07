@@ -60,7 +60,7 @@ if not os.path.exists(model_root):
     raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
             + "you might need to run `train_init.py` first?")
     sys.exit(1)
-if not os.path.exists(opt.network_in):
+if not os.path.exists(opt.network):
     raise FileNotFoundError("Error: file {0:s} not found.".format(opt.network))
     sys.exit(1)
 
@@ -70,8 +70,9 @@ network.load_state_dict(torch.load(opt.network))
 network = network.cuda()
 network.eval()
 
-test_log = open('log_test_{0:s}_{1:s}.txt'.format(opt.network, opt.session), 'w', 1)
-pose_log = open('log_poses_{0:s}_{1:s}.txt'.format(opt.network, opt.session), 'w', 1)
+network_name = os.path.split(opt.network)[-1].split('.')[0]
+test_log = open('log_test_{0:s}_{1:s}.txt'.format(network_name, opt.session), 'w', 1)
+pose_log = open('log_poses_{0:s}_{1:s}.txt'.format(network_name, opt.session), 'w', 1)
 
 print('Test images found: ', len(testset))
 
