@@ -166,7 +166,7 @@ for epoch in range(1, epochs+1):
         train_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
         iteration = iteration + 1
 
-    if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
+    if epoch % 5 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network_out, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
