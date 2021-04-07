@@ -166,24 +166,12 @@ with torch.no_grad():
         q_w = math.cos(angle * 0.5)
         q_xyz = math.sin(angle * 0.5) * axis
 
-        print(file_)
-        print(q_w)
-        print(q_xyz[0])
-        print(q_xyz[1])
-        print(q_xyz[2])
-        print(t[0])
-        print(t[1])
-        print(t[2])
-        print(r_err)
-        print(t_err)
-
         pose_log.write(
             "{0:s}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\n"
             .format(file_, \
                     q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0], \
                     t[0].item(), t[1].item(), t[2].item(), \
                     r_err, t_err))
-        sys.exit(0)
 
 median_idx = int(len(rErrs)/2)
 tErrs.sort()
