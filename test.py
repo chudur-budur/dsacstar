@@ -167,7 +167,7 @@ with torch.no_grad():
         q_xyz = math.sin(angle * 0.5) * axis
 
         print(file_)
-        print(qw_)
+        print(q_w)
         print(q_xyz[0])
         print(q_xyz[1])
         print(q_xyz[2])
