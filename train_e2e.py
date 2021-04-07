@@ -70,7 +70,7 @@ trainset_loader = torch.utils.data.DataLoader(trainset, shuffle=True, num_worker
 
 print("Found {0:d} training images for {1:s}.".format(len(trainset), opt.scene))
 
-model_root = "models"
+model_root = "./models"
 if not os.path.exists(model_root):
     raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
             + "you might need to run `train_init.py` first?")
@@ -169,7 +169,7 @@ for epoch in range(1, epochs+1):
     if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(model_root, "{0:s}-{1:d}-e2e.ann".format(opt.network_out, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
-        torch.save(network.state_dict(), opt.network_out)
+        torch.save(network.state_dict(), model_path)
 
 print('Done without errors. Time: {0:.1f} minutes.'.format((time.time() - training_start) / 60))
 train_log.close()
