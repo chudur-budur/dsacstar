@@ -207,7 +207,7 @@ python train_e2e.py <scene_name> <network_input_file> <network_output_file> --mo
 
 Mode 2 (RGB-D) requires pre-computed camera coordinate files (see Data Structure section above). We provide these files for 7Scenes/12Scenes, see Supported Datasets section.
 
-An example run should like below:
+An example run should look like below:
 
 ```bash
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.pyenv/versions/anaconda3-2020.11/envs/dsacstar/lib/python3.7/site-packages/torch/lib python -u train_e2e.py $DATA_HOME/$USER/7scenes/7scenes_chess ./models/7scenes_chess_rgbd_init-250.ann 7scenes_chess_rgbd_e2e --mode 2 >>run.log 2>&1 &
