@@ -166,6 +166,18 @@ with torch.no_grad():
         q_w = math.cos(angle * 0.5)
         q_xyz = math.sin(angle * 0.5) * axis
 
+        print(file_)
+        print(qw_)
+        print(q_xyz[0])
+        print(q_xyz[1])
+        print(q_xyz[2])
+        print(t[0])
+        print(t[1])
+        print(t[2])
+        print(r_err)
+        print(t_err)
+        sys.exit(0)
+
         pose_log.write(
             "{0:s}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\n"
             .format(file_, q_w, q_xyz[0], q_xyz[1], q_xyz[2], t[0], t[1], t[2], r_err, t_err))
