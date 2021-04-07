@@ -176,11 +176,14 @@ with torch.no_grad():
         print(t[2])
         print(r_err)
         print(t_err)
-        sys.exit(0)
 
         pose_log.write(
             "{0:s}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\n"
-            .format(file_, q_w, q_xyz[0], q_xyz[1], q_xyz[2], t[0], t[1], t[2], r_err, t_err))
+            .format(file_, \
+                    q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0], \
+                    t[0][0], t[1][0], t[2][0], \
+                    r_err, t_err))
+        sys.exit(0)
 
 median_idx = int(len(rErrs)/2)
 tErrs.sort()
