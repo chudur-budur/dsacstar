@@ -181,7 +181,7 @@ with torch.no_grad():
             "{0:s}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\n"
             .format(file_, \
                     q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0], \
-                    t[0].item(0), t[1].item(0), t[2].item(0), \
+                    t[0].item(), t[1].item(), t[2].item(), \
                     r_err, t_err))
         sys.exit(0)
 
