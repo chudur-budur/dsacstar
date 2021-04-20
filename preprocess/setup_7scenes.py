@@ -16,7 +16,8 @@ def download_data(src_folder, ds, rm_zip=False):
         os.system('wget http://download.microsoft.com/download/2/8/5/'
                   + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
         os.system('unzip ' + ds + '.zip')
-        os.system('rm ' + ds + '.zip')
+        if rm_zip:
+            os.system('rm ' + ds + '.zip')
 
         sequences = os.listdir(path)
 
