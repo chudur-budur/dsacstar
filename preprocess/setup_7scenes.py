@@ -23,11 +23,11 @@ def download_data(src_folder, ds, rm_zip=False):
         for file_ in sequences:
             if file_.endswith('.zip'):
                 print("Unpacking", file_)
-                os.system('unzip ' + path + '/' + file_ + ' -d ' + src_folder)
+                os.system('unzip ' + path + '/' + file_ + ' -d ' + path)
                 if rm_zip:
                     os.system('rm ' + path + '/' + file_)
     else:
-        print("File \'" + path + "\' elready exists, skipping download.")
+        print("File \'" + path + '.zip' + "\' elready exists, skipping download.")
 
 
 def link_frames(target_folder, split_file, variant, size=None):
