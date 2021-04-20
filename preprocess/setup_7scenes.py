@@ -8,8 +8,9 @@ def mkdir(directory):
 
 
 def download_data(src_folder, ds, rm_zip=False):
-    if not os.path.exists(src_folder + '/' + ds + '.zip'):
-        print("=== Downloading 7scenes Data:", ds, "==================")
+    path = src_folder + '/' + ds
+    if not os.path.exists(path + '.zip'):
+        print("========== Downloading 7scenes Data:", ds, "==========")
 
         os.system('cd ' + src_folder)
         os.system('wget http://download.microsoft.com/download/2/8/5/'
@@ -17,16 +18,16 @@ def download_data(src_folder, ds, rm_zip=False):
         os.system('unzip ' + ds + '.zip')
         os.system('rm ' + ds + '.zip')
 
-        sequences = os.listdir(src_folder)
+        sequences = os.listdir(path)
 
-        for file in sequences:
-            if file.endswith('.zip'):
+        for file_ in sequences:
+            if file_.endswith('.zip'):
                 print("Unpacking", file)
-                os.system('unzip ' + src_folder + '/' + file + ' -d ' + src_folder)
+                os.system('unzip ' + path + '/' + file_ + ' -d ' + src_folder)
                 if rm_zip:
-                    os.system('rm ' + src_folder + '/' + file)
+                    os.system('rm ' + path + '/' + file_)
     else:
-        print("Folder \'" + src_folder + "\' elready exists, skipping download.")
+        print("File \'" + path + "\' elready exists, skipping download.")
 
 
 def link_frames(target_folder, split_file, variant, size=None):
