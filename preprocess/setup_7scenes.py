@@ -7,12 +7,13 @@ def mkdir(directory):
         os.makedirs(directory)
 
 
-def download_data(src_folder, rm_zip=False):
+def download_data(src_folder, ds, rm_zip=False):
     if not os.path.exists(src_folder):
-        print("=== Downloading 7scenes Data:", src_folder, "==================")
+        print("=== Downloading 7scenes Data:", ds, "==================")
 
+        os.system('cd ' + src_folder)
         os.system('wget http://download.microsoft.com/download/2/8/5/'
-                  + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + src_folder + '.zip')
+                  + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
         os.system('unzip ' + src_folder + '.zip')
         os.system('rm ' + src_folder + '.zip')
 
@@ -85,7 +86,7 @@ if __name__ == "__main__":
 
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for ds in ['chess']:
-        download_data(src_folder + '/' + ds)
+        download_data(src_folder, ds)
         # target_folder = data_root + '/7scenes/' + ds + '/'
         # print("Linking files in ... " + target_folder)
         # link_frames(target_folder, 'TrainSplit.txt', 'train')
