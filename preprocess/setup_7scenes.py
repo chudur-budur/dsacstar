@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for ds in ['chess']:
-        download_data(src_folder, ds)
+        download_data(src_folder, ds, rm_zip=True)
         # target_folder = data_root + '/7scenes/' + ds + '/'
         # print("Linking files in ... " + target_folder)
         # link_frames(target_folder, 'TrainSplit.txt', 'train')
