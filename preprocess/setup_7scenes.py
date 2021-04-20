@@ -7,25 +7,25 @@ def mkdir(directory):
         os.makedirs(directory)
 
 
-def download_data(ds, rm_zip=False):
-    if not os.path.exists(ds):
-        print("=== Downloading 7scenes Data:", ds, "==================")
+def download_data(src_folder, rm_zip=False):
+    if not os.path.exists(src_folder):
+        print("=== Downloading 7scenes Data:", src_folder, "==================")
 
         os.system('wget http://download.microsoft.com/download/2/8/5/'
-                  + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
-        os.system('unzip ' + ds + '.zip')
-        os.system('rm ' + ds + '.zip')
+                  + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + src_folder + '.zip')
+        os.system('unzip ' + src_folder + '.zip')
+        os.system('rm ' + src_folder + '.zip')
 
-        sequences = os.listdir(ds)
+        sequences = os.listdir(src_folder)
 
         for file in sequences:
             if file.endswith('.zip'):
                 print("Unpacking", file)
-                os.system('unzip ' + ds + '/' + file + ' -d ' + ds)
+                os.system('unzip ' + src_folder + '/' + file + ' -d ' + src_folder)
                 if rm_zip:
-                    os.system('rm ' + ds + '/' + file)
+                    os.system('rm ' + src_folder + '/' + file)
     else:
-        print("Folder \'" + ds + "\' elready exists, skipping download.")
+        print("Folder \'" + src_folder + "\' elready exists, skipping download.")
 
 
 def link_frames(target_folder, split_file, variant, size=None):
@@ -75,17 +75,18 @@ if __name__ == "__main__":
 
     # name of the folder where we download the original 7scenes dataset to
     # we restructure the dataset by creating symbolic links to that folder
-    data_root = os.environ['DATA_HOME'] + '/' + os.environ['USER']
-    src_folder = data_root + '/7scenes/raw_data'
+    data_root = os.environ['DATA_HOME'] 
+    src_folder = data_root + '/7scenes/raw'
     focallength = 525.0
 
     # download the original 7 scenes dataset for poses and images
     mkdir(src_folder)
     os.chdir(src_folder)
 
-    for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
-        download_data(ds)
-        target_folder = data_root + '/7scenes/7scenes_' + ds + '/'
+    # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
+    for ds in ['chess']:
+        download_data(src_folder + '/' + ds)
+        target_folder = data_root + '/7scenes/' + ds + '/'
         print("Linking files in ... " + target_folder)
         link_frames(target_folder, 'TrainSplit.txt', 'train')
         link_frames(target_folder, 'TestSplit.txt', 'test')
