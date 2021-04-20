@@ -22,7 +22,7 @@ def download_data(src_folder, ds, rm_zip=False):
 
         for file_ in sequences:
             if file_.endswith('.zip'):
-                print("Unpacking", file)
+                print("Unpacking", file_)
                 os.system('unzip ' + path + '/' + file_ + ' -d ' + src_folder)
                 if rm_zip:
                     os.system('rm ' + path + '/' + file_)
