@@ -8,14 +8,14 @@ def mkdir(directory):
 
 
 def download_data(src_folder, ds, rm_zip=False):
-    if not os.path.exists(src_folder):
+    if not os.path.exists(src_folder + '/' + ds + '.zip'):
         print("=== Downloading 7scenes Data:", ds, "==================")
 
         os.system('cd ' + src_folder)
         os.system('wget http://download.microsoft.com/download/2/8/5/'
                   + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
-        os.system('unzip ' + src_folder + '.zip')
-        os.system('rm ' + src_folder + '.zip')
+        os.system('unzip ' + ds + '.zip')
+        os.system('rm ' + ds + '.zip')
 
         sequences = os.listdir(src_folder)
 
