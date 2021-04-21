@@ -90,24 +90,37 @@ def make_frame_lists(root, name, prefix, **kwargs):
     path = os.path.join(root, fname)
     print("Saving in {0:s}".format(path))
     with open(path, 'w') as fp:
-        split_file = os.path.join(root, 'raw', name, 'TrainSplit.txt') if prefix == 'train' \
-            else os.path.join(root, 'raw', name, 'TestSplit.txt')
+        scene_path = os.path.join(root, 'raw', name)
+        split_file = os.path.join(scene_path, 'TrainSplit.txt') if prefix == 'train' \
+            else os.path.join(scene_path, 'TestSplit.txt')
         with open(split_file, 'r') as sf:
             seqs = sorted([s.strip()[0:3] + '-' + '{:s}'.format(s.strip()[-1].zfill(2))
                            for s in sf.readlines()])
             for seq in seqs:
                 print("Collating {0:s} in {1:s}".format(seq, path))
-                files = sorted(os.listdir(
-                    os.path.join(root, 'raw', name, seq)))
+                seq_path = os.path.join(scene_path, seq)
+                files = sorted(os.listdir(seq_path))
                 images = [f for f in files if f.endswith('color.png')]
                 poses = [f for f in files if f.endswith('pose.txt')]
                 depths = [f for f in files if f.endswith('depth.png')]
+                init_path = os.path.join(scene_path, 'rendered-depth')
+                inits = []
+                if os.path.exists(init_path):
+                    init_files = sorted(os.listdir(init_path))
+                    inits = [f for f in init_files in f.startswith(seq)]
+                eyes = []
+                eye_path = os.path.join(scene_path, 'precomputed-cam-coord')
+                if os.path.exists(eye_path):
+                    eye_files = sorted(os.listdir(eye_path))
+                    eyes = [f for f in files in f.startswith(seq)]
                 for i in range(len(images)):
-                    image = os.path.join(root, 'raw', name, seq, images[i])
-                    pose = os.path.join(root, 'raw', name, seq, poses[i])
-                    depth = os.path.join(root, 'raw', name, seq, depths[i])
-                    fp.write(image + ',' + pose + ',' + depth +
-                             ',' + str(focal_length) + '\n')
+                    image = os.path.join(seq_path, images[i])
+                    pose = os.path.join(seq_path, poses[i])
+                    init = os.path.join(seq_path, inits[i]) if len(inits) else ''
+                    eye = os.path.join(seq_path, eyes[i]) if len(eyes) else ''
+                    fp.write(image + ',' + pose + ',' + depth + ',' \
+                            + init + ',' + eye + ',' \
+                            + str(focal_length) + '\n')
 
 
 if __name__ == "__main__":
