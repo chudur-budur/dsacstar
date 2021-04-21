@@ -83,8 +83,8 @@ def make_frame_lists(root, name, prefix, **kwargs):
     is not very space efficient, also very slow.
     """
     focal_length = kwargs['focal_length']
-    fname = prefix + '-{:s}.txt'.format(name)
-    path = os.path.join(root, name, prefix + '.txt')
+    fname = name + '-' + prefix + '-map.txt'
+    path = os.path.join(root, fname)
     print("Saving in {0:s}".format(path))
     with open(path, 'w') as fp:
         split_file = os.path.join(root, 'raw', name, 'TrainSplit.txt') if prefix == 'train' \
