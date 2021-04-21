@@ -1,5 +1,6 @@
 import os
 
+
 def mkdir(path):
     if not os.path.exists(path):
         print("Making {0:s}".format(path))
@@ -26,7 +27,8 @@ def download_data(src_folder, ds, rm_zip=False):
                 if rm_zip:
                     os.system('rm ' + path + '/' + file_)
     else:
-        print("File \'" + path + '.zip' + "\' elready exists, skipping download.")
+        print("File \'" + path + '.zip' +
+              "\' elready exists, skipping download.")
 
 
 def link_frames(root, name, split_file, focal_length, size=None):
@@ -49,9 +51,9 @@ def link_frames(root, name, split_file, focal_length, size=None):
         images = [f for f in files if f.endswith('color.png')]
         count = 0
         for img in images[0:size]:
-            os.system('ln -sf ' \
-                    + os.path.join(root, 'raw', name, seq, img) + ' ' \
-                    + os.path.join(root, name, kind, 'rgb', seq + '-' + img))
+            os.system('ln -sf '
+                      + os.path.join(root, 'raw', name, seq, img) + ' '
+                      + os.path.join(root, name, kind, 'rgb', seq + '-' + img))
             count = count + 1
         print("Linked {:d} images.".format(count))
 
@@ -59,16 +61,17 @@ def link_frames(root, name, split_file, focal_length, size=None):
         poses = [f for f in files if f.endswith('pose.txt')]
         count = 0
         for pose in poses[0:size]:
-            os.system('ln -sf ' \
-                    + os.path.join(root, 'raw', name, seq, pose) + ' ' \
-                    + os.path.join(root, name, kind, 'poses', seq + '-' + pose))
+            os.system('ln -sf '
+                      + os.path.join(root, 'raw', name, seq, pose) + ' '
+                      + os.path.join(root, name, kind, 'poses', seq + '-' + pose))
             count = count + 1
         print("Linked {:d} folders.".format(count))
 
         # create calibration files
-        count = 0 
+        count = 0
         for i in range(len(images[0:size])):
-            fn = '{0:s}-frame-{1:s}.calibration.txt'.format(seq, str(i).zfill(6))
+            fn = '{0:s}-frame-{1:s}.calibration.txt'.format(
+                seq, str(i).zfill(6))
             with open(os.path.join(root, name, kind, 'calibration', fn), 'w') as g:
                 g.write(str(focal_length))
                 count = count + 1
@@ -88,13 +91,14 @@ def make_frame_lists(root, name, prefix, **kwargs):
     print("Saving in {0:s}".format(path))
     with open(path, 'w') as fp:
         split_file = os.path.join(root, 'raw', name, 'TrainSplit.txt') if prefix == 'train' \
-                else os.path.join(root, 'raw', name, 'TestSplit.txt')
+            else os.path.join(root, 'raw', name, 'TestSplit.txt')
         with open(split_file, 'r') as sf:
-            seqs = sorted([s.strip()[0:3] + '-' + '{:s}'.format(s.strip()[-1].zfill(2)) \
-                    for s in sf.readlines()])
+            seqs = sorted([s.strip()[0:3] + '-' + '{:s}'.format(s.strip()[-1].zfill(2))
+                           for s in sf.readlines()])
             for seq in seqs:
                 print("Collating {0:s} in {1:s}".format(seq, path))
-                files = sorted(os.listdir(os.path.join(root, 'raw', name, seq)))
+                files = sorted(os.listdir(
+                    os.path.join(root, 'raw', name, seq)))
                 images = [f for f in files if f.endswith('color.png')]
                 poses = [f for f in files if f.endswith('pose.txt')]
                 depths = [f for f in files if f.endswith('depth.png')]
@@ -102,7 +106,8 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     image = os.path.join(root, 'raw', name, seq, images[i])
                     pose = os.path.join(root, 'raw', name, seq, poses[i])
                     depth = os.path.join(root, 'raw', name, seq, depths[i])
-                    fp.write(image + ',' + pose + ',' + depth + ',' + str(focal_length) + '\n')
+                    fp.write(image + ',' + pose + ',' + depth +
+                             ',' + str(focal_length) + '\n')
 
 
 if __name__ == "__main__":
