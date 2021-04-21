@@ -29,7 +29,7 @@ def download_data(src_folder, ds, rm_zip=False):
         print("File \'" + path + '.zip' + "\' elready exists, skipping download.")
 
 
-def link_frames(root, name, split_file, size=None):
+def link_frames(root, name, split_file, focal_length, size=None):
     kind = split_file.strip().split('Split')[0].lower()
     # create subfolders
     mkdir(os.path.join(root, name, kind, 'rgb'))
@@ -70,25 +70,39 @@ def link_frames(root, name, split_file, size=None):
         for i in range(len(images[0:size])):
             fn = '{0:s}-frame-{1:s}.calibration.txt'.format(seq, str(i).zfill(6))
             with open(os.path.join(root, name, kind, 'calibration', fn), 'w') as g:
-                g.write(str(focallength))
+                g.write(str(focal_length))
                 count = count + 1
         print("Written {:d} calibration files.".format(count))
 
 
-def make_frame_lists(target_folder, **kwargs):
+def make_frame_lists(root, name, prefix, **kwargs):
     """
-    This function makes two files in the data folder. One file contains a list of routes to all
-    train images (with poses etc.) and the other file contains a list of of routes to all test
-    imahes (with poses). We will use this from now on because the `link_frames()` function is not
-    very space efficient.
+    This function makes two files in the `path`. One file contains a list of routes to all
+    train images (with poses, calibration etc.) and the other file contains a list of routes to all 
+    test images (with poses). We will use this from now on because the `link_frames()` function 
+    is not very space efficient, also very slow.
     """
-    prefix = kwargs['prefix'] 
-    fname = prefix + '.txt'
-    path = os.path.join(target_folder, fname)
-    print(path)
-    fp = open(path)
-
-
+    focal_length = kwargs['focal_length']
+    fname = prefix + '-{:s}.txt'.format(name)
+    path = os.path.join(root, name, prefix + '.txt')
+    print("Saving in {0:s}".format(path))
+    with open(path, 'w') as fp:
+        split_file = os.path.join(root, 'raw', name, 'TrainSplit.txt') if prefix == 'train' \
+                else os.path.join(root, 'raw', name, 'TestSplit.txt')
+        with open(split_file, 'r') as sf:
+            seqs = sorted([s.strip()[0:3] + '-' + '{:s}'.format(s.strip()[-1].zfill(2)) \
+                    for s in sf.readlines()])
+            for seq in seqs:
+                print("Collating {0:s} in {1:s}".format(seq, path))
+                files = sorted(os.listdir(os.path.join(root, 'raw', name, seq)))
+                images = [f for f in files if f.endswith('color.png')]
+                poses = [f for f in files if f.endswith('pose.txt')]
+                depths = [f for f in files if f.endswith('depth.png')]
+                for i in range(len(images)):
+                    image = os.path.join(root, 'raw', name, seq, images[i])
+                    pose = os.path.join(root, 'raw', name, seq, poses[i])
+                    depth = os.path.join(root, 'raw', name, seq, depths[i])
+                    fp.write(image + ',' + pose + ',' + depth + ',' + str(focal_length) + '\n')
 
 
 if __name__ == "__main__":
@@ -98,7 +112,7 @@ if __name__ == "__main__":
     data_home = os.environ['DATA_HOME']
     root = os.path.join(data_home, 'sevenscenes')
     raw_path = os.path.join(root, 'raw')
-    focallength = 525.0
+    focal_length = 525.0
 
     # download the original 7 scenes dataset for poses and images
     mkdir(raw_path)
@@ -107,7 +121,8 @@ if __name__ == "__main__":
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for name in ['chess']:
         download_data(raw_path, name)
-        # make_frame_lists(os.path.join(data_root, 'sevenscenes'), prefix='{0:s}-train'.format(ds))
-        print("Linking files in ... " + root)
-        link_frames(root, name, 'TrainSplit.txt')
-        link_frames(root, name, 'TestSplit.txt')
+        make_frame_lists(root, name, 'train', focal_length=focal_length)
+        make_frame_lists(root, name, 'test', focal_length=focal_length)
+        # print("Linking files in ... " + root)
+        # link_frames(root, name, 'TrainSplit.txt', focal_length)
+        # link_frames(root, name, 'TestSplit.txt', focal_length)
