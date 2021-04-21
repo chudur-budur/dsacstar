@@ -131,8 +131,10 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     image = os.path.join(seq_path, images[i])
                     pose = os.path.join(seq_path, poses[i])
                     depth = os.path.join(seq_path, depths[i])
-                    init = os.path.join(seq_path, inits[i]) if len(inits) > 0 else ''
-                    eye = os.path.join(seq_path, eyes[i]) if len(eyes) > 0 else ''
+                    init = os.path.join(root, 'rendered-depth', name, inits[i]) \
+                            if len(inits) > 0 else ''
+                    eye = os.path.join(root, 'precomputed-cam-coord', name, eyes[i]) \
+                            if len(eyes) > 0 else ''
                     fp.write(image + ',' + pose + ',' + depth + ',' \
                             + init + ',' + eye + ',' \
                             + str(focal_length) + '\n')
