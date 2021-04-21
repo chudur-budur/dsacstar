@@ -112,7 +112,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     init_path = os.path.join(root, 'rendered-depth', name)
                     if os.path.exists(init_path):
                         init_files = sorted(os.listdir(init_path))
-                        inits = [f for f in init_files if f.startswith(seq)]
+                        inits = [f for f in init_files if os.path.split(f)[1].startswith(seq)]
                         print(len(inits))
                     else:
                         warnings.warn("{0:s} not found, skipping.".format(init_path))
@@ -122,7 +122,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     eye_path = os.path.join(root, 'precomputed-cam-coord', name)
                     if os.path.exists(eye_path):
                         eye_files = sorted(os.listdir(eye_path))
-                        eyes = [f for f in files if f.startswith(seq)]
+                        eyes = [f for f in files if os.path.split(f)[1].startswith(seq)]
                         print(len(eyes))
                     else:
                         warnings.warn("{0:s} not found, skipping.".format(eye_path))
