@@ -123,7 +123,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                         eye_files = sorted(os.listdir(eye_path))
                         eyes = [f for f in files if f.startswith(seq)]
                     else:
-                        warnings.warn("{0:s} not found, skipping.".format(init_path))
+                        warnings.warn("{0:s} not found, skipping.".format(eye_path))
 
                 for i in range(len(images)):
                     image = os.path.join(seq_path, images[i])
