@@ -79,7 +79,7 @@ class CamLocDatasetLite(Dataset):
         self.pose_files = [e[1] for e in entries]
         if self.init or self.eye:
             self.coord_files = [e[2] for e in entries]
-        self.calibration_values = [e[-1] for e in entries]
+        self.calibration_data = [e[-1] for e in entries]
 
         if len(self.rgb_files) != len(self.pose_files):
             raise Exception('RGB file count does not match pose file count!')
@@ -127,7 +127,7 @@ class CamLocDatasetLite(Dataset):
         if len(image.shape) < 3:
             image = color.gray2rgb(image)
 
-        focal_length = float(np.loadtxt(self.calibration_files[idx]))
+        focal_length = float(self.calibration_data[idx])
 
         # image will be normalized to standard height, adjust focal length as well
         f_scale_factor = self.image_height / image.shape[0]
