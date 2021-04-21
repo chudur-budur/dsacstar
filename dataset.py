@@ -77,7 +77,11 @@ class CamLocDatasetLite(Dataset):
 
         self.rgb_files = [e[0] for e in entries]
         self.pose_files = [e[1] for e in entries]
-        if self.init or self.eye:
+        if self.sparse:
+            self.coord_files = [e[3] for e in entries]
+        elif self.eye:
+            self.coord_files = [e[4] for e in entries]
+        else:
             self.coord_files = [e[2] for e in entries]
         self.calibration_data = [e[-1] for e in entries]
 
