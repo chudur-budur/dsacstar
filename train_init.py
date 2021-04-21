@@ -8,8 +8,7 @@ import argparse
 import math
 from datetime import datetime
 
-# from dataset import CamLocDataset
-from dataset import CamLocDatasetLite
+from dataset import CamLocDataset, CamLocDatasetLite
 from network import Network
 
 parser = argparse.ArgumentParser(
