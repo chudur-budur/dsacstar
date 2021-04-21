@@ -2,12 +2,14 @@ import torch
 import torch.optim as optim
 
 import os
+import sys
 import time
 import argparse
 import math
 from datetime import datetime
 
-from dataset import CamLocDataset
+# from dataset import CamLocDataset
+from dataset import CamLocDatasetLite
 from network import Network
 
 parser = argparse.ArgumentParser(
@@ -18,57 +20,61 @@ parser.add_argument('scene', help='name of a scene in the dataset folder')
 
 parser.add_argument('network', help='output file name for the network')
 
-parser.add_argument('--learningrate', '-lr', type=float, default=0.0001,
-                    help='learning rate')
-
-parser.add_argument('--iterations', '-iter', type=int, default=1000000,
+parser.add_argument('--modelpath', '-mp', type=str, default='models', 
+                    help='path where models witl be saved')
+parser.add_argument('--learningrate', '-lr', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--iterations', '-iter', type=int, default=1000000, \
                     help='number of training iterations, i.e. numer of model updates')
-
 parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
-                    help='switch to reprojection error optimization when predicted scene coordinate is within this tolerance threshold to the ground truth scene coordinate, in meters')
-
+                    help='switch to reprojection error optimization when ' \
+                            + 'predicted scene coordinate is within this tolerance ' \
+                            + 'threshold to the ground truth scene coordinate, in meters')
 parser.add_argument('--mindepth', '-mind', type=float, default=0.1,
-                    help='enforce  predicted scene coordinates to be this far in front of the camera plane, in meters')
-
+                    help='enforce  predicted scene coordinates to be this far in front ' \
+                            + 'of the camera plane, in meters')
 parser.add_argument('--maxdepth', '-maxd', type=float, default=1000,
-                    help='enforce that scene coordinates are at most this far in front of the camera plane, in meters')
-
+                    help='enforce that scene coordinates are at most this far in front ' \
+                            + 'of the camera plane, in meters')
 parser.add_argument('--targetdepth', '-td', type=float, default=10,
-                    help='if ground truth scene coordinates are unknown, use a proxy scene coordinate on the pixel ray with this distance from the camera, in meters')
-
+                    help='if ground truth scene coordinates are unknown, use a proxy ' \
+                            + 'scene coordinate on the pixel ray with this distance from ' \
+                            + 'the camera, in meters')
 parser.add_argument('--softclamp', '-sc', type=float, default=100,
                     help='robust square root loss after this threshold, in pixels')
-
 parser.add_argument('--hardclamp', '-hc', type=float, default=1000,
                     help='clamp loss with this threshold, in pixels')
-
 parser.add_argument('--mode', '-m', type=int, default=1, choices=range(3),
-                    help='training mode: 0 = RGB only (no ground truth scene coordinates), 1 = RGB + ground truth scene coordinates, 2 = RGB-D')
-
+                    help='training mode: 0 = RGB only (no ground truth scene coordinates), ' \
+                            + '1 = RGB + ground truth scene coordinates, 2 = RGB-D')
 parser.add_argument('--sparse', '-sparse', action='store_true',
-                    help='for mode 1 (RGB + ground truth scene coordinates) use sparse scene coordinate initialization targets (eg. for Cambridge) instead of rendered depth maps (eg. for 7scenes and 12scenes).')
-
-
+                    help='for mode 1 (RGB + ground truth scene coordinates) use sparse scene ' \
+                            + 'coordinate initialization targets (eg. for Cambridge) instead of ' \
+                            + 'rendered depth maps (eg. for 7scenes and 12scenes).')
 parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
-
 now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
-                    help='custom session name appended to output files, useful to separate different runs of a script')
-
+                    help='custom session name appended to output files, useful to ' \
+                            + 'separate different runs of a script')
 opt = parser.parse_args()
 
 use_init = opt.mode > 0
 
+model_root = opt.modelpath
+if not os.path.exists(model_root):
+    os.mkdir(model_root)
+
 # for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
-trainset = CamLocDataset(
-    opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+# trainset = CamLocDataset(
+#     opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
-print("Found {0:d} training images for {1:s}.".format(len(trainset), opt.scene))
+print("Found {0:d} training images for {1:s}.".format(
+    len(trainset), opt.scene))
 
-print("Calculating mean scene coordinate for the scene...")
+print("Calculating mean scene coordinate for the scene ...")
 
 mean = torch.zeros((3))
 count = 0
@@ -91,6 +97,8 @@ for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
         # use mean of camera position
         mean += gt_pose[0, 0:3, 3]
         count += 1
+    if count % 100 == 0:
+        print("Computed mean scene coordinate of {0:d} frames.".format(count))
 
 mean /= count
 
@@ -105,13 +113,14 @@ optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 iteration = 0
 epochs = int(opt.iterations / len(trainset))
-# epochs = 1
+epochs = 1
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 
 # keep track of training progress
 # train_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
-train_log = open('log_init_{0:s}_{1:s}.txt'.format(opt.network, opt.session), 'w', 1)
+train_log = open('log_init_{0:s}_{1:s}.txt'.format(
+    opt.network, opt.session), 'w', 1)
 
 # generate grid of target reprojection pixel positions
 pixel_grid = torch.zeros((2,
@@ -126,17 +135,13 @@ for x in range(0, pixel_grid.size(2)):
         pixel_grid[1, y, x] = y * network.OUTPUT_SUBSAMPLE + \
             network.OUTPUT_SUBSAMPLE / 2
 
-model_root = "models"
-if not os.path.exists(model_root):
-    os.mkdir(model_root)
-
 pixel_grid = pixel_grid.cuda()
 
-for epoch in range(1,epochs+1):
+for epoch in range(1, epochs+1):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
-            .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
+          .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
     for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
 
@@ -291,16 +296,18 @@ for epoch in range(1,epochs+1):
         optimizer.step()		# update all model parameters
         optimizer.zero_grad()
 
-        print('Iteration: {0:6d},\tLoss: {1:.1f},\tValid: {2:.1f}%,\tTime: {3:.2f}s\n'\
-                .format(iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
-        train_log.write('{0:d} {1:f} {2:f}\n'.format(iteration, loss, num_valid_sc))
+        print('Iteration: {0:6d},\tLoss: {1:.1f},\tValid: {2:.1f}%,\tTime: {3:.2f}s\n'
+              .format(iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
+        train_log.write('{0:d} {1:f} {2:f}\n'.format(
+            iteration, loss, num_valid_sc))
 
         iteration = iteration + 1
 
         del loss
 
     if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
-        model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
+        model_path = os.path.join(
+            model_root, "{0:s}-{1:d}.ann".format(opt.network, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
 
