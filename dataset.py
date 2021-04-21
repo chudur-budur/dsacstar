@@ -47,8 +47,10 @@ class CamLocDatasetLite(Dataset):
                 aug_rotation: Max 2D image rotation angle, sampled uniformly around 0, both directions
                 aug_scale_min: Lower limit of image scale factor for uniform sampling
                 aug_scale_min: Upper limit of image scale factor for uniform sampling
-                aug_contrast: Max relative scale factor for image contrast sampling, e.g. 0.1 -> [0.9,1.1]
-                aug_brightness: Max relative scale factor for image brightness sampling, e.g. 0.1 -> [0.9,1.1]
+                aug_contrast: Max relative scale factor for image contrast sampling, 
+                                e.g. 0.1 -> [0.9,1.1]
+                aug_brightness: Max relative scale factor for image brightness sampling, 
+                                e.g. 0.1 -> [0.9,1.1]
                 image_height: RGB images are rescaled to this maximum height
         '''
 
@@ -281,8 +283,10 @@ class CamLocDataset(Dataset):
                 aug_rotation: Max 2D image rotation angle, sampled uniformly around 0, both directions
                 aug_scale_min: Lower limit of image scale factor for uniform sampling
                 aug_scale_min: Upper limit of image scale factor for uniform sampling
-                aug_contrast: Max relative scale factor for image contrast sampling, e.g. 0.1 -> [0.9,1.1]
-                aug_brightness: Max relative scale factor for image brightness sampling, e.g. 0.1 -> [0.9,1.1]
+                aug_contrast: Max relative scale factor for image contrast sampling, 
+                                e.g. 0.1 -> [0.9,1.1]
+                aug_brightness: Max relative scale factor for image brightness sampling, 
+                                e.g. 0.1 -> [0.9,1.1]
                 image_height: RGB images are rescaled to this maximum height
         '''
 

@@ -113,31 +113,36 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     if os.path.exists(init_path):
                         init_files = sorted(os.listdir(init_path))
                         prfx = ''.join(seq.split('-'))
-                        inits = [f for f in init_files if os.path.split(f)[1].startswith(prfx)]
+                        inits = [f for f in init_files if os.path.split(f)[
+                            1].startswith(prfx)]
                     else:
-                        warnings.warn("{0:s} not found, skipping.".format(init_path))
+                        warnings.warn(
+                            "{0:s} not found, skipping.".format(init_path))
 
                 eyes = []
                 if include_precomputed_cam_coord:
-                    eye_path = os.path.join(root, 'precomputed-cam-coord', name)
+                    eye_path = os.path.join(
+                        root, 'precomputed-cam-coord', name)
                     if os.path.exists(eye_path):
                         eye_files = sorted(os.listdir(eye_path))
                         prfx = ''.join(seq.split('-'))
-                        eyes = [f for f in eye_files if os.path.split(f)[1].startswith(prfx)]
+                        eyes = [f for f in eye_files if os.path.split(f)[
+                            1].startswith(prfx)]
                     else:
-                        warnings.warn("{0:s} not found, skipping.".format(eye_path))
+                        warnings.warn(
+                            "{0:s} not found, skipping.".format(eye_path))
 
                 for i in range(len(images)):
                     image = os.path.join(seq_path, images[i])
                     pose = os.path.join(seq_path, poses[i])
                     depth = os.path.join(seq_path, depths[i])
                     init = os.path.join(root, 'rendered-depth', name, inits[i]) \
-                            if len(inits) > 0 else ''
+                        if len(inits) > 0 else ''
                     eye = os.path.join(root, 'precomputed-cam-coord', name, eyes[i]) \
-                            if len(eyes) > 0 else ''
-                    fp.write(image + ',' + pose + ',' + depth + ',' \
-                            + init + ',' + eye + ',' \
-                            + str(focal_length) + '\n')
+                        if len(eyes) > 0 else ''
+                    fp.write(image + ',' + pose + ',' + depth + ','
+                             + init + ',' + eye + ','
+                             + str(focal_length) + '\n')
 
 
 if __name__ == "__main__":
@@ -156,10 +161,10 @@ if __name__ == "__main__":
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for name in ['chess']:
         download_data(raw_path, name)
-        make_frame_lists(root, name, 'train', focal_length=focal_length, \
-                include_rendered_depth=True, include_precomputed_cam_coord=True)
-        make_frame_lists(root, name, 'test', focal_length=focal_length, \
-                include_rendered_depth=True, include_precomputed_cam_coord=True)
+        make_frame_lists(root, name, 'train', focal_length=focal_length,
+                         include_rendered_depth=True, include_precomputed_cam_coord=True)
+        make_frame_lists(root, name, 'test', focal_length=focal_length,
+                         include_rendered_depth=True, include_precomputed_cam_coord=True)
         # print("Linking files in ... " + root)
         # link_frames(root, name, 'TrainSplit.txt', focal_length)
         # link_frames(root, name, 'TestSplit.txt', focal_length)
