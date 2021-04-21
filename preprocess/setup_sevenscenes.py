@@ -161,10 +161,10 @@ if __name__ == "__main__":
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for name in ['chess']:
         download_data(raw_path, name)
-        # make_frame_lists(root, name, 'train', focal_length=focal_length,
-        #                  include_rendered_depth=True, include_precomputed_cam_coord=True)
-        # make_frame_lists(root, name, 'test', focal_length=focal_length,
-        #                  include_rendered_depth=True, include_precomputed_cam_coord=True)
-        print("Linking files in ... " + root)
-        link_frames(root, name, 'TrainSplit.txt', focal_length)
-        link_frames(root, name, 'TestSplit.txt', focal_length)
+        make_frame_lists(root, name, 'train', focal_length=focal_length,
+                         include_rendered_depth=True, include_precomputed_cam_coord=True)
+        make_frame_lists(root, name, 'test', focal_length=focal_length,
+                         include_rendered_depth=True, include_precomputed_cam_coord=True)
+        # print("Linking files in ... " + root)
+        # link_frames(root, name, 'TrainSplit.txt', focal_length)
+        # link_frames(root, name, 'TestSplit.txt', focal_length)
