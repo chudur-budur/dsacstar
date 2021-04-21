@@ -1,4 +1,5 @@
 import os
+import warnings
 
 
 def mkdir(path):
@@ -86,6 +87,8 @@ def make_frame_lists(root, name, prefix, **kwargs):
     is not very space efficient, also very slow.
     """
     focal_length = kwargs['focal_length']
+    include_rendered_depth = kwargs['include_rendered_depth']
+    include_precomputed_cam_coord = kwargs['include_precomputed_cam_coord']
     fname = name + '-' + prefix + '-map.csv'
     path = os.path.join(root, fname)
     print("Saving in {0:s}".format(path))
@@ -103,16 +106,25 @@ def make_frame_lists(root, name, prefix, **kwargs):
                 images = [f for f in files if f.endswith('color.png')]
                 poses = [f for f in files if f.endswith('pose.txt')]
                 depths = [f for f in files if f.endswith('depth.png')]
-                init_path = os.path.join(scene_path, 'rendered-depth')
+
                 inits = []
-                if os.path.exists(init_path):
-                    init_files = sorted(os.listdir(init_path))
-                    inits = [f for f in init_files in f.startswith(seq)]
+                if include_rendered_depth:
+                    init_path = os.path.join(root, 'rendered-depth')
+                    if os.path.exists(init_path):
+                        init_files = sorted(os.listdir(init_path))
+                        inits = [f for f in init_files in f.startswith(seq)]
+                    else:
+                        warnings.warn("{0:s} not found, skipping.".format(init_path))
+
                 eyes = []
-                eye_path = os.path.join(scene_path, 'precomputed-cam-coord')
-                if os.path.exists(eye_path):
-                    eye_files = sorted(os.listdir(eye_path))
-                    eyes = [f for f in files in f.startswith(seq)]
+                if include_precomputed_cam_coord:
+                    eye_path = os.path.join(scene_path, 'precomputed-cam-coord')
+                    if os.path.exists(eye_path):
+                        eye_files = sorted(os.listdir(eye_path))
+                        eyes = [f for f in files in f.startswith(seq)]
+                    else:
+                        warnings.warn("{0:s} not found, skipping.".format(init_path))
+
                 for i in range(len(images)):
                     image = os.path.join(seq_path, images[i])
                     pose = os.path.join(seq_path, poses[i])
@@ -139,8 +151,10 @@ if __name__ == "__main__":
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for name in ['chess']:
         download_data(raw_path, name)
-        make_frame_lists(root, name, 'train', focal_length=focal_length)
-        make_frame_lists(root, name, 'test', focal_length=focal_length)
+        make_frame_lists(root, name, 'train', focal_length=focal_length, \
+                include_rendered_depth=True, include_precomputed_cam_coord=True)
+        make_frame_lists(root, name, 'test', focal_length=focal_length, \
+                include_rendered_depth=True, include_precomputed_cam_coord=True)
         # print("Linking files in ... " + root)
         # link_frames(root, name, 'TrainSplit.txt', focal_length)
         # link_frames(root, name, 'TestSplit.txt', focal_length)
