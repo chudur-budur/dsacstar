@@ -86,7 +86,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
     is not very space efficient, also very slow.
     """
     focal_length = kwargs['focal_length']
-    fname = name + '-' + prefix + '-map.txt'
+    fname = name + '-' + prefix + '-map.csv'
     path = os.path.join(root, fname)
     print("Saving in {0:s}".format(path))
     with open(path, 'w') as fp:
