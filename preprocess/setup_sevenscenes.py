@@ -112,6 +112,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     init_path = os.path.join(root, 'rendered-depth', name)
                     if os.path.exists(init_path):
                         init_files = sorted(os.listdir(init_path))
+                        print(init_files[0])
                         inits = [f for f in init_files if os.path.split(f)[1].startswith(seq)]
                         print(len(inits))
                     else:
@@ -122,6 +123,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                     eye_path = os.path.join(root, 'precomputed-cam-coord', name)
                     if os.path.exists(eye_path):
                         eye_files = sorted(os.listdir(eye_path))
+                        print(eye_files[0])
                         eyes = [f for f in eye_files if os.path.split(f)[1].startswith(seq)]
                         print(len(eyes))
                     else:
