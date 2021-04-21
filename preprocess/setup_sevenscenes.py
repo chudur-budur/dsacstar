@@ -118,7 +118,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
 
                 eyes = []
                 if include_precomputed_cam_coord:
-                    eye_path = os.path.join(scene_path, 'precomputed-cam-coord')
+                    eye_path = os.path.join(root, 'precomputed-cam-coord')
                     if os.path.exists(eye_path):
                         eye_files = sorted(os.listdir(eye_path))
                         eyes = [f for f in files if f.startswith(seq)]
