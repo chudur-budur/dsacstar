@@ -72,7 +72,7 @@ trainset_loader = torch.utils.data.DataLoader(
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
 
-print("Calculating mean scene coordinate for the scene ...")
+print("Calculating mean scene coordinates ...")
 
 mean = torch.zeros((3))
 count = 0

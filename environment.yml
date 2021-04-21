@@ -8,3 +8,4 @@ dependencies:
     - opencv=3.4.2
     - torchvision=0.7.0
     - cudatoolkit=10.2.89
+    - pyyaml=5.3.1
