@@ -71,7 +71,7 @@ trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
-print("Found {0:d} training images for {1:s}.".format(
+print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
 
 print("Calculating mean scene coordinate for the scene ...")
@@ -296,7 +296,7 @@ for epoch in range(1, epochs+1):
         optimizer.step()		# update all model parameters
         optimizer.zero_grad()
 
-        print('Iteration: {0:6d},\tLoss: {1:.1f},\tValid: {2:.1f}%,\tTime: {3:.2f}s\n'
+        print('Iteration: {0:6d},\tLoss: {1:.1f},\tValid: {2:.1f}%,\tTime: {3:.2f}s'
               .format(iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
         train_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
