@@ -1,18 +1,16 @@
 import os
 
-
-def mkdir(directory):
-    """Checks whether the directory exists and creates it if necessacy."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+def mkdir(path):
+    if not os.path.exists(path):
+        print("Making {0:s}".format(path))
+        os.makedirs(path)
 
 
 def download_data(src_folder, ds, rm_zip=False):
     path = src_folder + '/' + ds
     if not os.path.exists(path + '.zip'):
-        print("========== Downloading 7scenes Data:", ds, "==========")
+        print("========== Downloading 7-scenes Data:", ds, "==========")
 
-        os.system('cd ' + src_folder)
         os.system('wget http://download.microsoft.com/download/2/8/5/'
                   + '28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
         os.system('unzip ' + ds + '.zip')
@@ -79,7 +77,7 @@ if __name__ == "__main__":
     # name of the folder where we download the original 7scenes dataset to
     # we restructure the dataset by creating symbolic links to that folder
     data_root = os.environ['DATA_HOME'] 
-    src_folder = data_root + '/7scenes/raw'
+    src_folder = data_root + '/sevenscenes/raw'
     focallength = 525.0
 
     # download the original 7 scenes dataset for poses and images
@@ -89,7 +87,7 @@ if __name__ == "__main__":
     # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
     for ds in ['chess']:
         download_data(src_folder, ds)
-        target_folder = data_root + '/7scenes/' + ds + '/'
+        target_folder = data_root + '/sevenscenes/' + ds + '/'
         print("Linking files in ... " + target_folder)
         link_frames(target_folder, 'TrainSplit.txt', 'train')
         link_frames(target_folder, 'TestSplit.txt', 'test')
