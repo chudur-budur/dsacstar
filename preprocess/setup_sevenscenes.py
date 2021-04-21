@@ -128,6 +128,7 @@ def make_frame_lists(root, name, prefix, **kwargs):
                 for i in range(len(images)):
                     image = os.path.join(seq_path, images[i])
                     pose = os.path.join(seq_path, poses[i])
+                    depth = os.path.join(seq_path, depths[i])
                     init = os.path.join(seq_path, inits[i]) if len(inits) else ''
                     eye = os.path.join(seq_path, eyes[i]) if len(eyes) else ''
                     fp.write(image + ',' + pose + ',' + depth + ',' \
