@@ -8,7 +8,7 @@ import argparse
 import math
 from datetime import datetime
 
-from dataset import CamLocDataset, CamLocDatasetLite
+from dataset import CamLocDataset, CamLocDatasetLite, NodviDataset
 from network import Network
 
 parser = argparse.ArgumentParser(
@@ -65,7 +65,8 @@ if not os.path.exists(model_root):
 
 # for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
-trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+# trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+trainset = NodviDataset(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
