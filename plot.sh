@@ -4,7 +4,6 @@ lastinit=$(ls -t | grep log_init | head -n 1)
 # n=4000
 n=1
 if [[ ! -z $lastinit ]]; then
-    echo "here $lastinit"
     gnuplot <<- EOF
         set term png
         set output "convergence-init.png"
@@ -19,7 +18,6 @@ fi
 laste2e=$(ls -t | grep log_e2e | head -n 1)
 n=400
 if [[ ! -z $laste2e ]]; then
-    echo "here2"
     gnuplot <<- EOF
         set term png
         set output "convergence-e2e.png"
