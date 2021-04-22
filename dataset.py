@@ -14,6 +14,7 @@ from torchvision import transforms
 
 from network import Network
 
+
 class NodviDataset(Dataset):
     """Camera localization dataset for nslam.
     This is similar to `CamLocDataset` but uses train/test mapping in csv files
@@ -78,7 +79,8 @@ class NodviDataset(Dataset):
         fp.close()
 
         self.rgb_files = [e[0] for e in entries]
-        self.pose_data = [self.__to_cam_matrix__([float(v) for v in e[1:8]]) for e in entries]
+        self.pose_data = [self.__to_cam_matrix__(
+            [float(v) for v in e[1:8]]) for e in entries]
         self.calibration_data = [e[-1] for e in entries]
 
         if len(self.rgb_files) != len(self.pose_data):
@@ -115,25 +117,25 @@ class NodviDataset(Dataset):
         return len(self.rgb_files)
 
     def __to_cam_matrix__(self, extrinsics):
-        p,q = extrinsics[0:3], extrinsics[3:]
-        m = np.zeros((4,4))
-        m[0:3,-1] = p
-        
-        m[0,0] = 2 * (q[0] * q[0] + q[1] * q[1]) - 1
-        m[0,1] = 2 * (q[1] * q[2] - q[0] * q[3])
-        m[0,2] = 2 * (q[1] * q[3] + q[0] * q[2])
-        
-        m[1,0] = 2 * (q[1] * q[2] + q[0] * q[3])
-        m[1,1] = 2 * (q[0] * q[0] + q[2] * q[2]) - 1
-        m[1,2] = 2 * (q[2] * q[3] - q[0] * q[1])
-        
-        m[2,0] = 2 * (q[1] * q[3] - q[0] * q[2])
-        m[2,1] = 2 * (q[2] * q[3] - q[0] * q[1])
-        m[2,2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1
+        p, q = extrinsics[0:3], extrinsics[3:]
+        m = np.zeros((4, 4))
+        m[0:3, -1] = p
 
-        m[-1,-1] = 1
+        m[0, 0] = 2 * (q[0] * q[0] + q[1] * q[1]) - 1
+        m[0, 1] = 2 * (q[1] * q[2] - q[0] * q[3])
+        m[0, 2] = 2 * (q[1] * q[3] + q[0] * q[2])
 
-        return m 
+        m[1, 0] = 2 * (q[1] * q[2] + q[0] * q[3])
+        m[1, 1] = 2 * (q[0] * q[0] + q[2] * q[2]) - 1
+        m[1, 2] = 2 * (q[2] * q[3] - q[0] * q[1])
+
+        m[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
+        m[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
+        m[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1
+
+        m[-1, -1] = 1
+
+        return m
 
     def __rot__(self, t, angle, order, mode='constant'):
         # rotate input image

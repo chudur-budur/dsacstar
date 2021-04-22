@@ -57,26 +57,29 @@ parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
 
 now = datetime.now()
-parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S") ,
+parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
                     help='custom session name appended to output files. Useful to separate different runs of the program')
 
 opt = parser.parse_args()
 
 # use only photometric augmentation, not rotation and scaling
-trainset = CamLocDataset(opt.scene + "/train", mode=(0 if opt.mode < 2 else opt.mode), 
-        augment=True, aug_rotation=0, aug_scale_min=1, aug_scale_max=1)  
+trainset = CamLocDataset(opt.scene + "/train", mode=(0 if opt.mode < 2 else opt.mode),
+                         augment=True, aug_rotation=0, aug_scale_min=1, aug_scale_max=1)
 
-trainset_loader = torch.utils.data.DataLoader(trainset, shuffle=True, num_workers=6)
+trainset_loader = torch.utils.data.DataLoader(
+    trainset, shuffle=True, num_workers=6)
 
-print("Found {0:d} training images for {1:s}.".format(len(trainset), opt.scene))
+print("Found {0:d} training images for {1:s}.".format(
+    len(trainset), opt.scene))
 
 model_root = "./models"
 if not os.path.exists(model_root):
     raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
-            + "you might need to run `train_init.py` first?")
+                             + "you might need to run `train_init.py` first?")
     sys.exit(1)
 if not os.path.exists(opt.network_in):
-    raise FileNotFoundError("Error: file {0:s} not found.".format(opt.network_in))
+    raise FileNotFoundError(
+        "Error: file {0:s} not found.".format(opt.network_in))
     sys.exit(1)
 
 # load network
@@ -96,7 +99,8 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
 
 # keep track of training progress
 # train_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
-train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(opt.network_out, opt.session), 'w', 1)
+train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(
+    opt.network_out, opt.session), 'w', 1)
 
 training_start = time.time()
 
@@ -104,7 +108,7 @@ for epoch in range(1, epochs+1):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
-            .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
+          .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
     for image, pose, camera_coordinates, focal_length, file in trainset_loader:
 
@@ -160,16 +164,18 @@ for epoch in range(1, epochs+1):
         optimizer.zero_grad()
 
         end_time = time.time()-start_time
-        print('Iteration: {0:6d},\tLoss: {1:.2f},\tTime: {2:.2f}s\n'\
-                .format(iteration, loss, end_time), flush=True)
+        print('Iteration: {0:6d},\tLoss: {1:.2f},\tTime: {2:.2f}s\n'
+              .format(iteration, loss, end_time), flush=True)
 
         train_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
         iteration = iteration + 1
 
     if epoch % 5 == 0 or epoch == 1 or epoch == epochs:
-        model_path = os.path.join(model_root, "{0:s}-{1:d}.ann".format(opt.network_out, epoch))
+        model_path = os.path.join(
+            model_root, "{0:s}-{1:d}.ann".format(opt.network_out, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
 
-print('Done without errors. Time: {0:.1f} minutes.'.format((time.time() - training_start) / 60))
+print('Done without errors. Time: {0:.1f} minutes.'.format(
+    (time.time() - training_start) / 60))
 train_log.close()
