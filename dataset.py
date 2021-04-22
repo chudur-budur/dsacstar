@@ -131,6 +131,8 @@ class NodviDataset(Dataset):
         m[2,1] = 2 * (q[2] * q[3] - q[0] * q[1])
         m[2,2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1
 
+        m[-1,-1] = 1
+
         return m 
 
     def __rot__(self, t, angle, order, mode='constant'):
