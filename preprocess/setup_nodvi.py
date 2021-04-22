@@ -26,7 +26,7 @@ def binary_search_approx(value, array):
         return -1
     elif value > array[n-1]:
         return n
-    lower,upper = 0, n-1  # Initialize lower and upper
+    lower, upper = 0, n-1  # Initialize lower and upper
     while upper - lower > 1:  # If we are not yet done,
         mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
         # if they are closer than delta, then that's it
@@ -68,7 +68,7 @@ def binary_search_delta(value, array, delta=0):
         return -1
     elif value > array[n-1]:
         return n
-    lower,upper = 0, n-1  # Initialize lower and upper
+    lower, upper = 0, n-1  # Initialize lower and upper
     while upper - lower > 1:  # If we are not yet done,
         mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
         # if they are closer than delta, then that's it
@@ -92,7 +92,7 @@ def parse_nodconfig(path):
     """
     with open(path) as fp:
         config = yaml.load(fp, Loader=yaml.FullLoader)
-        return (config['cams']['cam0']['intrinsics'], \
+        return (config['cams']['cam0']['intrinsics'],
                 config['cams']['cam0']['timeshift_cam_imu0'])
 
 
@@ -131,13 +131,14 @@ def collect_poses(root, takes):
     duplicates = 0
     for take in takes:
         config_path = os.path.join(root, take, 'nodvi/device/nodconfig.yaml')
-        intrinsics,shift = parse_nodconfig(config_path)
+        intrinsics, shift = parse_nodconfig(config_path)
         focal_length = intrinsics[0]
         pose_path = os.path.join(root, take, 'nodvi/groundtruth/data.csv')
         with open(pose_path, 'r') as fp:
             for line in fp.readlines()[1:]:
                 vals = line.strip().split(',')
-                ts, pose = int(vals[0]) + int(shift), [float(v) for v in vals[1:]]
+                ts, pose = int(vals[0]) + int(shift), [float(v)
+                                                       for v in vals[1:]]
                 pose.append(focal_length)
                 if ts not in poses:
                     poses[ts] = pose
@@ -156,8 +157,8 @@ def build_image_to_pose_map(images, poses, delta=0):
     between them. Takes each item from `image` and search through
     `poses` to find the closest pose with respect to the timestamp. 
     """
-    image_ts = sorted(images.keys()) 
-    pose_ts = sorted(poses.keys()) 
+    image_ts = sorted(images.keys())
+    pose_ts = sorted(poses.keys())
     n = len(image_ts)
 
     image_to_pose_map = {}

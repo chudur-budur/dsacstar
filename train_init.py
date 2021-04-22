@@ -19,42 +19,43 @@ parser.add_argument('scene', help='name of a scene in the dataset folder')
 
 parser.add_argument('network', help='output file name for the network')
 
-parser.add_argument('--modelpath', '-mp', type=str, default='models', 
+parser.add_argument('--modelpath', '-mp', type=str, default='models',
                     help='path where models witl be saved')
-parser.add_argument('--learningrate', '-lr', type=float, default=0.0001, help='learning rate')
-parser.add_argument('--iterations', '-iter', type=int, default=1000000, \
+parser.add_argument('--learningrate', '-lr', type=float,
+                    default=0.0001, help='learning rate')
+parser.add_argument('--iterations', '-iter', type=int, default=1000000,
                     help='number of training iterations, i.e. numer of model updates')
 parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
-                    help='switch to reprojection error optimization when ' \
-                            + 'predicted scene coordinate is within this tolerance ' \
-                            + 'threshold to the ground truth scene coordinate, in meters')
+                    help='switch to reprojection error optimization when '
+                    + 'predicted scene coordinate is within this tolerance '
+                    + 'threshold to the ground truth scene coordinate, in meters')
 parser.add_argument('--mindepth', '-mind', type=float, default=0.1,
-                    help='enforce  predicted scene coordinates to be this far in front ' \
-                            + 'of the camera plane, in meters')
+                    help='enforce  predicted scene coordinates to be this far in front '
+                    + 'of the camera plane, in meters')
 parser.add_argument('--maxdepth', '-maxd', type=float, default=1000,
-                    help='enforce that scene coordinates are at most this far in front ' \
-                            + 'of the camera plane, in meters')
+                    help='enforce that scene coordinates are at most this far in front '
+                    + 'of the camera plane, in meters')
 parser.add_argument('--targetdepth', '-td', type=float, default=10,
-                    help='if ground truth scene coordinates are unknown, use a proxy ' \
-                            + 'scene coordinate on the pixel ray with this distance from ' \
-                            + 'the camera, in meters')
+                    help='if ground truth scene coordinates are unknown, use a proxy '
+                    + 'scene coordinate on the pixel ray with this distance from '
+                    + 'the camera, in meters')
 parser.add_argument('--softclamp', '-sc', type=float, default=100,
                     help='robust square root loss after this threshold, in pixels')
 parser.add_argument('--hardclamp', '-hc', type=float, default=1000,
                     help='clamp loss with this threshold, in pixels')
 parser.add_argument('--mode', '-m', type=int, default=1, choices=range(3),
-                    help='training mode: 0 = RGB only (no ground truth scene coordinates), ' \
-                            + '1 = RGB + ground truth scene coordinates, 2 = RGB-D')
+                    help='training mode: 0 = RGB only (no ground truth scene coordinates), '
+                    + '1 = RGB + ground truth scene coordinates, 2 = RGB-D')
 parser.add_argument('--sparse', '-sparse', action='store_true',
-                    help='for mode 1 (RGB + ground truth scene coordinates) use sparse scene ' \
-                            + 'coordinate initialization targets (eg. for Cambridge) instead of ' \
-                            + 'rendered depth maps (eg. for 7scenes and 12scenes).')
+                    help='for mode 1 (RGB + ground truth scene coordinates) use sparse scene '
+                    + 'coordinate initialization targets (eg. for Cambridge) instead of '
+                    + 'rendered depth maps (eg. for 7scenes and 12scenes).')
 parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
 now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
-                    help='custom session name appended to output files, useful to ' \
-                            + 'separate different runs of a script')
+                    help='custom session name appended to output files, useful to '
+                    + 'separate different runs of a script')
 opt = parser.parse_args()
 
 use_init = opt.mode > 0
@@ -66,7 +67,8 @@ if not os.path.exists(model_root):
 # for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
-trainset = NodviDataset(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+trainset = NodviDataset(opt.scene, mode=min(
+    opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
