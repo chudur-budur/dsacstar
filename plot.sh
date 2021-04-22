@@ -2,6 +2,7 @@
 
 lastinit=$(ls -t | grep log_init | head -n 1)
 if [ -n $lastinit ]; then
+    echo "here1"
 gnuplot -persist <<-EOFMarker
     set term png
     set output "convergence-init.png"
@@ -15,6 +16,7 @@ fi
 
 laste2e=$(ls -t | grep log_e2e | head -n 1)
 if [ -n $laste2e ]; then
+    echo "here2"
 gnuplot -persist <<-EOFMarker
     set term png
     set output "convergence-e2e.png"
