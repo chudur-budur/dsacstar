@@ -12,7 +12,6 @@ import random
 import warnings
 import yaml
 
-
 def binary_search(value, array, delta=10):
     r"""Simple binary search to find a closest value in an array.
 
@@ -47,12 +46,13 @@ def binary_search(value, array, delta=10):
         return jl
 
 
-def parse_camera_intrinsics(path):
-    r"""Get the camera intrinsics from the config file.
+def parse_nodconfig(path):
+    r"""Get the camera intrinsics and other stuffs from the config file.
     """
     with open(path) as fp:
         config = yaml.load(fp, Loader=yaml.FullLoader)
-        return config['cams']['cam0']['intrinsics']
+        return (config['cams']['cam0']['intrinsics'], \
+                config['cams']['cam0']['timeshift_cam_imu0'])
 
 
 def collect_images(root, takes):
@@ -90,13 +90,13 @@ def collect_poses(root, takes):
     duplicates = 0
     for take in takes:
         config_path = os.path.join(root, take, 'nodvi/device/nodconfig.yaml')
-        intrinsics = parse_camera_intrinsics(config_path)
+        intrinsics,shift = parse_nodconfig(config_path)
         focal_length = intrinsics[0]
         pose_path = os.path.join(root, take, 'nodvi/groundtruth/data.csv')
         with open(pose_path, 'r') as fp:
             for line in fp.readlines()[1:]:
                 vals = line.strip().split(',')
-                ts, pose = vals[0], [float(v) for v in vals[1:]]
+                ts, pose = (float(vals[0]) + shift), [float(v) for v in vals[1:]]
                 pose.append(focal_length)
                 if ts not in poses:
                     poses[ts] = pose
