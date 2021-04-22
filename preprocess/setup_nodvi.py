@@ -12,7 +12,8 @@ import random
 import warnings
 import yaml
 
-def binary_search(value, array, delta=10):
+
+def binary_search(value, array, delta=0):
     r"""Simple binary search to find a closest value in an array.
 
     Given an `array` and given a `value`, returns an index `j` such that `value` 
@@ -68,7 +69,7 @@ def collect_images(root, takes):
         image_path = os.path.join(root, take, 'nodvi/device/data/images0')
         files = sorted(os.listdir(image_path))
         for file_name in files:
-            ts = file_name.split('.')[0]
+            ts = int(file_name.split('.')[0])
             if ts not in images:
                 images[ts] = os.path.join(image_path, file_name)
             else:
@@ -96,7 +97,7 @@ def collect_poses(root, takes):
         with open(pose_path, 'r') as fp:
             for line in fp.readlines()[1:]:
                 vals = line.strip().split(',')
-                ts, pose = (float(vals[0]) + shift), [float(v) for v in vals[1:]]
+                ts, pose = int(vals[0]) + int(shift), [float(v) for v in vals[1:]]
                 pose.append(focal_length)
                 if ts not in poses:
                     poses[ts] = pose
@@ -108,27 +109,25 @@ def collect_poses(root, takes):
     return poses
 
 
-def build_image_to_pose_map(images, poses):
+def build_image_to_pose_map(images, poses, delta=0):
     r"""Makes a mapping from image timestamp to pose timestamp.
 
     From `image` and `pose` dicts. This function creates a mapping
     between them. Takes each item from `image` and search through
     `poses` to find the closest pose with respect to the timestamp. 
     """
-    images_keys = sorted([[float(v), v] for v in images.keys()])
-    poses_keys = sorted([[float(v), v] for v in poses.keys()])
-    image_ts = [v[0] for v in images_keys]
-    pose_ts = [v[0] for v in poses_keys]
+    image_ts = sorted(images.keys()) 
+    pose_ts = sorted(poses.keys()) 
+    n = len(image_ts)
 
     image_to_pose_map = {}
-    n = len(image_ts)
     mean_delta = 0.0
     found = 0
     missing = 0
     for i in range(n):
-        j = binary_search(image_ts[i], pose_ts)
+        j = binary_search(image_ts[i], pose_ts, delta=delta)
         if 0 < j < n:
-            image_to_pose_map[images_keys[i][1]] = poses_keys[j][1]
+            image_to_pose_map[image_ts[i]] = pose_ts[j]
             mean_delta = mean_delta + abs(image_ts[i] - pose_ts[j])
             found = found + 1
         else:
@@ -140,7 +139,37 @@ def build_image_to_pose_map(images, poses):
         warnings.warn("Timestamp misalignment, "
                       + "{0:d} images don't have closest time-stamped poses.".format(missing)
                       + " May be you need to collect the data again?")
-    return image_to_pose_map
+    return image_to_pose_map, mean_delta
+
+
+def search_best_delta():
+    r"""Find the best delta. 
+        Search for the best delta so that the mean deviation from the image timestamps
+        and pose timestamps are minimized.
+    """
+    data_home = os.environ['DATA_HOME']
+    root = os.path.join(data_home, 'recordvi')
+    takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
+    train_perc = 0.75
+
+    # collect images
+    images = collect_images(root, takes)
+    print("Found {0:d} camera frames.".format(len(images)))
+    # collect ground truth poses
+    poses = collect_poses(root, takes)
+    print("Found {0:d} camera poses.".format(len(poses)))
+
+    fp = open('delta.txt', 'w')
+    min_mean_dev = [0, float('inf')]
+    for delta in range(2078000, 2080000, 10):
+        # build the image timestamp to pose timestamp map
+        itpmap, mean_dev = build_image_to_pose_map(images, poses, delta)
+        print(delta, mean_dev)
+        if mean_dev < min_mean_dev[1]:
+            min_mean_dev = [delta, mean_dev]
+        fp.write("{0:d}\t{1:.3f}\n".format(delta, mean_dev))
+    fp.close()
+    print(min_mean_dev)
 
 
 if __name__ == "__main__":
@@ -174,8 +203,11 @@ if __name__ == "__main__":
     poses = collect_poses(root, takes)
     print("Found {0:d} camera poses.".format(len(poses)))
 
+    min_mean_dev = [0, float('inf')]
     # build the image timestamp to pose timestamp map
-    itpmap = build_image_to_pose_map(images, poses)
+    # delta=2078980 was found using the search_best_delta() function
+    itpmap, mean_dev = build_image_to_pose_map(images, poses, delta=2078980)
+    print(itpmap)
     its = list(itpmap.keys())
     random.shuffle(its)
     train_count = int(len(its) * train_perc)
@@ -200,3 +232,5 @@ if __name__ == "__main__":
                 ','.join([str(v) for v in poses[pose_key]]) + '\n'
             fp.write(line)
     print("Done.")
+
+    # search_best_delta()
