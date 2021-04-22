@@ -13,7 +13,7 @@ import warnings
 import yaml
 
 
-def binary_search(value, array, delta=0):
+def binary_search_approx(value, array):
     r"""Simple binary search to find a closest value in an array.
 
     Given an `array` and given a `value`, returns an index `j` such that `value` 
@@ -26,25 +26,65 @@ def binary_search(value, array, delta=0):
         return -1
     elif value > array[n-1]:
         return n
-    jl = 0  # Initialize lower
-    ju = n-1  # and upper limits.
-    while ju - jl > 1:  # If we are not yet done,
-        jm = (ju + jl) >> 1  # compute a midpoint with a bitshift
+    lower,upper = 0, n-1  # Initialize lower and upper
+    while upper - lower > 1:  # If we are not yet done,
+        mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
         # if they are closer than delta, then that's it
-        if abs(value - array[jm]) < delta:
-            jl = jm
-            break
-        if value >= array[jm]:
-            jl = jm  # and replace either the lower limit
+        if value - array[mid] == 0:
+            return mid
+        if value >= array[mid]:
+            lower = mid  # and replace either the lower limit
         else:
-            ju = jm  # or the upper limit, as appropriate.
+            upper = mid  # or the upper limit, as appropriate.
         # Repeat until the test condition is satisfied.
     if value == array[0]:  # edge cases at bottom
         return 0
     elif value == array[n-1]:  # and top
         return n-1
     else:
-        return jl
+        # this means we couldn't find exact match.
+        # so now minimize the difference.
+        if upper - lower > 1:
+            minimum = [lower, float('inf')]
+            for i in range(lower, upper+1):
+                delta = abs(value - array[i])
+                if delta <= minimum[1]:
+                    minimum = [i, delta]
+            return minimum[0]
+        else:
+            return lower
+
+
+def binary_search_delta(value, array, delta=0):
+    r"""Simple binary search to find a closest value in an array.
+
+    Given an `array` and given a `value`, returns an index `j` such that `value` 
+    is between `array[j]` and `array[j+1]`. `array` must be monotonic increasing. 
+    `j=-1` or `j=len(array)` is returned to indicate that ``value`` is out of range 
+    below and above respectively.
+    """
+    n = len(array)
+    if value < array[0]:
+        return -1
+    elif value > array[n-1]:
+        return n
+    lower,upper = 0, n-1  # Initialize lower and upper
+    while upper - lower > 1:  # If we are not yet done,
+        mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
+        # if they are closer than delta, then that's it
+        if abs(value - array[mid]) <= delta:
+            return mid
+        if value >= array[mid]:
+            lower = mid  # and replace either the lower limit
+        else:
+            upper = mid  # or the upper limit, as appropriate.
+        # Repeat until the test condition is satisfied.
+    if value == array[0]:  # edge cases at bottom
+        return 0
+    elif value == array[n-1]:  # and top
+        return n-1
+    else:
+        return lower
 
 
 def parse_nodconfig(path):
@@ -121,12 +161,15 @@ def build_image_to_pose_map(images, poses, delta=0):
     n = len(image_ts)
 
     image_to_pose_map = {}
-    mean_delta = 0.0
+    mean_delta = 0
     found = 0
     missing = 0
     for i in range(n):
-        j = binary_search(image_ts[i], pose_ts, delta=delta)
-        if 0 < j < n:
+        if delta > 0:
+            j = binary_search_delta(image_ts[i], pose_ts, delta=delta)
+        else:
+            j = binary_search_approx(image_ts[i], pose_ts)
+        if 0 <= j < n:
             image_to_pose_map[image_ts[i]] = pose_ts[j]
             mean_delta = mean_delta + abs(image_ts[i] - pose_ts[j])
             found = found + 1
@@ -207,7 +250,7 @@ if __name__ == "__main__":
     # build the image timestamp to pose timestamp map
     # delta=2078980 was found using the search_best_delta() function
     itpmap, mean_dev = build_image_to_pose_map(images, poses, delta=2078980)
-    print(itpmap)
+    # print(itpmap)
     its = list(itpmap.keys())
     random.shuffle(its)
     train_count = int(len(its) * train_perc)
