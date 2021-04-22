@@ -190,7 +190,6 @@ for epoch in range(1, epochs+1):
             scene_coords = scene_coords.squeeze().view(4, -1)
 
             # prepare pose for projection operation
-            print(gt_pose[0])
             gt_pose = gt_pose[0].inverse()[0:3, :]
             gt_pose = gt_pose.cuda()
 
