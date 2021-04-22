@@ -105,7 +105,7 @@ def collect_images(root):
     """
     image_path = os.path.join(root, 'nodvi/device/data/images0')
     files = sorted(os.listdir(image_path))
-    
+
     images = {}
     duplicates = 0
     for file_name in files:
@@ -131,7 +131,7 @@ def collect_poses(root):
     intrinsics, shift = parse_nodconfig(config_path)
     focal_length = intrinsics[0]
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
-    
+
     poses = {}
     duplicates = 0
     with open(pose_path, 'r') as fp:
@@ -250,10 +250,11 @@ if __name__ == "__main__":
         poses = collect_poses(path)
         print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
         # build the image timestamp to pose timestamp map
-        img_to_pose, mean_dev = build_image_to_pose_map(images, poses, delta=deltas[i])
-        for k,v in img_to_pose.items():
-            data.append([images[k],poses[v]])
-   
+        img_to_pose, mean_dev = build_image_to_pose_map(
+            images, poses, delta=deltas[i])
+        for k, v in img_to_pose.items():
+            data.append([images[k], poses[v]])
+
     # shuffle the consolidated data
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
@@ -263,7 +264,8 @@ if __name__ == "__main__":
     print("Writing training data mapping in {0:s}.".format(train_map_path))
     with open(train_map_path, 'w') as fp:
         for i in range(train_count):
-            line = data[i][0] + ',' + ','.join([str(v) for v in data[i][1]]) + '\n'
+            line = data[i][0] + ',' + \
+                ','.join([str(v) for v in data[i][1]]) + '\n'
             fp.write(line)
 
     # makes the test data file mapping
@@ -271,9 +273,10 @@ if __name__ == "__main__":
     print("Writing testing data mapping in {0:s}.".format(test_map_path))
     with open(test_map_path, 'w') as fp:
         for i in range(train_count, len(data)):
-            line = data[i][0] + ',' + ','.join([str(v) for v in data[i][1]]) + '\n'
+            line = data[i][0] + ',' + \
+                ','.join([str(v) for v in data[i][1]]) + '\n'
             fp.write(line)
-    
+
     print("Done.")
 
     # search_best_delta(takes[2])
