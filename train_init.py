@@ -111,6 +111,9 @@ network.train()
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 iteration = 0
+# iterations: 1000000, frames: 4000
+# iterations: 263250, frames: 1053
+opt.iterations = 263250
 epochs = int(opt.iterations / len(trainset))
 # epochs = 1
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
