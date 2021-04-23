@@ -1,4 +1,4 @@
-"""setup_nodvi.py -- A script to preprocess nslam data.
+"""setup_jellyfish.py -- A script to preprocess Jellyfish SLAM data.
 
     This script will be used to preprocess and build train/test
     split for the nslam data. The data will be used for training
@@ -60,6 +60,19 @@ def parse_nodconfig(path):
                 config['cams']['cam0']['timeshift_cam_imu0'])
 
 
+def get_intrinsics(root):
+    r"""Get the camera intrinsics.
+
+    This function only handles focal length and shift.
+    """
+    focal_length, shift = 628.562541875901, 0 # Default values.
+    config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
+    if os.path.exists(config_path):
+        intrinsics, shift = parse_nodconfig(config_path)
+        focal_length = intrinsics[0]
+    return focal_length,shift
+
+
 def collect_images(root):
     r"""Collect all the camera frames from the image folder.
 
@@ -91,13 +104,8 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    focal_length, shift = 628.562541875901, 0
-    config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
-    if os.path.exists(config_path):
-        intrinsics, shift = parse_nodconfig(config_path)
-        focal_length = intrinsics[0]
+    focal_length,shift = get_intrinsics(root)
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
-
     poses = {}
     duplicates = 0
     with open(pose_path, 'r') as fp:
@@ -151,14 +159,17 @@ def approximate(images, poses, interpolate=True):
     n,m = len(image_ts), len(pose_ts)
     missing = 0
     for i in range(n):
-        # print(i, ':', image_ts[i])
-        if image_ts[i] in poses: # found a pose at the same image timestamp
+        if image_ts[i] in poses: # Found a pose at the same image timestamp.
             poses_[image_ts[i]] = poses[image_ts[i]]
-        else: # not found
+        else: # Not found.
             missing = missing + 1
             j = binary_search_approx(image_ts[i], pose_ts)
             if interpolate:
                 approx_pose = interpolate_pose(poses, pose_ts, j, image_ts[i])
+                # All values after 7th item are intrinsics
+                # taking poses[pose_ts[j]][7:] since there 
+                # is no way to approximate it
+                approx_pose.extend(poses[pose_ts[j]][7:])
             else:
                 approx_pose = poses[pose_ts[j]]
             poses_[image_ts[i]] = approx_pose
@@ -196,27 +207,28 @@ if __name__ == "__main__":
     data = []
     for i in range(len(takes)):
         path = os.path.join(root, takes[i])
-        # collect images
+        # Collect images.
         images = collect_images(path)
         print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
-        # collect ground truth poses
+        # Collect ground truth poses.
         poses = collect_poses(path)
         print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
-        # build the image timestamp to pose timestamp map
+        # Approximate poses from the images, if there are matching timestamps,
+        # no need to approximate.
         poses_ = approximate(images, poses)
         for k in images:
             data.append([images[k], poses_[k]])
 
-    # shuffle the consolidated data
+    # Shuffle the consolidated data.
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
 
-    # create folder to keep the split files
+    # Create folder to keep the split files.
     split_file_root = "../split-files"
     if not os.path.exists(split_file_root):
         os.mkdir(split_file_root)
 
-    # makes the train data file mapping
+    # Make the train data file mapping.
     train_map_path = os.path.join(split_file_root, "jellyfish-train-map.csv")
     print("Writing training data mapping in {0:s}.".format(train_map_path))
     with open(train_map_path, 'w') as fp:
@@ -225,7 +237,7 @@ if __name__ == "__main__":
                 ','.join([str(v) for v in data[i][1]]) + '\n'
             fp.write(line)
 
-    # makes the test data file mapping
+    # Make the test data file mapping.
     test_map_path = os.path.join(split_file_root, "jellyfish-test-map.csv")
     print("Writing testing data mapping in {0:s}.".format(test_map_path))
     with open(test_map_path, 'w') as fp:
