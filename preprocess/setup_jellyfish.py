@@ -228,8 +228,11 @@ if __name__ == "__main__":
     #               - optitrack.csv (optitrack pose with timestamps)
     #               - data.csv (ground truth pose with timestamps and header, we will use this)
     #               - data_no_header.csv (data.csv with no header)
-    root = os.path.join(data_home, 'recordvi')
-    takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
+    
+    # root = os.path.join(data_home, 'recordvi')
+    # takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
+    root = os.path.join(data_home, 'jellyfish')
+    takes = ['04-21-0100']
     train_perc = 0.75
 
     data = []
