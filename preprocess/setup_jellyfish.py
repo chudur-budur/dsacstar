@@ -66,11 +66,13 @@ def get_intrinsics(root):
 
     This function only handles focal length and shift.
     """
-    focal_length, shift = 628.562541875901, 0 # Default values.
     config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
     if os.path.exists(config_path):
-        intrinsics, shift = parse_nodconfig(config_path)
-        focal_length = intrinsics[0]
+        try:
+            intrinsics, shift = parse_nodconfig(config_path)
+            focal_length = intrinsics[0]
+        except:
+            focal_length, shift = 628.562541875901, 0 # Default values.
     return focal_length,shift
 
 
