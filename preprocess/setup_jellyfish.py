@@ -183,7 +183,7 @@ def approximate(images, poses, interpolate=True):
     """
     image_ts = sorted(images.keys())
     pose_ts = sorted(poses.keys())
-    image_ts, pose_ts = align_timestamps(image_ts, pose_ts)
+    # image_ts, pose_ts = align_timestamps(image_ts, pose_ts)
 
     poses_ = {}
     n,m = len(image_ts), len(pose_ts)
@@ -204,8 +204,8 @@ def approximate(images, poses, interpolate=True):
                 approx_pose = poses[pose_ts[j]]
             poses_[image_ts[i]] = approx_pose
     if missing > 0:
-        warnings.warn("Total of {0:d} poses approximated ({1:.2f}%). "\
-                .format(missing, (missing / n) * 100.0))
+        warnings.warn("{0:d} out of {1:d} ({2:.2f}%) poses had to approximate."\
+                .format(missing, n, (missing / n) * 100.0))
     return poses_
 
 
