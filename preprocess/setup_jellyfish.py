@@ -12,6 +12,7 @@ import random
 import warnings
 import yaml
 import numpy as np
+from scipy import interpolate
 
 
 def binary_search_approx(value, array):
@@ -23,10 +24,10 @@ def binary_search_approx(value, array):
     below and above respectively.
     """
     n = len(array)
-    if value < array[0]:
-        return -1
-    elif value > array[n-1]:
-        return n
+    if value < array[0]: 
+        return 0
+    if value > array[n-1]:
+        return n-1
     lower, upper = 0, n-1  # Initialize lower and upper
     while upper - lower > 1:  # If we are not yet done,
         mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
@@ -124,19 +125,45 @@ def collect_poses(root):
     return poses
 
 
-def interpolate_pose(poses, poses_ts, ts, x, k=5):
+def interpolate_pose(poses, poses_ts, j, x, k=5):
     r"""The linear interpolation function.
 
     Given the image timestamp x, we interpolate it's pose from `2k` data points
-    around the closest pose timestamped at `j`. We take `k` poses before `ts` and
-    `k` poses after `ts`, with bound constraint checked.
+    around the closest pose timestamped at `j`. We take `k` poses before `j` and
+    `k` poses after `j`, with bound constraint checked.
     """
-    xp = [poses_ts[ts+i] for i in range(-k,k+1) if 0 <= ts+k < len(poses_ts)]
+    xp = [poses_ts[j+i] for i in range(-k,k+1) if 0 <= j+i < len(poses_ts)]
     pose = []
-    for i in range(7):
-        fp = [poses[j][i] for j in xp] 
-        pose.append(np.interp(x, xp, fp))
+    if x > xp[-1]:
+        for i in range(7):
+            fp = [poses[l][i] for l in xp] 
+            f = interpolate.interp1d(xp, fp, fill_value = "extrapolate")
+            pose.append(f(x))
+    else:
+        for i in range(7):
+            fp = [poses[l][i] for l in xp] 
+            pose.append(np.interp(x, xp, fp))
     return pose
+
+
+def align_timestamps(its, pts):
+    r"""Align image and pose timestamps.
+
+    Trim the image timestamps with respect to the
+    range of the pose timestamps.
+    """
+    # if the image timestamp starts way 
+    # earlier than the pose timestamp
+    if its[0] < pts[0]: 
+        j = binary_search_approx(pts[0], its)
+        its = its[0:j+1]
+    # if the pose timestamp ends way 
+    # later than the image timestamp
+    if its[-1] < pts[-1]:
+        j = binary_search_approx(its[-1], pts)
+        pts = pts[0:j+1]
+    
+    return its, pts
 
 
 def approximate(images, poses, interpolate=True):
@@ -154,7 +181,8 @@ def approximate(images, poses, interpolate=True):
     """
     image_ts = sorted(images.keys())
     pose_ts = sorted(poses.keys())
-    
+    image_ts, pose_ts = align_timestamps(image_ts, pose_ts)
+
     poses_ = {}
     n,m = len(image_ts), len(pose_ts)
     missing = 0
