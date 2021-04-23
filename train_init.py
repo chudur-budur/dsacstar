@@ -23,8 +23,10 @@ parser.add_argument('--modelpath', '-mp', type=str, default='models',
                     help='path where the models will be saved')
 parser.add_argument('--learningrate', '-lr', type=float,
                     default=0.0001, help='learning rate')
-parser.add_argument('--iterations', '-iter', type=int, default=1000000,
+parser.add_argument('--iterations', '-iter', type=int,
                     help='number of training iterations, i.e. numer of model updates')
+parser.add_argument('--epochs', '-e', type=int,
+                    help='number of training epochs, i.e. |iterations / no. training images|')
 parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
                     help='switch to reprojection error optimization when '
                     + 'predicted scene coordinate is within this tolerance '
@@ -56,7 +58,10 @@ now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
                     help='custom session name appended to output files, useful to '
                     + 'separate different runs of a script')
+parser.add_argument('--checkpoint', '-cp', type=str, default=None,
+                help='use the checkpoint file (i.e. *.ann) to load and restart training from that point')
 opt = parser.parse_args()
+print(opt)
 
 use_init = opt.mode > 0
 
@@ -64,7 +69,8 @@ model_root = opt.modelpath
 if not os.path.exists(model_root):
     os.mkdir(model_root)
 
-# for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
+# for RGB-D initialization, we utilize ground truth scene coordinates 
+# as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset = JellyfishDataset(opt.scene, mode=min(
@@ -75,11 +81,29 @@ trainset_loader = torch.utils.data.DataLoader(
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
 
-print("Calculating mean scene coordinates ...")
+# decide iterations from the number of training data
+n = len(trainset)
+if not opt.iterations and not opt.epochs:
+    # iterations: 1000000, frames: 4000
+    # iterations: 197250, frames: 789 ... etc.
+    iterations = int((1000000 / 4000) * n)
+    epochs = int(iterations / n)
+elif not opt.iterations and opt.epochs:
+    iterations = opt.epochs * n
+    epochs = opt.epochs
+elif opt.iterations and not opt.epochs:
+    iterations = opt.iterations if opt.iterations >= n else n
+    epochs = int(iterations / n)
+else:
+    epochs, iterations = opt.epochs, opt.iterations
+epochs = 1 if epochs < 1 else epochs
+print("Total epochs: {0:d}, Total iterations: {1:d}".format(
+    epochs, iterations))
 
+
+print("Calculating mean scene coordinates ...")
 mean = torch.zeros((3))
 count = 0
-
 for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
 
     if use_init:
@@ -101,8 +125,7 @@ for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
     if count % 100 == 0:
         print("Computed mean scene coordinate of {0:d} frames.".format(count))
 
-mean /= count
-
+mean = mean / count
 print("Done. Mean: %.2f, %.2f, %.2f\n" % (mean[0], mean[1], mean[2]))
 
 # create network
@@ -111,16 +134,6 @@ network = network.cuda()
 network.train()
 
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
-
-iteration = 0
-# decide iterations from the number of training data
-# iterations: 1000000, frames: 4000
-# iterations: 197250, frames: 789
-opt.iterations = int((1000000 / 4000) * len(trainset))
-epochs = int(opt.iterations / len(trainset))
-# epochs = 1
-print("Total epochs: {0:d}, Total iterations: {1:d}".format(
-    epochs, opt.iterations))
 
 # keep track of training progress
 # train_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
@@ -142,6 +155,7 @@ for x in range(0, pixel_grid.size(2)):
 
 pixel_grid = pixel_grid.cuda()
 
+iteration = 0
 for epoch in range(1, epochs+1):
 
     now = datetime.now()
