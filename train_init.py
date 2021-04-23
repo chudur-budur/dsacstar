@@ -118,7 +118,7 @@ iteration = 0
 # iterations: 197250, frames: 789
 opt.iterations = int((1000000 / 4000) * len(trainset))
 epochs = int(opt.iterations / len(trainset))
-epochs = 1
+# epochs = 1
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 

@@ -210,6 +210,17 @@ def approximate(images, poses, interpolate=True):
     return poses_
 
 
+def downsample(data, n):
+    r"""Take a subset of the original data.
+
+    Take `n` number of data points from data.
+    """
+    data_ = []
+    delta = int(len(data)/n)
+    for i in range(0,len(data),delta):
+        data_.append(data[i])
+    return data_
+    
 
 if __name__ == "__main__":
 
@@ -238,6 +249,7 @@ if __name__ == "__main__":
     takes = [
             "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
             "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
+    nsample=5000
     train_perc = 0.75
 
     data = []
@@ -254,6 +266,9 @@ if __name__ == "__main__":
         poses_ = approximate(images, poses)
         for k in poses_.keys():
             data.append([images[k], poses_[k]])
+
+    # downsample
+    data = downsample(data, n=nsample)
 
     # Shuffle the consolidated data.
     random.shuffle(data)
