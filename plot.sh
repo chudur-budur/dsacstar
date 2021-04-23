@@ -2,7 +2,7 @@
 
 lastinit=$(ls -t | grep log_init | head -n 1)
 # n=4000
-n=789
+n=1
 if [[ ! -z $lastinit ]]; then
     gnuplot <<- EOF
         set term png

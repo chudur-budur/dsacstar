@@ -15,8 +15,8 @@ from torchvision import transforms
 from network import Network
 
 
-class NodviDataset(Dataset):
-    """Camera localization dataset for nslam.
+class JellyfishDataset(Dataset):
+    """Camera localization dataset for Jellyfish SLAM.
     This is similar to `CamLocDataset` but uses train/test mapping in csv files
     instead of symlinks (as has been done in the original implementation). Also
     this is only for nodvi datasets, not suitable for any other formats.

@@ -8,7 +8,7 @@ import argparse
 import math
 from datetime import datetime
 
-from dataset import CamLocDataset, CamLocDatasetLite, NodviDataset
+from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
 parser = argparse.ArgumentParser(
@@ -67,7 +67,7 @@ if not os.path.exists(model_root):
 # for RGB-D initialization, we utilize ground truth scene coordinates as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
-trainset = NodviDataset(opt.scene, mode=min(
+trainset = JellyfishDataset(opt.scene, mode=min(
     opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
@@ -113,11 +113,12 @@ network.train()
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 iteration = 0
+# decide iterations from the number of training data
 # iterations: 1000000, frames: 4000
 # iterations: 197250, frames: 789
 opt.iterations = int((1000000 / 4000) * len(trainset))
 epochs = int(opt.iterations / len(trainset))
-# epochs = 1
+epochs = 1
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 
