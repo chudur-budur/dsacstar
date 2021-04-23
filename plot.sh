@@ -1,8 +1,11 @@
 #!/bin/bash
 
+n=$1
+if [[ -z $n ]]; then
+    n=25
+fi
+
 lastinit=$(ls -t | grep log_init | head -n 1)
-# n=4000
-n=1
 if [[ ! -z $lastinit ]]; then
     gnuplot <<- EOF
         set term png
