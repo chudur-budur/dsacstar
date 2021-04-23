@@ -183,6 +183,7 @@ def approximate(images, poses, interpolate=True):
     """
     image_ts = sorted(images.keys())
     pose_ts = sorted(poses.keys())
+    # this doesn't work in all situations, so turining it off
     # image_ts, pose_ts = align_timestamps(image_ts, pose_ts)
 
     poses_ = {}
@@ -216,8 +217,8 @@ if __name__ == "__main__":
     data_home = os.environ['DATA_HOME']
 
     # The nslam data are saved in this way:
-    # $DATA_HOME/recordvi
-    #   - recordvi-#-##-### (takes)
+    # $DATA_HOME/<title>
+    #   - ###-###-### (takes)
     #       - nodvi
     #           - device
     #               - data
@@ -233,8 +234,10 @@ if __name__ == "__main__":
     
     # root = os.path.join(data_home, 'recordvi')
     # takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
-    root = os.path.join(data_home, 'jellyfish')
-    takes = ['04-21-0100']
+    root = os.path.join(data_home, "jellyfishdata/raw/data_4_21/converted")
+    takes = [
+            "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
+            "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
     train_perc = 0.75
 
     data = []
