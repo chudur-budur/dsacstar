@@ -249,7 +249,7 @@ if __name__ == "__main__":
         # Approximate poses from the images, if there are matching timestamps,
         # no need to approximate.
         poses_ = approximate(images, poses)
-        for k in images:
+        for k in poses_.keys():
             data.append([images[k], poses_[k]])
 
     # Shuffle the consolidated data.
