@@ -11,6 +11,7 @@ import os
 import random
 import warnings
 import yaml
+import numpy as np
 
 
 def binary_search_approx(value, array):
@@ -30,7 +31,7 @@ def binary_search_approx(value, array):
     while upper - lower > 1:  # If we are not yet done,
         mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
         # if they are closer than delta, then that's it
-        if value - array[mid] == 0:
+        if value == array[mid]:
             return mid
         if value >= array[mid]:
             lower = mid  # and replace either the lower limit
@@ -43,48 +44,11 @@ def binary_search_approx(value, array):
         return n-1
     else:
         # this means we couldn't find exact match.
-        # so now minimize the difference.
-        if upper - lower > 1:
-            minimum = [lower, float('inf')]
-            for i in range(lower, upper+1):
-                delta = abs(value - array[i])
-                if delta <= minimum[1]:
-                    minimum = [i, delta]
-            return minimum[0]
-        else:
+        # return the index with minimum difference.
+        if abs(value - array[lower]) <= abs(value - array[upper]):
             return lower
-
-
-def binary_search_delta(value, array, delta=0):
-    r"""Simple binary search to find a closest value in an array.
-
-    Given an `array` and given a `value`, returns an index `j` such that `value` 
-    is between `array[j]` and `array[j+1]`. `array` must be monotonic increasing. 
-    `j=-1` or `j=len(array)` is returned to indicate that ``value`` is out of range 
-    below and above respectively.
-    """
-    n = len(array)
-    if value < array[0]:
-        return -1
-    elif value > array[n-1]:
-        return n
-    lower, upper = 0, n-1  # Initialize lower and upper
-    while upper - lower > 1:  # If we are not yet done,
-        mid = (upper + lower) >> 1  # compute a midpoint with a bitshift
-        # if they are closer than delta, then that's it
-        if abs(value - array[mid]) <= delta:
-            return mid
-        if value >= array[mid]:
-            lower = mid  # and replace either the lower limit
         else:
-            upper = mid  # or the upper limit, as appropriate.
-        # Repeat until the test condition is satisfied.
-    if value == array[0]:  # edge cases at bottom
-        return 0
-    elif value == array[n-1]:  # and top
-        return n-1
-    else:
-        return lower
+            return upper
 
 
 def parse_nodconfig(path):
@@ -127,9 +91,11 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
+    focal_length, shift = 628.562541875901, 0
     config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
-    intrinsics, shift = parse_nodconfig(config_path)
-    focal_length = intrinsics[0]
+    if os.path.exists(config_path):
+        intrinsics, shift = parse_nodconfig(config_path)
+        focal_length = intrinsics[0]
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
 
     poses = {}
@@ -150,68 +116,57 @@ def collect_poses(root):
     return poses
 
 
-def build_image_to_pose_map(images, poses, delta=0):
-    r"""Makes a mapping from image timestamp to pose timestamp.
+def interpolate_pose(poses, poses_ts, ts, x, k=5):
+    r"""The linear interpolation function.
 
-    From `image` and `pose` dicts. This function creates a mapping
-    between them. Takes each item from `image` and search through
-    `poses` to find the closest pose with respect to the timestamp. 
+    Given the image timestamp x, we interpolate it's pose from `2k` data points
+    around the closest pose timestamped at `j`. We take `k` poses before `ts` and
+    `k` poses after `ts`, with bound constraint checked.
+    """
+    xp = [poses_ts[ts+i] for i in range(-k,k+1) if 0 <= ts+k < len(poses_ts)]
+    pose = []
+    for i in range(7):
+        fp = [poses[j][i] for j in xp] 
+        pose.append(np.interp(x, xp, fp))
+    return pose
+
+
+def approximate(images, poses, interpolate=True):
+    r"""Approximate the missing poses.
+
+    This function approximate poses for the corresponding images
+    with respect to the timestamps. If the there are matching timestamps
+    for images and poses, we will take the pose for that timestamp. However
+    if there is no pose for that image at the same timestamp, we do 
+    a linear approximation.
+
+    If `interpolate` is `False`, the we take the pose that is closest
+    to the timestamp of the image, otherwise we do a linear interpolation
+    (i.e. approximation).
     """
     image_ts = sorted(images.keys())
     pose_ts = sorted(poses.keys())
-    n = len(image_ts)
-
-    image_to_pose_map = {}
-    mean_delta = 0
-    found = 0
+    
+    poses_ = {}
+    n,m = len(image_ts), len(pose_ts)
     missing = 0
     for i in range(n):
-        if delta > 0:
-            j = binary_search_delta(image_ts[i], pose_ts, delta=delta)
-        else:
-            j = binary_search_approx(image_ts[i], pose_ts)
-        if 0 <= j < n:
-            image_to_pose_map[image_ts[i]] = pose_ts[j]
-            mean_delta = mean_delta + abs(image_ts[i] - pose_ts[j])
-            found = found + 1
-        else:
+        # print(i, ':', image_ts[i])
+        if image_ts[i] in poses: # found a pose at the same image timestamp
+            poses_[image_ts[i]] = poses[image_ts[i]]
+        else: # not found
             missing = missing + 1
-    mean_delta = mean_delta / n
-    print("{0:d} images have closest matching poses.".format(found))
-    print("Mean Time-stamp deviations: {0:.3f}".format(mean_delta))
+            j = binary_search_approx(image_ts[i], pose_ts)
+            if interpolate:
+                approx_pose = interpolate_pose(poses, pose_ts, j, image_ts[i])
+            else:
+                approx_pose = poses[pose_ts[j]]
+            poses_[image_ts[i]] = approx_pose
     if missing > 0:
-        warnings.warn("Timestamp misalignment, "
-                      + "{0:d} images don't have closest time-stamped poses.".format(missing)
-                      + " May be you need to collect the data again?")
-    return image_to_pose_map, mean_delta
+        warnings.warn("Total of {0:d} poses approximated ({1:.2f}%). "\
+                .format(missing, (missing / n) * 100.0))
+    return poses_
 
-
-def search_best_delta(take):
-    r"""Find the best delta. 
-        Search for the best delta so that the mean deviation from the image timestamps
-        and pose timestamps are minimized.
-    """
-    root = os.path.join(data_home, 'recordvi')
-    train_perc = 0.75
-
-    # collect images
-    images = collect_images(os.path.join(root, take))
-    print("Found {0:d} camera frames.".format(len(images)))
-    # collect ground truth poses
-    poses = collect_poses(os.path.join(root, take))
-    print("Found {0:d} camera poses.".format(len(poses)))
-    # find the best delta to minimize mismatch
-    fp = open('delta.txt', 'w')
-    min_mean_dev = [0, float('inf')]
-    for delta in range(1, 3000000, 1000):
-        # build the image timestamp to pose timestamp map
-        itpmap, mean_dev = build_image_to_pose_map(images, poses, delta)
-        print(delta, mean_dev)
-        if mean_dev < min_mean_dev[1]:
-            min_mean_dev = [delta, mean_dev]
-        fp.write("{0:d}\t{1:.3f}\n".format(delta, mean_dev))
-    fp.close()
-    print(min_mean_dev)
 
 
 if __name__ == "__main__":
@@ -236,8 +191,6 @@ if __name__ == "__main__":
     #               - data_no_header.csv (data.csv with no header)
     root = os.path.join(data_home, 'recordvi')
     takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
-    # these deltas were found using the search_best_delta() function
-    deltas = [2068001, 2072001, 2059001]
     train_perc = 0.75
 
     data = []
@@ -250,17 +203,21 @@ if __name__ == "__main__":
         poses = collect_poses(path)
         print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
         # build the image timestamp to pose timestamp map
-        img_to_pose, mean_dev = build_image_to_pose_map(
-            images, poses, delta=deltas[i])
-        for k, v in img_to_pose.items():
-            data.append([images[k], poses[v]])
+        poses_ = approximate(images, poses)
+        for k in images:
+            data.append([images[k], poses_[k]])
 
     # shuffle the consolidated data
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
 
+    # create folder to keep the split files
+    split_file_root = "../split-files"
+    if not os.path.exists(split_file_root):
+        os.mkdir(split_file_root)
+
     # makes the train data file mapping
-    train_map_path = os.path.join(root, "train-map.csv")
+    train_map_path = os.path.join(split_file_root, "jellyfish-train-map.csv")
     print("Writing training data mapping in {0:s}.".format(train_map_path))
     with open(train_map_path, 'w') as fp:
         for i in range(train_count):
@@ -269,7 +226,7 @@ if __name__ == "__main__":
             fp.write(line)
 
     # makes the test data file mapping
-    test_map_path = os.path.join(root, "test-map.csv")
+    test_map_path = os.path.join(split_file_root, "jellyfish-test-map.csv")
     print("Writing testing data mapping in {0:s}.".format(test_map_path))
     with open(test_map_path, 'w') as fp:
         for i in range(train_count, len(data)):
