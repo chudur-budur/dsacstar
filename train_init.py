@@ -20,7 +20,7 @@ parser.add_argument('scene', help='name of a scene in the dataset folder')
 parser.add_argument('network', help='output file name for the network')
 
 parser.add_argument('--modelpath', '-mp', type=str, default='models',
-                    help='path where models witl be saved')
+                    help='path where the models will be saved')
 parser.add_argument('--learningrate', '-lr', type=float,
                     default=0.0001, help='learning rate')
 parser.add_argument('--iterations', '-iter', type=int, default=1000000,
