@@ -2,7 +2,22 @@
 
     This script will be used to preprocess and build train/test
     split for the nslam data. The data will be used for training
-    DSAC*.
+    DSAC*. This script assumes the data are saved roughly in this way --
+
+        - home/
+            - root/<take1, take2, ... takeN>/
+                - nodvi/
+                    - device/
+                        - data/
+                            - images0/ (frames)
+                            - data.csv (list of file names with timestamps)
+                            - imu0.csv (pose info of imu0)
+                        - nodconfig.yml
+                - groundtruth/
+                    - config.yaml
+                    - optitrack.csv (optitrack pose with timestamps)
+                    - data.csv (ground truth pose with timestamps and header, we will use this)
+                    - data_no_header.csv (data.csv with no header)
 
 .. moduleauthor:: Khaled Talukder <khaled@nod-labs.com>
 """
@@ -10,6 +25,7 @@
 import os
 import random
 import warnings
+import argparse
 import yaml
 import numpy as np
 from scipy import interpolate
@@ -220,38 +236,86 @@ def downsample(data, n):
     for i in range(0,len(data),delta):
         data_.append(data[i])
     return data_
+
+
+def prepare_root(root, train_perc):
+    data = []
+    path = root # os.path.join(root, takes[i])
+    # Collect images.
+    images = collect_images(path)
+    print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
+    # Collect ground truth poses.
+    poses = collect_poses(path)
+    print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
+    # Approximate poses from the images, if there are matching timestamps,
+    # no need to approximate.
+    poses_ = approximate(images, poses)
+    for k in poses_.keys():
+        data.append([images[k], poses_[k]])
     
-
-if __name__ == "__main__":
-
-    # This script assumes that the data folder location is set in `DATA_HOME`.
-    data_home = os.environ['DATA_HOME']
-
-    # The nslam data are saved in this way:
-    # $DATA_HOME/<title>
-    #   - ###-###-### (takes)
-    #       - nodvi
-    #           - device
-    #               - data
-    #                   - images0 (frames)
-    #                   - data.csv (list of file names with timestamps)
-    #                   - imu0.csv (pose info of imu0)
-    #               - nodconfig.yml
-    #           - groundtruth
-    #               - config.yaml
-    #               - optitrack.csv (optitrack pose with timestamps)
-    #               - data.csv (ground truth pose with timestamps and header, we will use this)
-    #               - data_no_header.csv (data.csv with no header)
+    # Shuffle the consolidated data.
+    random.shuffle(data)
+    train_count = int(len(data) * train_perc)
     
-    # root = os.path.join(data_home, 'recordvi')
-    # takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
+    # make training and testing data
+    train = []
+    for i in range(train_count):
+        train.append(data[i])
+    test = []
+    for i in range(train_count, len(data)):
+        test.append(data[i])
+
+    return train, test
+   
+
+def prepare_recordvi(data_home, train_perc):
+    r"""Prepare datasets for older jellyfish SLAM data.
+
+    This is an older dataset found from the Jellyfish. 
+    These data points are not 100% accurate sensor readings.
+    """
+    root = os.path.join(data_home, 'recordvi')
+    takes = ['recordvi-4-02-000', 'recordvi-4-02-003', 'recordvi-4-02-004']
+    data = []
+    for i in range(len(takes)):
+        path = os.path.join(root, takes[i])
+        # Collect images.
+        images = collect_images(path)
+        print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
+        # Collect ground truth poses.
+        poses = collect_poses(path)
+        print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
+        # Approximate poses from the images, if there are matching timestamps,
+        # no need to approximate.
+        poses_ = approximate(images, poses)
+        for k in poses_.keys():
+            data.append([images[k], poses_[k]])
+    
+    # Shuffle the consolidated data.
+    random.shuffle(data)
+    train_count = int(len(data) * train_perc)
+    
+    # make training and testing data
+    train = []
+    for i in range(train_count):
+        train.append(data[i])
+    test = []
+    for i in range(train_count, len(data)):
+        test.append(data[i])
+
+    return train, test
+
+
+def prepare_jellyfish(data_home, train_perc, n_samples):
+    r"""Prepare the latest Jellyfish SLAM data.
+
+    This scheme will prepare and load Jellyfish SLAM data collected
+    on 04/21/21. Most likely these data points are accurate sensor readings.
+    """
     root = os.path.join(data_home, "jellyfishdata/raw/data_4_21/converted")
     takes = [
             "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
             "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
-    nsample=5000
-    train_perc = 0.75
-
     data = []
     for i in range(len(takes)):
         path = os.path.join(root, takes[i])
@@ -268,11 +332,79 @@ if __name__ == "__main__":
             data.append([images[k], poses_[k]])
 
     # downsample
-    data = downsample(data, n=nsample)
+    data = downsample(data, n=n_samples)
 
     # Shuffle the consolidated data.
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
+    
+    # make training and testing data
+    train = []
+    for i in range(train_count):
+        train.append(data[i])
+    test = []
+    for i in range(train_count, len(data)):
+        test.append(data[i])
+
+    return train, test
+
+# entry point
+if __name__ == "__main__":
+    # Setup argparse
+    parser = argparse.ArgumentParser(
+        description="Preprocess Jellyfish data to train with DSAC*.", 
+        # formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('home', type=str, 
+        help="""Path to the data home folder. 
+        This script assumes the entry point to the folder to be like this:
+        - home/
+            - root/
+                - take1/
+                    - nodvi/
+                        - device/
+                            - data/
+                                - images0/ (frames)
+                                - data.csv (list of frames)
+                                - imu0.csv (pose info of imu0)
+                            - nodconfig.yml
+                    - groundtruth/
+                        - config.yaml
+                        - optitrack.csv (optitrack pose)
+                        - data.csv (ground truth pose)
+                        - data_no_header.csv (data.csv with no header)
+                - take2/
+                    - nodvi/ ...
+                - take3/
+                    - nodvi/ ...
+                ...
+                - takeN/
+                    - nodvi ...""")
+    parser.add_argument('--recordvi', '-rv', action='store_true', 
+            help="If set, data loading will be performed with recordvi scheme.")
+    parser.add_argument('--jellyfish', '-jf', action='store_true', 
+            help="If set, data loading will be performed for jellyfish scheme.")
+    parser.add_argument('--nsamples', '-ns', type=int, default=float('inf'), 
+            help="Total number of subsamples to be prepared.")
+    parser.add_argument('--trainperc', '-p', type=float, default=0.75, 
+            help=r'Total percentage of training data.')
+            # \
+            #+ "`\\home\\root\\<take1, take2, ..., takeN>\\nodvi\\...` etc."))       
+    # parse now
+    opt = parser.parse_args()
+    print(opt)
+    
+    n_samples = opt.nsamples
+    train_perc = opt.trainperc
+
+    # prepate the data
+    train,test = None,None
+    if opt.recordvi:
+        train, test = prepare_recordvi(opt.home, train_perc)
+    elif opt.jellyfish:
+        train, test = prepare_jellyfish(opt.home, train_perc, n_samples)
+    else:
+        train, test = prepare_root(opt.home, train_perc)
 
     # Create folder to keep the split files.
     split_file_root = "../split-files"
@@ -283,20 +415,16 @@ if __name__ == "__main__":
     train_map_path = os.path.join(split_file_root, "jellyfish-train-map.csv")
     print("Writing training data mapping in {0:s}.".format(train_map_path))
     with open(train_map_path, 'w') as fp:
-        for i in range(train_count):
-            line = data[i][0] + ',' + \
-                ','.join([str(v) for v in data[i][1]]) + '\n'
+        for value in train:
+            line = value[0] + ',' + ','.join([str(v) for v in value[1]]) + '\n'
             fp.write(line)
 
     # Make the test data file mapping.
     test_map_path = os.path.join(split_file_root, "jellyfish-test-map.csv")
     print("Writing testing data mapping in {0:s}.".format(test_map_path))
     with open(test_map_path, 'w') as fp:
-        for i in range(train_count, len(data)):
-            line = data[i][0] + ',' + \
-                ','.join([str(v) for v in data[i][1]]) + '\n'
+        for value in test:
+            line = value[0] + ',' + ','.join([str(v) for v in value[1]]) + '\n'
             fp.write(line)
 
     print("Done.")
-
-    # search_best_delta(takes[2])
