@@ -392,7 +392,6 @@ if __name__ == "__main__":
             #+ "`\\home\\root\\<take1, take2, ..., takeN>\\nodvi\\...` etc."))       
     # parse now
     opt = parser.parse_args()
-    print(opt)
     
     n_samples = opt.nsamples
     train_perc = opt.trainperc
