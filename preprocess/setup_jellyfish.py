@@ -353,6 +353,9 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
 
 # entry point
 if __name__ == "__main__":
+    # seed random
+    random.seed(123456)
+
     # Setup argparse
     parser = argparse.ArgumentParser(
         description="Preprocess Jellyfish data to train with DSAC*.",
