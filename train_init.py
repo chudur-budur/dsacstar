@@ -61,7 +61,6 @@ parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S
 parser.add_argument('--checkpoint', '-cp', type=str, default=None,
                 help='use the checkpoint file (i.e. *.ann) to load and restart training from that point')
 opt = parser.parse_args()
-print(opt)
 
 use_init = opt.mode > 0
 
@@ -99,7 +98,6 @@ else:
 epochs = 1 if epochs < 1 else epochs
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, iterations))
-
 
 print("Calculating mean scene coordinates ...")
 mean = torch.zeros((3))
