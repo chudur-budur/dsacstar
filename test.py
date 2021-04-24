@@ -165,7 +165,7 @@ with torch.no_grad():
 
         print(timestamp, file_) 
         line = "{0:s}\t{1:s}".format(timestamp[0], file_)
-        print(q_w, q_xyz)
+        print(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0])
         line = line + "\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}"\
                 .format(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0])
         print(t)
