@@ -136,8 +136,8 @@ with torch.no_grad():
         r_err = cv2.Rodrigues(r_err)[0]
         r_err = np.linalg.norm(r_err) * 180 / math.pi
 
-        print("\nRotation Error: %.2fdeg, Translation Error: %.1fcm" %
-              (r_err, t_err*100))
+        print("\nRotation Error: {0:.2f}deg, Translation Error: {1:.1f}cm"
+                .format(r_err, t_err*100))
 
         rErrs.append(r_err)
         tErrs.append(t_err * 100)
@@ -179,14 +179,13 @@ print("\n===================================================")
 print("\nTest complete.")
 
 print('\nAccuracy:')
-print('\n5cm5deg: %.1f%%' % (pct5 / len(rErrs) * 100))
-print('2cm2deg: %.1f%%' % (pct2 / len(rErrs) * 100))
-print('1cm1deg: %.1f%%' % (pct1 / len(rErrs) * 100))
+print('\n5cm5deg: {0:.1f}%%'.format(pct5 / len(rErrs) * 100))
+print('2cm2deg: {0:.1f}%%'.format(pct2 / len(rErrs) * 100))
+print('1cm1deg: {0:.1f}%%'.format(pct1 / len(rErrs) * 100))
 
-print("\nMedian Error: %.1fdeg, %.1fcm" %
-      (rErrs[median_idx], tErrs[median_idx]))
-print("Avg. processing time: %4.1fms" % (avg_time * 1000))
-test_log.write('%f %f %f\n' % (rErrs[median_idx], tErrs[median_idx], avg_time))
+print("\nMedian Error: {0:.1f}deg, {1:.1f}cm".format(rErrs[median_idx], tErrs[median_idx]))
+print("Avg. processing time: {0:4.1f}ms".format(avg_time * 1000))
+test_log.write('{0:f} {1:f} {2:f}\n'.format(rErrs[median_idx], tErrs[median_idx], avg_time))
 
 test_log.close()
 pose_log.close()
