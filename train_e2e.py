@@ -177,8 +177,8 @@ for epoch in range(1, epochs+1):
         optimizer.zero_grad()
 
         end_time = time.time()-start_time
-        print('Iteration: {0:6d},\tLoss: {1:.2f},\tTime: {2:.2f}s\n'
-              .format(iteration, loss, end_time), flush=True)
+        print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.2f},\tTime: {3:.2f}s\n'
+              .format(epoch, iteration, loss, end_time), flush=True)
 
         train_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
         iteration = iteration + 1

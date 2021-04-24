@@ -311,8 +311,8 @@ for epoch in range(1, epochs+1):
         optimizer.step()		# update all model parameters
         optimizer.zero_grad()
 
-        print('Iteration: {0:6d},\tLoss: {1:.1f},\tValid: {2:.1f}%,\tTime: {3:.2f}s'
-              .format(iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
+        print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.1f},\tValid: {3:.1f}%,\tTime: {4:.2f}s'
+              .format(epoch, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
         train_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
 
