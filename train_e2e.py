@@ -116,6 +116,7 @@ train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(
 
 training_start = time.time()
 
+iteration = 0
 for epoch in range(1, epochs+1):
 
     now = datetime.now()
