@@ -12,7 +12,7 @@ import argparse
 import math
 from datetime import datetime
 
-from dataset import CamLocDataset
+from dataset import CamLocDataset, JellyfishDataset
 from network import Network
 
 parser = argparse.ArgumentParser(
@@ -52,17 +52,14 @@ opt = parser.parse_args()
 # setup dataset
 if opt.mode < 2:
     opt.mode = 0  # we do not load ground truth scene coordinates when testing
-testset = CamLocDataset(opt.scene + "/test", mode=opt.mode)
-testset_loader = torch.utils.data.DataLoader(testset, shuffle=False, num_workers=6)
 
-model_root = "./models"
-if not os.path.exists(model_root):
-    raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
-            + "you might need to run `train_init.py` first?")
-    sys.exit(1)
 if not os.path.exists(opt.network):
     raise FileNotFoundError("Error: file {0:s} not found.".format(opt.network))
     sys.exit(1)
+
+# testset = CamLocDataset(opt.scene + "/test", mode=opt.mode)
+testset = JellyfishDataset(opt.scene, mode=opt.mode)
+testset_loader = torch.utils.data.DataLoader(testset, shuffle=False, num_workers=6)
 
 # load network
 network = Network(torch.zeros((3)), opt.tiny)
