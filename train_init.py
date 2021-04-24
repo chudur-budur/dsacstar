@@ -30,7 +30,7 @@ parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
                     + 'predicted scene coordinate is within this tolerance '
                     + 'threshold to the ground truth scene coordinate, in meters')
 parser.add_argument('--mindepth', '-mind', type=float, default=0.1,
-                    help='enforce  predicted scene coordinates to be this far in front '
+                    help='enforce predicted scene coordinates to be this far in front '
                     + 'of the camera plane, in meters')
 parser.add_argument('--maxdepth', '-maxd', type=float, default=1000,
                     help='enforce that scene coordinates are at most this far in front '
