@@ -9,7 +9,7 @@ from datetime import datetime
 
 import dsacstar
 
-from dataset import CamLocDataset
+from dataset import CamLocDataset, JellyfishDataset
 from network import Network
 
 parser = argparse.ArgumentParser(
@@ -17,70 +17,67 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('scene', help='name of a scene in the dataset folder')
-
 parser.add_argument(
     'network_in', help='file name of a network initialized for the scene')
-
 parser.add_argument('network_out', help='output file name for the new network')
-
+parser.add_argument('--modelpath', '-mp', type=str, default='models',
+                    help='path where the models will be saved')
 parser.add_argument('--hypotheses', '-hyps', type=int, default=64,
                     help='number of hypotheses, i.e. number of RANSAC iterations')
-
 parser.add_argument('--threshold', '-t', type=float, default=10,
                     help='inlier threshold in pixels (RGB) or centimeters (RGB-D)')
-
 parser.add_argument('--inlieralpha', '-ia', type=float, default=100,
-                    help='alpha parameter of the soft inlier count; controls the softness of the hypotheses score distribution; lower means softer')
-
+                    help='alpha parameter of the soft inlier count; ' 
+                    + 'controls the softness of the hypotheses score distribution; lower means softer')
 parser.add_argument('--learningrate', '-lr', type=float, default=0.000001,
                     help='learning rate')
-
-parser.add_argument('--iterations', '-it', type=int, default=100000,
+parser.add_argument('--iterations', '-it', type=int,
                     help='number of training iterations, i.e. network parameter updates')
-
 parser.add_argument('--weightrot', '-wr', type=float, default=1.0,
                     help='weight of rotation part of pose loss')
-
 parser.add_argument('--weighttrans', '-wt', type=float, default=100.0,
                     help='weight of translation part of pose loss')
-
 parser.add_argument('--softclamp', '-sc', type=float, default=100,
                     help='robust square root loss after this threshold')
-
 parser.add_argument('--maxpixelerror', '-maxerrr', type=float, default=100,
-                    help='maximum reprojection (RGB, in px) or 3D distance (RGB-D, in cm) error when checking pose consistency towards all measurements; error is clamped to this value for stability')
-
+                    help='maximum reprojection (RGB, in px) or 3D distance (RGB-D, in cm)' 
+                    + ' error when checking pose consistency towards all measurements;' 
+                    + ' error is clamped to this value for stability')
 parser.add_argument('--mode', '-m', type=int, default=1, choices=[1, 2],
                     help='test mode: 1 = RGB, 2 = RGB-D')
-
 parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
-
 now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
-                    help='custom session name appended to output files. Useful to separate different runs of the program')
+                    help='custom session name appended to output files. ' 
+                    + 'Useful to separate different runs of the program')
 
+# parse now
 opt = parser.parse_args()
 
-# use only photometric augmentation, not rotation and scaling
-trainset = CamLocDataset(opt.scene + "/train", mode=(0 if opt.mode < 2 else opt.mode),
-                         augment=True, aug_rotation=0, aug_scale_min=1, aug_scale_max=1)
+# check if model output folder exists
+model_root = opt.modelpath
+if not os.path.exists(model_root):
+    raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
+                             + "you might need to run `train_init.py` first?")
+    sys.exit(1)
 
+# check if input network is there
+if not os.path.exists(opt.network_in):
+    raise FileNotFoundError(
+        "Error: model file {0:s} not found.".format(opt.network_in))
+    sys.exit(1)
+
+# use only photometric augmentation, not rotation and scaling
+# trainset = CamLocDataset(opt.scene + "/train", mode=(0 if opt.mode < 2 else opt.mode),
+#                          augment=True, aug_rotation=0, aug_scale_min=1, aug_scale_max=1)
+trainset = JellyfishDataset(opt.scene, mode=(0 if opt.mode < 2 else opt.mode),
+                            augment=True, aug_rotation=0, aug_scale_min=1, aug_scale_max=1)
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
 print("Found {0:d} training images for {1:s}.".format(
     len(trainset), opt.scene))
-
-model_root = "./models"
-if not os.path.exists(model_root):
-    raise NotADirectoryError("Error: folder {0:s} not found, ".format(model_root)
-                             + "you might need to run `train_init.py` first?")
-    sys.exit(1)
-if not os.path.exists(opt.network_in):
-    raise FileNotFoundError(
-        "Error: file {0:s} not found.".format(opt.network_in))
-    sys.exit(1)
 
 # load network
 network = Network(torch.zeros((3)), opt.tiny)
@@ -94,6 +91,23 @@ optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 iteration = 0
 epochs = int(opt.iterations / len(trainset))
 # epochs = 1
+#
+# decide iterations from the number of training data
+n = len(trainset)
+if not opt.iterations and not opt.epochs:
+    # iterations: 100000, frames: 4000
+    # iterations: 197250, frames: 789 ... etc.
+    iterations = int((100000 / 4000) * n)
+    epochs = int(iterations / n)
+elif not opt.iterations and opt.epochs:
+    iterations = opt.epochs * n
+    epochs = opt.epochs
+elif opt.iterations and not opt.epochs:
+    iterations = opt.iterations if opt.iterations >= n else n
+    epochs = int(iterations / n)
+else:
+    epochs, iterations = opt.epochs, opt.iterations
+epochs = 1 if epochs < 1 else epochs
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, opt.iterations))
 
