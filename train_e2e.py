@@ -107,7 +107,7 @@ else:
     epochs, iterations = opt.epochs, opt.iterations
 epochs = 1 if epochs < 1 else epochs
 print("Total epochs: {0:d}, Total iterations: {1:d}".format(
-    epochs, opt.iterations))
+    epochs, iterations))
 
 # keep track of training progress
 # train_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
