@@ -195,7 +195,7 @@ class JellyfishDataset(Dataset):
         else:
             image = self.image_transform(image)
 
-        return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx]
+        return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx][0]
 
 
 class CamLocDatasetLite(Dataset):
