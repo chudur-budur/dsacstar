@@ -88,10 +88,6 @@ print("Successfully loaded {0:s}.".format(opt.network_in))
 
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
-iteration = 0
-epochs = int(opt.iterations / len(trainset))
-# epochs = 1
-#
 # decide iterations from the number of training data
 n = len(trainset)
 if not opt.iterations and not opt.epochs:
