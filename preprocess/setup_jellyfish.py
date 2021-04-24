@@ -40,7 +40,7 @@ def binary_search_approx(value, array):
     below and above respectively.
     """
     n = len(array)
-    if value < array[0]: 
+    if value < array[0]:
         return 0
     if value > array[n-1]:
         return n-1
@@ -88,8 +88,8 @@ def get_intrinsics(root):
             intrinsics, shift = parse_nodconfig(config_path)
             focal_length = intrinsics[0]
         except:
-            focal_length, shift = 628.562541875901, 0 # Default values.
-    return focal_length,shift
+            focal_length, shift = 628.562541875901, 0  # Default values.
+    return focal_length, shift
 
 
 def collect_images(root):
@@ -123,7 +123,7 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    focal_length,shift = get_intrinsics(root)
+    focal_length, shift = get_intrinsics(root)
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
     poses = {}
     duplicates = 0
@@ -150,16 +150,16 @@ def interpolate_pose(poses, poses_ts, j, x, k=5):
     around the closest pose timestamped at `j`. We take `k` poses before `j` and
     `k` poses after `j`, with bound constraint checked.
     """
-    xp = [poses_ts[j+i] for i in range(-k,k+1) if 0 <= j+i < len(poses_ts)]
+    xp = [poses_ts[j+i] for i in range(-k, k+1) if 0 <= j+i < len(poses_ts)]
     pose = []
     if x > xp[-1]:
         for i in range(7):
-            fp = [poses[l][i] for l in xp] 
-            f = interpolate.interp1d(xp, fp, fill_value = "extrapolate")
+            fp = [poses[l][i] for l in xp]
+            f = interpolate.interp1d(xp, fp, fill_value="extrapolate")
             pose.append(f(x))
     else:
         for i in range(7):
-            fp = [poses[l][i] for l in xp] 
+            fp = [poses[l][i] for l in xp]
             pose.append(np.interp(x, xp, fp))
     return pose
 
@@ -170,17 +170,17 @@ def align_timestamps(its, pts):
     Trim the image timestamps with respect to the
     range of the pose timestamps.
     """
-    # if the image timestamp starts way 
+    # if the image timestamp starts way
     # earlier than the pose timestamp
-    if its[0] < pts[0]: 
+    if its[0] < pts[0]:
         j = binary_search_approx(pts[0], its)
         its = its[0:j+1]
-    # if the pose timestamp ends way 
+    # if the pose timestamp ends way
     # later than the image timestamp
     if its[-1] < pts[-1]:
         j = binary_search_approx(its[-1], pts)
         pts = pts[0:j+1]
-    
+
     return its, pts
 
 
@@ -203,26 +203,26 @@ def approximate(images, poses, interpolate=True):
     # image_ts, pose_ts = align_timestamps(image_ts, pose_ts)
 
     poses_ = {}
-    n,m = len(image_ts), len(pose_ts)
+    n, m = len(image_ts), len(pose_ts)
     missing = 0
     for i in range(n):
-        if image_ts[i] in poses: # Found a pose at the same image timestamp.
+        if image_ts[i] in poses:  # Found a pose at the same image timestamp.
             poses_[image_ts[i]] = poses[image_ts[i]]
-        else: # Not found.
+        else:  # Not found.
             missing = missing + 1
             j = binary_search_approx(image_ts[i], pose_ts)
             if interpolate:
                 approx_pose = interpolate_pose(poses, pose_ts, j, image_ts[i])
                 # All values after 7th item are intrinsics
-                # taking poses[pose_ts[j]][7:] since there 
+                # taking poses[pose_ts[j]][7:] since there
                 # is no way to approximate it
                 approx_pose.extend(poses[pose_ts[j]][7:])
             else:
                 approx_pose = poses[pose_ts[j]]
             poses_[image_ts[i]] = approx_pose
     if missing > 0:
-        warnings.warn("{0:d} out of {1:d} ({2:.2f}%) poses had to approximate."\
-                .format(missing, n, (missing / n) * 100.0))
+        warnings.warn("{0:d} out of {1:d} ({2:.2f}%) poses had to approximate."
+                      .format(missing, n, (missing / n) * 100.0))
     return poses_
 
 
@@ -235,14 +235,14 @@ def downsample(data, n):
         n = len(data)
     data_ = []
     delta = int(len(data)/n)
-    for i in range(0,len(data),delta):
+    for i in range(0, len(data), delta):
         data_.append(data[i])
     return data_
 
 
 def prepare_root(root, train_perc):
     data = []
-    path = root # os.path.join(root, takes[i])
+    path = root  # os.path.join(root, takes[i])
     # Collect images.
     images = collect_images(path)
     print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
@@ -254,11 +254,11 @@ def prepare_root(root, train_perc):
     poses_ = approximate(images, poses)
     for k in poses_.keys():
         data.append([images[k], poses_[k]])
-    
+
     # Shuffle the consolidated data.
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
-    
+
     # make training and testing data
     train = []
     for i in range(train_count):
@@ -268,7 +268,7 @@ def prepare_root(root, train_perc):
         test.append(data[i])
 
     return train, test
-   
+
 
 def prepare_recordvi(data_home, train_perc):
     r"""Prepare datasets for older jellyfish SLAM data.
@@ -292,11 +292,11 @@ def prepare_recordvi(data_home, train_perc):
         poses_ = approximate(images, poses)
         for k in poses_.keys():
             data.append([images[k], poses_[k]])
-    
+
     # Shuffle the consolidated data.
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
-    
+
     # make training and testing data
     train = []
     for i in range(train_count):
@@ -316,8 +316,8 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
     """
     root = os.path.join(data_home, "jellyfishdata/raw/data_4_21/converted")
     takes = [
-            "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
-            "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
+        "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
+        "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
     data = []
     for i in range(len(takes)):
         path = os.path.join(root, takes[i])
@@ -339,7 +339,7 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
     # Shuffle the consolidated data.
     random.shuffle(data)
     train_count = int(len(data) * train_perc)
-    
+
     # make training and testing data
     train = []
     for i in range(train_count):
@@ -350,15 +350,16 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
 
     return train, test
 
+
 # entry point
 if __name__ == "__main__":
     # Setup argparse
     parser = argparse.ArgumentParser(
-        description="Preprocess Jellyfish data to train with DSAC*.", 
+        description="Preprocess Jellyfish data to train with DSAC*.",
         # formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('home', type=str, 
-        help="""Path to the data home folder. 
+    parser.add_argument('home', type=str,
+                        help="""Path to the data home folder. 
         This script assumes the entry point to the folder to be like this:
         - home/
             - root/
@@ -382,24 +383,24 @@ if __name__ == "__main__":
                 ...
                 - takeN/
                     - nodvi ...""")
-    parser.add_argument('--recordvi', '-rv', action='store_true', 
-            help="If set, data loading will be performed with recordvi scheme.")
-    parser.add_argument('--jellyfish', '-jf', action='store_true', 
-            help="If set, data loading will be performed for jellyfish scheme.")
-    parser.add_argument('--nsamples', '-ns', type=int, default=float('inf'), 
-            help="Total number of subsamples to be prepared.")
-    parser.add_argument('--trainperc', '-p', type=float, default=0.75, 
-            help=r'Total percentage of training data.')
-            # \
-            #+ "`\\home\\root\\<take1, take2, ..., takeN>\\nodvi\\...` etc."))       
+    parser.add_argument('--recordvi', '-rv', action='store_true',
+                        help="If set, data loading will be performed with recordvi scheme.")
+    parser.add_argument('--jellyfish', '-jf', action='store_true',
+                        help="If set, data loading will be performed for jellyfish scheme.")
+    parser.add_argument('--nsamples', '-ns', type=int, default=float('inf'),
+                        help="Total number of subsamples to be prepared.")
+    parser.add_argument('--trainperc', '-p', type=float, default=0.75,
+                        help=r'Total percentage of training data.')
+    # \
+    # + "`\\home\\root\\<take1, take2, ..., takeN>\\nodvi\\...` etc."))
     # parse now
     opt = parser.parse_args()
-    
+
     n_samples = opt.nsamples
     train_perc = opt.trainperc
 
     # prepate the data
-    train,test = None,None
+    train, test = None, None
     if opt.recordvi:
         train, test = prepare_recordvi(opt.home, train_perc)
     elif opt.jellyfish:
