@@ -84,7 +84,7 @@ pct1 = 0
 
 with torch.no_grad():
 
-    for image, gt_pose, init, focal_length, file_ in testset_loader:
+    for image, gt_pose, init, focal_length, file_, timestamp in testset_loader:
 
         focal_length = float(focal_length[0])
         file_ = file_[0].split('/')[-1]  # remove path from file name
@@ -163,12 +163,10 @@ with torch.no_grad():
         q_w = math.cos(angle * 0.5)
         q_xyz = math.sin(angle * 0.5) * axis
 
-        pose_log.write(
-            "{0:s}\t{1:.6f}\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}\t{6:.6f}\t{7:.6f}\t{8:.6f}\t{9:.6f}\n"
-            .format(file_, \
-                    q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0], \
-                    t[0].item(), t[1].item(), t[2].item(), \
-                    r_err, t_err))
+        pose_log.write("{0:s}\t{1:s}".format(timestamp, file_) 
+                + "\t{2:.6f}\t{3:.6f}\t{4:.6f}\t{5:.6f}".fromat(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0]) 
+                + "\t{6:.6f}\t{7:.6f}\t{8:.6f}".format(t[0].item(), t[1].tiem(), t[2].item())
+                + "\t{9:.6f}\t{10:.6f}\n".format(r_err, t_err))
 
 median_idx = int(len(rErrs)/2)
 tErrs.sort()
@@ -185,7 +183,8 @@ print('1cm1deg: {0:.1f}%%'.format(pct1 / len(rErrs) * 100))
 
 print("\nMedian Error: {0:.1f}deg, {1:.1f}cm".format(rErrs[median_idx], tErrs[median_idx]))
 print("Avg. processing time: {0:4.1f}ms".format(avg_time * 1000))
-test_log.write('{0:f} {1:f} {2:f}\n'.format(rErrs[median_idx], tErrs[median_idx], avg_time))
+test_log.write('Median rError: {0:f}\nMedian tError: {1:f}\nAvg. Time{2:f}\n'
+        .format(rErrs[median_idx], tErrs[median_idx], avg_time))
 
 test_log.close()
 pose_log.close()

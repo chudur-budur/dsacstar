@@ -78,6 +78,7 @@ class JellyfishDataset(Dataset):
         entries = [line.strip().split(',') for line in fp.readlines()]
         fp.close()
 
+        self.timestamps = [os.path.split(e[0])[-1].split('.')[0] for e in entries]
         self.rgb_files = [e[0] for e in entries]
         self.pose_data = [self.__to_cam_matrix__(
             [float(v) for v in e[1:8]]) for e in entries]
@@ -194,7 +195,7 @@ class JellyfishDataset(Dataset):
         else:
             image = self.image_transform(image)
 
-        return image, pose, coords, focal_length, self.rgb_files[idx]
+        return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps
 
 
 class CamLocDatasetLite(Dataset):

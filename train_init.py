@@ -100,7 +100,7 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
 print("Calculating mean scene coordinates ...")
 mean = torch.zeros((3))
 count = 0
-for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
+for image, gt_pose, gt_coords, focal_length, file_, timestamp in trainset_loader:
 
     if use_init:
         # use mean of ground truth scene coordinates
@@ -158,7 +158,7 @@ for epoch in range(1, epochs+1):
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
           .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
-    for image, gt_pose, gt_coords, focal_length, file in trainset_loader:
+    for image, gt_pose, gt_coords, focal_length, file_, timestamp in trainset_loader:
 
         start_time = time.time()
 
