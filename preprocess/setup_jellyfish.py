@@ -231,6 +231,8 @@ def downsample(data, n):
 
     Take `n` number of data points from data.
     """
+    if n == float('inf'):
+        n = len(data)
     data_ = []
     delta = int(len(data)/n)
     for i in range(0,len(data),delta):
