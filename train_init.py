@@ -16,9 +16,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('scene', help='name of a scene in the dataset folder')
-
 parser.add_argument('network', help='output file name for the network')
-
 parser.add_argument('--modelpath', '-mp', type=str, default='models',
                     help='path where the models will be saved')
 parser.add_argument('--learningrate', '-lr', type=float,
@@ -59,7 +57,7 @@ parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S
                     help='custom session name appended to output files, useful to '
                     + 'separate different runs of a script')
 parser.add_argument('--checkpoint', '-cp', type=str, default=None,
-                help='use the checkpoint file (i.e. *.ann) to load and restart training from that point')
+                    help='use the checkpoint file (i.e. *.ann) to load and restart training from that point')
 opt = parser.parse_args()
 
 use_init = opt.mode > 0
@@ -68,7 +66,7 @@ model_root = opt.modelpath
 if not os.path.exists(model_root):
     os.mkdir(model_root)
 
-# for RGB-D initialization, we utilize ground truth scene coordinates 
+# for RGB-D initialization, we utilize ground truth scene coordinates
 # as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
