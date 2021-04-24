@@ -33,6 +33,8 @@ parser.add_argument('--learningrate', '-lr', type=float, default=0.000001,
                     help='learning rate')
 parser.add_argument('--iterations', '-it', type=int,
                     help='number of training iterations, i.e. network parameter updates')
+parser.add_argument('--epochs', '-e', type=int,
+                    help='number of training epochs, i.e. |iterations / no. training images|')
 parser.add_argument('--weightrot', '-wr', type=float, default=1.0,
                     help='weight of rotation part of pose loss')
 parser.add_argument('--weighttrans', '-wt', type=float, default=100.0,
