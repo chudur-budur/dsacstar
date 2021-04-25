@@ -184,6 +184,7 @@ print('2cm2deg: {0:.1f}%%'.format(pct2 / len(rErrs) * 100))
 print('1cm1deg: {0:.1f}%%'.format(pct1 / len(rErrs) * 100))
 
 print("\nMedian Error: {0:.1f}deg, {1:.1f}cm".format(rErrs[median_idx], tErrs[median_idx]))
+print("\nMean Error: {0:.2f}deg, {1:.2f}cm".format(np.mean(rErrs), np.mean(tErrs)))
 print("Avg. processing time: {0:4.1f}ms".format(avg_time * 1000))
 test_log.write('Median rError: {0:f}\nMedian tError: {1:f}\nAvg. Time{2:f}\n'
         .format(rErrs[median_idx], tErrs[median_idx], avg_time))
