@@ -91,6 +91,7 @@ class JellyfishDataset(Dataset):
             transforms.ToPILImage(),
             transforms.Resize(self.image_height),
             transforms.Grayscale(),
+            # do a canny filter here?
             transforms.ToTensor(),
             transforms.Normalize(
                 # statistics calculated over 7scenes training set, should generalize fairly well
@@ -118,7 +119,9 @@ class JellyfishDataset(Dataset):
         return len(self.rgb_files)
 
     def __to_cam_matrix__(self, extrinsics):
-        p, q = extrinsics[0:3], extrinsics[3:]
+        # 0: q0, 1: q1, 2: q2, 3: q3, 
+        # 4: x, 5: y, 6: z
+        q, p = extrinsics[0:4], extrinsics[4:]
         m = np.zeros((4, 4))
         m[0:3, -1] = p
 

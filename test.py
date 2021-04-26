@@ -84,7 +84,7 @@ pct1 = 0
 
 with torch.no_grad():
 
-    for image, gt_pose, init, focal_length, file_, timestamp in testset_loader:
+    for image, gt_pose, init, focal_length, _, timestamp in testset_loader:
 
         focal_length = float(focal_length[0])
         file_ = file_[0].split('/')[-1]  # remove path from file name
@@ -163,7 +163,7 @@ with torch.no_grad():
         q_w = math.cos(angle * 0.5)
         q_xyz = math.sin(angle * 0.5) * axis
 
-        line = "{0:s}\t{1:s}".format(timestamp[0], file_)
+        line = "{0:s}".format(timestamp[0])
         line = line + "\t{0:.6f}\t{1:.6f}\t{2:.6f}\t{3:.6f}"\
                 .format(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0])
         line = line + "\t{0:.6f}\t{1:.6f}\t{2:.6f}".format(t[0].item(), t[1].item(), t[2].item())

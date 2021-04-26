@@ -123,7 +123,7 @@ for epoch in range(1, epochs+1):
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
           .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
-    for image, pose, camera_coordinates, focal_length, file_, timestamp in trainset_loader:
+    for image, pose, camera_coordinates, focal_length, _, _ in trainset_loader:
 
         start_time = time.time()
 
