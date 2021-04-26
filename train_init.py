@@ -132,8 +132,10 @@ network.train()
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
 # keep track of training progress
-# train_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
-train_log = open('log_init_{0:s}_{1:s}.txt'.format(
+# train_iter_log = open('log_init_%s_%s.txt' % (opt.scene, opt.session), 'w', 1)
+train_iter_log = open('log_init_iter_{0:s}_{1:s}.txt'.format(
+    opt.network, opt.session), 'w', 1)
+train_epoch_log = open('log_init_epoch_{0:s}_{1:s}.txt'.format(
     opt.network, opt.session), 'w', 1)
 
 # generate grid of target reprojection pixel positions
@@ -158,6 +160,9 @@ for epoch in range(1, epochs+1):
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
           .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
+    count = 0
+    mean_loss = 0.0
+    mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
 
         start_time = time.time()
@@ -313,13 +318,22 @@ for epoch in range(1, epochs+1):
 
         print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.1f},\tValid: {3:.1f}%,\tTime: {4:.2f}s'
               .format(epoch, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
-        train_log.write('{0:d} {1:f} {2:f}\n'.format(
+        train_iter_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
 
+        mean_loss = mean_loss + loss
+        mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
+
         iteration = iteration + 1
+        count = count + 1
 
         del loss
 
+    mean_loss = mean_loss / count
+    mean_num_valid_sc = mean_num_valid_sc / count
+    train_epoch_log.write('{0:d} {1:f} {2:f}\n'.format(
+        epoch, mean_loss, mean_num_valid_sc))
+    
     if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(
             model_root, "{0:s}-e{1:d}-init.ann".format(opt.network, epoch))
@@ -327,4 +341,5 @@ for epoch in range(1, epochs+1):
         torch.save(network.state_dict(), model_path)
 
 print('Done without errors.')
-train_log.close()
+train_iter_log.close()
+train_epoch_log.close()
