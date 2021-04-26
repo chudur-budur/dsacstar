@@ -110,8 +110,10 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
     epochs, iterations))
 
 # keep track of training progress
-# train_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
-train_log = open('log_e2e_{0:s}_{1:s}.txt'.format(
+# train_iter_log = open('log_e2e__.txt' % (opt.scene, opt.session), 'w', 1)
+train_iter_log = open('log_e2e_iter_{0:s}_{1:s}.txt'.format(
+    opt.network_out, opt.session), 'w', 1)
+train_epoch_log = open('log_e2e_epoch_{0:s}_{1:s}.txt'.format(
     opt.network_out, opt.session), 'w', 1)
 
 training_start = time.time()
@@ -123,6 +125,8 @@ for epoch in range(1, epochs+1):
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
           .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
+    count = 0
+    mean_loss = 0.0
     for image, pose, camera_coordinates, focal_length, _, _ in trainset_loader:
 
         start_time = time.time()
@@ -180,9 +184,13 @@ for epoch in range(1, epochs+1):
         print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.2f},\tTime: {3:.2f}s\n'
               .format(epoch, iteration, loss, end_time), flush=True)
 
-        train_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
+        train_iter_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
+        mean_loss = mean_loss + loss
+        count = count + 1
         iteration = iteration + 1
 
+    mean_loss = mean_loss / count
+    train_epoch_log.write('{0:d}\t{1:f}\n'.format(epoch, mean_loss))
     if epoch % 5 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(
             model_root, "{0:s}-e{1:d}-e2e.ann".format(opt.network_out, epoch))
@@ -191,4 +199,5 @@ for epoch in range(1, epochs+1):
 
 print('Done without errors. Time: {0:.1f} minutes.'.format(
     (time.time() - training_start) / 60))
-train_log.close()
+train_iter_log.close()
+train_epoch_log.close()
