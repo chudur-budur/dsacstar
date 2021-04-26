@@ -37,7 +37,7 @@ EOF
         set term png
         set output "conv-init-epoch-pvsc.png"
         set xlabel "Epochs"
-        set ylabel "% of Valid Scene Cooridnates"
+        set ylabel "Mean % of Valid Scene Cooridnates"
         unset key
         plot "$lastinit" using 1:3 with lines
         set term wxt
