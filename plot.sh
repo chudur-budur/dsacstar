@@ -39,7 +39,7 @@ EOF
         set xlabel "Epochs"
         set ylabel "% of Valid Scene Cooridnates"
         unset key
-        plot "$lastinit" using 1:2 with lines
+        plot "$lastinit" using 1:3 with lines
         set term wxt
 EOF
 fi
