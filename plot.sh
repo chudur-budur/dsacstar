@@ -18,8 +18,8 @@ if [[ ! -z $lastinit ]]; then
     gnuplot <<- EOF
         set term png
         set output "conv-init-epoch.png"
-        set xlabel "Iterations"
-        set ylabel "Loss"
+        set xlabel "Epochs"
+        set ylabel "Mean Loss"
         unset key
         plot "$lastinit" using 1:2 with lines
         set term wxt
@@ -44,8 +44,8 @@ if [[ ! -z $laste2e ]]; then
     gnuplot <<- EOF
         set term png
         set output "conv-e2e-epoch.png"
-        set xlabel "Iterations"
-        set ylabel "Loss"
+        set xlabel "Epochs"
+        set ylabel "Mean Loss"
         unset key
         plot "$laste2e" using 1:2 with lines
         set term wxt
