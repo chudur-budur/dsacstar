@@ -100,7 +100,7 @@ print("Total epochs: {0:d}, Total iterations: {1:d}".format(
 print("Calculating mean scene coordinates ...")
 mean = torch.zeros((3))
 count = 0
-for image, gt_pose, gt_coords, focal_length, :wa_, _ in trainset_loader:
+for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
 
     if use_init:
         # use mean of ground truth scene coordinates
