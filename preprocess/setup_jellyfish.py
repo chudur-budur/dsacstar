@@ -307,8 +307,7 @@ def prepare_recordvi(data_home, train_perc):
 
     return train, test
 
-
-def prepare_jellyfish(data_home, train_perc, n_samples):
+def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
     r"""Prepare the latest Jellyfish SLAM data.
 
     This scheme will prepare and load Jellyfish SLAM data collected
@@ -319,9 +318,8 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
             "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
             "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
     data = []
-    for i in range(len(takes)):
-        path = os.path.join(root, takes[i])
-        # Collect images.
+    path = os.path.join(root, takes[i])
+    # Collect images.
         images = collect_images(path)
         print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
         # Collect ground truth poses.
@@ -334,7 +332,8 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
             data.append([images[k], poses_[k]])
 
     # downsample
-    data = downsample(data, n=n_samples)
+    if n_samples < float('inf'):
+        data = downsample(data, n=n_samples)
 
     # Shuffle the consolidated data.
     random.shuffle(data)
@@ -347,6 +346,51 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
     test = []
     for i in range(train_count, len(data)):
         test.append(data[i])
+
+    return train, test
+
+
+def prepare_jellyfish_separated(data_home):
+    r"""Prepare the latest Jellyfish SLAM data.
+
+    This scheme will prepare and load Jellyfish SLAM data collected
+    on 04/21/21. Most likely these data points are accurate sensor readings.
+    """
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23") 
+    takes = [
+            "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
+            "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
+    train, test = [],[]
+    
+    path = os.path.join(root, takes[0])
+    # Collect images.
+    images = collect_images(path)
+    print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
+    # Collect ground truth poses.
+    poses = collect_poses(path)
+    print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
+    # Approximate poses from the images, if there are matching timestamps,
+    # no need to approximate.
+    poses_ = approximate(images, poses)
+    for k in poses_.keys():
+        train.append([images[k], poses_[k]])
+    
+    path = os.path.join(root, takes[1])
+    # Collect images.
+    images = collect_images(path)
+    print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
+    # Collect ground truth poses.
+    poses = collect_poses(path)
+    print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
+    # Approximate poses from the images, if there are matching timestamps,
+    # no need to approximate.
+    poses_ = approximate(images, poses)
+    for k in poses_.keys():
+        test.append([images[k], poses_[k]])
+
+    # Shuffle the consolidated data.
+    random.shuffle(train)
+    random.shuffle(test)
 
     return train, test
 
@@ -390,6 +434,8 @@ if __name__ == "__main__":
                         help="If set, data loading will be performed with recordvi scheme.")
     parser.add_argument('--jellyfish', '-jf', action='store_true',
                         help="If set, data loading will be performed for jellyfish scheme.")
+    parser.add_argument('--jellyfishseparated', '-jfs', action='store_true',
+                        help="If set, data loading will be performed for jellyfish (separated) scheme.")
     parser.add_argument('--nsamples', '-ns', type=int, default=float('inf'),
                         help="Total number of subsamples to be prepared.")
     parser.add_argument('--trainperc', '-p', type=float, default=0.75,
@@ -408,6 +454,8 @@ if __name__ == "__main__":
         train, test = prepare_recordvi(opt.home, train_perc)
     elif opt.jellyfish:
         train, test = prepare_jellyfish(opt.home, train_perc, n_samples)
+    elif opt.jellyfishseparated:
+        train, test = prepare_jellyfish_separated(opt.home)
     else:
         train, test = prepare_root(opt.home, train_perc)
 
