@@ -318,8 +318,9 @@ def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
             "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
             "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
     data = []
-    path = os.path.join(root, takes[i])
-    # Collect images.
+    for i in range(len(takes)):
+        path = os.path.join(root, takes[i])
+        # Collect images.
         images = collect_images(path)
         print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
         # Collect ground truth poses.
