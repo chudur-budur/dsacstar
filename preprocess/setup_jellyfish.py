@@ -314,10 +314,10 @@ def prepare_jellyfish(data_home, train_perc, n_samples):
     This scheme will prepare and load Jellyfish SLAM data collected
     on 04/21/21. Most likely these data points are accurate sensor readings.
     """
-    root = os.path.join(data_home, "jellyfishdata/raw/data_4_21/converted")
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23") 
     takes = [
-        "1/vlc-record-2021-04-21-13h54m24s-rtsp___10.42.0.2_stream1-",
-        "1/vlc-record-2021-04-21-14h00m33s-rtsp___10.42.0.2_stream1-"]
+            "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
+            "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
     data = []
     for i in range(len(takes)):
         path = os.path.join(root, takes[i])
