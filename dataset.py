@@ -139,7 +139,7 @@ class JellyfishDataset(Dataset):
 
         m[-1, -1] = 1
 
-        return m
+        return np.linalg.inv(m)
 
     def __rot__(self, t, angle, order, mode='constant'):
         # rotate input image
