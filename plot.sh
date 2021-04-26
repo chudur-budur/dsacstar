@@ -11,6 +11,15 @@ if [[ ! -z $lastinit ]]; then
         plot "$lastinit" using 1:2 with lines
         set term wxt
 EOF
+    gnuplot <<- EOF
+        set term png
+        set output "conv-init-iter-pvsc.png"
+        set xlabel "Iterations"
+        set ylabel "% of Valid Scene Cooridnates"
+        unset key
+        plot "$lastinit" using 1:3
+        set term wxt
+EOF
 fi
 
 lastinit=$(ls -t | grep log_init_epoch | head -n 1)
@@ -20,6 +29,15 @@ if [[ ! -z $lastinit ]]; then
         set output "conv-init-epoch.png"
         set xlabel "Epochs"
         set ylabel "Mean Loss"
+        unset key
+        plot "$lastinit" using 1:2 with lines
+        set term wxt
+EOF
+    gnuplot <<- EOF
+        set term png
+        set output "conv-init-epoch-pvsc.png"
+        set xlabel "Epochs"
+        set ylabel "% of Valid Scene Cooridnates"
         unset key
         plot "$lastinit" using 1:2 with lines
         set term wxt
