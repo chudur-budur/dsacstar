@@ -318,19 +318,19 @@ def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
             "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
             "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
     data = []
-    for i in range(len(takes)):
-        path = os.path.join(root, takes[i])
-        # Collect images.
-        images = collect_images(path)
-        print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
-        # Collect ground truth poses.
-        poses = collect_poses(path)
-        print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
-        # Approximate poses from the images, if there are matching timestamps,
-        # no need to approximate.
-        poses_ = approximate(images, poses)
-        for k in poses_.keys():
-            data.append([images[k], poses_[k]])
+    # for i in range(len(takes)):
+    path = os.path.join(root, takes[0])
+    # Collect images.
+    images = collect_images(path)
+    print("Found {0:d} camera frames in {1:s}.".format(len(images), path))
+    # Collect ground truth poses.
+    poses = collect_poses(path)
+    print("Found {0:d} camera poses in {1:s}.".format(len(poses), path))
+    # Approximate poses from the images, if there are matching timestamps,
+    # no need to approximate.
+    poses_ = approximate(images, poses)
+    for k in poses_.keys():
+        data.append([images[k], poses_[k]])
 
     # downsample
     if n_samples < float('inf'):
