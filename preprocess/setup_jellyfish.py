@@ -333,8 +333,10 @@ def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
         data.append([images[k], poses_[k]])
 
     # downsample
+    print('---------->', len(data))
     if n_samples < float('inf'):
         data = downsample(data, n=n_samples)
+        print('---------->', len(data))
 
     # Shuffle the consolidated data.
     random.shuffle(data)
