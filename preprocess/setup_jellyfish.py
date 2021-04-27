@@ -456,7 +456,7 @@ if __name__ == "__main__":
     if opt.recordvi:
         train, test = prepare_recordvi(opt.home, train_perc)
     elif opt.jellyfish:
-        train, test = prepare_jellyfish(opt.home, train_perc, n_samples)
+        train, test = prepare_jellyfish(opt.home, train_perc, n_samples=n_samples)
     elif opt.jellyfishseparated:
         train, test = prepare_jellyfish_separated(opt.home)
     else:
