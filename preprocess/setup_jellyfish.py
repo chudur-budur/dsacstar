@@ -235,7 +235,6 @@ def downsample(data, n):
         n = len(data)
     data_ = []
     delta = int(np.ceil(len(data)/n))
-    print('---------->', delta, len(data)/n)
     for i in range(0, len(data), delta):
         data_.append(data[i])
     return data_
@@ -334,10 +333,8 @@ def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
         data.append([images[k], poses_[k]])
 
     # downsample
-    print('---------->', len(data), n_samples)
     if n_samples < float('inf'):
         data = downsample(data, n=n_samples)
-        print('---------->', len(data), n_samples)
 
     # Shuffle the consolidated data.
     random.shuffle(data)
