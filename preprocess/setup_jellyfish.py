@@ -235,6 +235,7 @@ def downsample(data, n):
         n = len(data)
     data_ = []
     delta = int(len(data)/n)
+    print('---------->', delta, len(data)/n)
     for i in range(0, len(data), delta):
         data_.append(data[i])
     return data_
