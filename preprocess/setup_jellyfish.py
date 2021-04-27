@@ -234,7 +234,7 @@ def downsample(data, n):
     if n == float('inf'):
         n = len(data)
     data_ = []
-    delta = np.ceil(len(data)/n, dtype=int)
+    delta = int(np.ceil(len(data)/n))
     print('---------->', delta, len(data)/n)
     for i in range(0, len(data), delta):
         data_.append(data[i])
