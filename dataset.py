@@ -214,6 +214,7 @@ class JellyfishDataset(Dataset):
     def __getitem__(self, idx):
         # image = io.imread(self.rgb_files[idx])
         image = cv2.imread(self.rgb_files[idx], 1)
+        print(idx, '---------->', self.rgb_files[idx])
         print(idx, '---------->', image.shape)
         # the image are fisheyed, unfish it
         print(idx, "----------> f,c", self.calibration_data[idx][0:4])
