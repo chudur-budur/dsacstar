@@ -169,7 +169,7 @@ class JellyfishDataset(Dataset):
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(T)
         else:
-            pose = np.concatenate((R,T), axis = 1)
+            pose = np.concatenate((R,T.T), axis = 1)
             pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
             pose = np.linalg.inv(m)
         return pose
