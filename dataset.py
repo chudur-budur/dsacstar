@@ -148,7 +148,7 @@ class JellyfishDataset(Dataset):
         else:
             pose = np.hstack((R, T))
             pose = np.vstack((pose, [[0, 0, 0, 1]]))
-            pose = np.linalg.inv(pose)
+            # pose = np.linalg.inv(pose)
 
         return pose
 
