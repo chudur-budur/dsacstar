@@ -125,40 +125,7 @@ class JellyfishDataset(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
-    def __compute_pose_simple__(self, p, q):
-        q0, q1, q2, q3 = q[3], q[0], q[1], q[2]
-        R = np.zeros((3, 3))
-        R[0, 0] = 2 * (q[0] * q[0] + q[1] * q[1]) - 1
-        R[0, 1] = 2 * (q[1] * q[2] - q[0] * q[3])
-        R[0, 2] = 2 * (q[1] * q[3] + q[0] * q[2])
-
-        R[1, 0] = 2 * (q[1] * q[2] + q[0] * q[3])
-        R[1, 1] = 2 * (q[0] * q[0] + q[2] * q[2]) - 1
-        R[1, 2] = 2 * (q[2] * q[3] - q[0] * q[1])
-
-        R[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
-        R[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
-        R[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1 
-        print('----------> R**')
-        print(R)
-        print(np.linalg.inv(R))
-        print(np.linalg.inv(-R))
-        print(np.linalg.inv(R.T))
-        print(np.linalg.inv(-R.T))
-        T = -np.matmul(R, p.T)[:, np.newaxis]
-        
-        pose = None
-        if np.absolute(p).max() > 10000:
-            warnings.warn("A matrix with extremely large translation. Outlier?")
-            warnings.warn(p)
-        else:
-            pose = np.hstack((R, T))
-            pose = np.vstack((pose, [[0, 0, 0, 1]]))
-            # pose = np.linalg.inv(pose)
-
-        return pose
-
-    def __compute_pose_rodrigues__(self, p, q):
+    def __compute_pose__(self, p, q):
         # quaternion to axis-angle
         angle = 2 * math.acos(q[3])
         x = q[0] / math.sqrt(1 - q[3]**2)
@@ -166,8 +133,6 @@ class JellyfishDataset(Dataset):
         z = q[2] / math.sqrt(1 - q[3]**2)
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
-        print('----------> R')
-        print(R)
         T = -np.matmul(R, p.T)[:, np.newaxis]
 
         pose = None
@@ -194,13 +159,7 @@ class JellyfishDataset(Dataset):
             # 4: x, 5: y, 6: z
             q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
-            pose = self.__compute_pose_rodrigues__(p,q)
-            print('rodgrigues')
-            print(pose)
-            # A simpler and faster variant
-            pose_ = self.__compute_pose_simple__(p,q)
-            print('simple')
-            print(pose_)
+            pose = self.__compute_pose__(p,q)
             if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
