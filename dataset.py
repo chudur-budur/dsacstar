@@ -223,7 +223,7 @@ class JellyfishDataset(Dataset):
     def __get_images__(self, entries, Id):
         images = []
         for i,j in enumerate(Id):
-            a = time()
+            a = time.time()
             image = cv2.imread(entries[j][0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
@@ -231,7 +231,7 @@ class JellyfishDataset(Dataset):
                     self.calibration_data[j][4:])
             images.append(image)
             if i > 0 and i % 500 == 0:
-                b = time()
+                b = time.time()
                 t = b - a
                 hrs, r = divmod(t, 3600)
                 mins, sec = divmod(r, 60)
