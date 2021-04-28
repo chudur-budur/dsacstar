@@ -126,29 +126,30 @@ class JellyfishDataset(Dataset):
         return len(self.rgb_files)
 
     def __compute_pose_simple__(self, p, q):
-        m = np.zeros((4, 4))
-        m[0:3, -1] = p
+        R = np.zeros((3, 3))
+        R[0:3, -1] = p
 
-        m[0, 0] = 2 * (q[0] * q[0] + q[1] * q[1]) - 1
-        m[0, 1] = 2 * (q[1] * q[2] - q[0] * q[3])
-        m[0, 2] = 2 * (q[1] * q[3] + q[0] * q[2])
+        R[0, 0] = 2 * (q[0] * q[0] + q[1] * q[1]) - 1
+        R[0, 1] = 2 * (q[1] * q[2] - q[0] * q[3])
+        R[0, 2] = 2 * (q[1] * q[3] + q[0] * q[2])
 
-        m[1, 0] = 2 * (q[1] * q[2] + q[0] * q[3])
-        m[1, 1] = 2 * (q[0] * q[0] + q[2] * q[2]) - 1
-        m[1, 2] = 2 * (q[2] * q[3] - q[0] * q[1])
+        R[1, 0] = 2 * (q[1] * q[2] + q[0] * q[3])
+        R[1, 1] = 2 * (q[0] * q[0] + q[2] * q[2]) - 1
+        R[1, 2] = 2 * (q[2] * q[3] - q[0] * q[1])
 
-        m[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
-        m[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
-        m[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1
-
-        m[-1, -1] = 1
+        R[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
+        R[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
+        R[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1 
+        T = -np.matmul(R, p.T)[:, np.newaxis]
         
         pose = None
         if np.absolute(m[:,-1]).max() > 10000:
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(m[:-1])
         else:
-            pose = m # np.linalg.inv(m)
+            pose = np.hstack((R,T))
+            pose = np.vstack((pose, [[0, 0, 0, 1]]))
+            pose = np.linalg.inv(pose)
 
         return pose
 
@@ -160,7 +161,7 @@ class JellyfishDataset(Dataset):
         z = q[2] / math.sqrt(1 - q[3]**2)
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
-        T = -np.matmul(R, np.transpose(np.array(p)))[:, np.newaxis]
+        T = -np.matmul(R, p.T)[:, np.newaxis]
 
         pose = None
         if np.absolute(T).max() > 10000:
@@ -184,7 +185,7 @@ class JellyfishDataset(Dataset):
             extrinsics = [float(v) for v in e[1:8]]
             # 0: q0 (qx), 1: q1 (qy), 2: q2 (qz), 3: q3 (qw), 
             # 4: x, 5: y, 6: z
-            q, p = extrinsics[0:4], extrinsics[4:]
+            q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
             pose = self.__compute_pose_rodrigues__(p,q)
             print('rodgrigues')
