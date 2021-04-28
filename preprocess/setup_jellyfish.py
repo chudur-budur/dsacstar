@@ -129,17 +129,17 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    intrinsics, _, timeshift = get_intrinsics(root)
-    focal_length = intrinsics[0]
+    intrinsics, distortion_coeff, timeshift = get_intrinsics(root)
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
     poses = {}
     duplicates = 0
     with open(pose_path, 'r') as fp:
         for line in fp.readlines()[1:]:
             vals = line.strip().split(',')
-            ts, pose = int(vals[0]) + int(timeshift), [float(v)
-                                                   for v in vals[1:]]
-            pose.append(focal_length)
+            ts, pose = int(vals[0]), [float(v) for v in vals[1:]]
+            pose.extend(intrinsics)
+            pose.extend(distortion_coeff)
+            pose.append(timeshift)
             if ts not in poses:
                 poses[ts] = pose
             else:
@@ -223,6 +223,7 @@ def approximate(images, poses, interpolate=True):
                 # All values after 7th item are intrinsics
                 # taking poses[pose_ts[j]][7:] since there
                 # is no way to approximate it
+                print(poses[pose_ts[j]][7:])
                 approx_pose.extend(poses[pose_ts[j]][7:])
             else:
                 approx_pose = poses[pose_ts[j]]
@@ -448,8 +449,6 @@ if __name__ == "__main__":
                         help="Total number of subsamples to be prepared.")
     parser.add_argument('--trainperc', '-p', type=float, default=0.75,
                         help=r'Total percentage of training data.')
-    # \
-    # + "`\\home\\root\\<take1, take2, ..., takeN>\\nodvi\\...` etc."))
     # parse now
     opt = parser.parse_args()
 
