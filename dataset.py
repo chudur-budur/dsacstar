@@ -148,7 +148,7 @@ class JellyfishDataset(Dataset):
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(m[:-1])
         else:
-            pose = np.linalg.inv(m)
+            pose = m # np.linalg.inv(m)
 
         return pose
 
