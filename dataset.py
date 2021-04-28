@@ -8,7 +8,7 @@ import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
-from skimage.util import img_as_ubyte, img_as_float
+from skimage.util import img_as_ubyte, img_as_float32
 
 import torch
 import torch.nn.functional as F
@@ -212,9 +212,10 @@ class JellyfishDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        image = img_as_ubyte(io.imread(self.rgb_files[idx]))
+        image = io.imread(self.rgb_files[idx])
         # the image are fisheyed, unfish it
-        image = img_as_float(self.__unfish__(image, self.calibration_data[idx][0:4], \
+        image = img_as_float32(self.__unfish__(image_as_ubyte(image), \
+                self.calibration_data[idx][0:4], \
                 self.calibration_data[idx][4:]))
         
         if len(image.shape) < 3:
