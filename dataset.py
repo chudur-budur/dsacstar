@@ -190,7 +190,7 @@ class JellyfishDataset(Dataset):
             print('rodgrigues')
             print(pose)
             # A simpler and faster variant
-            pose_ = self.__compute_pose_simple(p,q)
+            pose_ = self.__compute_pose_simple__(p,q)
             print('simple')
             print(pose_)
             if pose:
