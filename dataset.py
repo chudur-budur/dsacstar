@@ -222,8 +222,8 @@ class JellyfishDataset(Dataset):
 
     def __get_images__(self, entries, Id):
         images = []
+        a = time.time()
         for i,j in enumerate(Id):
-            a = time.time()
             image = cv2.imread(entries[j][0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
@@ -237,6 +237,7 @@ class JellyfishDataset(Dataset):
                 mins, sec = divmod(r, 60)
                 print("\tPreprocessed {0:d} images. Time taken {1:.1f}:{2:.1f}:{3:.1f}"
                         .format(i, hrs, mins, sec))
+                a = time.time()
         return np.array(images)
 
     def __getitem__(self, idx):
