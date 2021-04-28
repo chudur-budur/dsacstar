@@ -143,9 +143,9 @@ class JellyfishDataset(Dataset):
         T = -np.matmul(R, p.T)[:, np.newaxis]
         
         pose = None
-        if np.absolute(m[:,-1]).max() > 10000:
+        if np.absolute(T).max() > 10000:
             warnings.warn("A matrix with extremely large translation. Outlier?")
-            warnings.warn(m[:-1])
+            warnings.warn(T)
         else:
             pose = np.hstack((R,T))
             pose = np.vstack((pose, [[0, 0, 0, 1]]))
