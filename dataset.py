@@ -88,7 +88,7 @@ class JellyfishDataset(Dataset):
        
         # only images indexed with vid have valid pose
         self.timestamps = self.timestamps[vid]
-        sef.rgb_files = self.rgb_files[vid]
+        self.rgb_files = self.rgb_files[vid]
         self.calibration_data = self.calibration_data[vid]
 
         if len(self.rgb_files) != len(self.pose_data):
