@@ -161,7 +161,7 @@ class JellyfishDataset(Dataset):
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
         print(R)
-        T = -np.matmul(R, np.transpose(np.array(p)))
+        T = -np.matmul(R, np.transpose(np.array(p))).T
         print(T)
 
         pose = None
@@ -169,7 +169,7 @@ class JellyfishDataset(Dataset):
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(T)
         else:
-            pose = np.concatenate((R,T.T), axis = 1)
+            pose = np.concatenate((R,T), axis = 1)
             pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
             pose = np.linalg.inv(m)
         return pose
