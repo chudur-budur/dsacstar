@@ -216,7 +216,7 @@ class JellyfishDataset(Dataset):
         image = io.imread(self.rgb_files[idx])
         # the image are fisheyed, unfish it
         print("f,c", self.calibration_data[idx][0:4])
-        print("k", self.calibration_data[idx][4:])
+        print("k", self.calibration_data[idx][4:-2])
         image = self.__unfish__(image, self.calibration_data[idx][0:4], \
                                         self.calibration_data[idx][4:])
         if len(image.shape) < 3:
