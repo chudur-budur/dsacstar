@@ -74,6 +74,7 @@ def parse_nodconfig(path):
     with open(path) as fp:
         config = yaml.load(fp, Loader=yaml.FullLoader)
         return (config['cams']['cam0']['intrinsics'],
+                config['cams']['cam0']['distortions'],
                 config['cams']['cam0']['timeshift_cam_imu0'])
 
 
@@ -85,11 +86,16 @@ def get_intrinsics(root):
     config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
     if os.path.exists(config_path):
         try:
-            intrinsics, shift = parse_nodconfig(config_path)
-            focal_length = intrinsics[0]
+            intrinsics, distortion_coeff, timeshift = parse_nodconfig(config_path)
         except:
-            focal_length, shift = 628.562541875901, 0  # Default values.
-    return focal_length, shift
+            # Default values
+            # intrinsics [fx, fy, cx, cy]
+            intrinsics = [628.562541875901, 627.2138591418039, 949.2413699450868, 519.1072917895697]
+            # distortion coefficients [k1, k2, k3 k4]
+            distortion_coeff = [0.20157950702488608, -0.05621291427717055, \
+                                -0.030506199533652974, 0.021067301350824064]            
+            timeshift = 0
+    return intrinsics, distortion_coeff, timeshift
 
 
 def collect_images(root):
@@ -123,7 +129,8 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    focal_length, shift = get_intrinsics(root)
+    intrinsics, _, _ = get_intrinsics(root)
+    focal_length = intrinsics[0]
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
     poses = {}
     duplicates = 0
