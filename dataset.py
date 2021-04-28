@@ -84,7 +84,7 @@ class JellyfishDataset(Dataset):
         self.pose_data, vid = self.__get_poses__(entries)
         self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
         self.rgb_files = np.array([e[0] for e in entries])
-        self.calibration_data = np.array([[float(v) for v in e[8:-2]] for e in entries])
+        self.calibration_data = np.array([[float(v) for v in e[8:-1]] for e in entries])
        
         # only images indexed with vid have valid pose
         print('----------> ', vid)
