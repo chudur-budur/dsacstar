@@ -5,11 +5,9 @@ import argparse
 import math
 from datetime import datetime
 
-import cv2
-from skimage import io
-
 import torch
 import torch.optim as optim
+from torchvision import utils
 
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
@@ -169,7 +167,7 @@ for epoch in range(1, epochs+1):
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
 
         if count < 10 and epoch < 2:
-            io.imsave('/tmp/{0:d}-unfished.png'.format(count), image)
+            utils.save_image(image, '/tmp/{0:d}-unfished.png'.format(count))
 
         start_time = time.time()
 
