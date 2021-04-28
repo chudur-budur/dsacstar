@@ -84,7 +84,7 @@ class JellyfishDataset(Dataset):
         self.pose_data, vid = self.__get_poses__(entries)
         self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
         self.rgb_files = np.array([e[0] for e in entries])
-        self.calibration_data = np.array([[float(v) for v in e[8:]] for e in entries])
+        self.calibration_data = np.array([[float(v) for v in e[8:-2]] for e in entries])
        
         # only images indexed with vid have valid pose
         print('----------> ', vid)
@@ -216,7 +216,7 @@ class JellyfishDataset(Dataset):
         image = io.imread(self.rgb_files[idx])
         # the image are fisheyed, unfish it
         print("f,c", self.calibration_data[idx][0:4])
-        print("k", self.calibration_data[idx][4:-2])
+        print("k", self.calibration_data[idx][4:])
         image = self.__unfish__(image, self.calibration_data[idx][0:4], \
                                         self.calibration_data[idx][4:])
         if len(image.shape) < 3:
