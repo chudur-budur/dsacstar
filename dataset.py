@@ -214,7 +214,7 @@ class JellyfishDataset(Dataset):
     def __getitem__(self, idx):
         image = io.imread(self.rgb_files[idx])
         # the image are fisheyed, unfish it
-        image = img_as_float32(self.__unfish__(image_as_ubyte(image), \
+        image = img_as_float32(self.__unfish__(img_as_ubyte(image), \
                 self.calibration_data[idx][0:4], \
                 self.calibration_data[idx][4:]))
         
