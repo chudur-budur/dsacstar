@@ -1,12 +1,14 @@
-import torch
-import torch.optim as optim
-
 import os
 import sys
 import time
 import argparse
 import math
 from datetime import datetime
+
+import cv2
+
+import torch
+import torch.optim as optim
 
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
@@ -164,6 +166,8 @@ for epoch in range(1, epochs+1):
     mean_loss = 0.0
     mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
+
+        cv2.imwrite('/tmp/{0:d}-unfished.png'.format(count), image)
 
         start_time = time.time()
 
