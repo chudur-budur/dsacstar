@@ -8,7 +8,7 @@ import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
-from skimage.util import img_as_float, img_as_ubyte
+from skimage.util import img_as_ubyte
 
 import torch
 import torch.nn.functional as F
@@ -244,7 +244,7 @@ class JellyfishDataset(Dataset):
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.4], std=[0.25])
             ])
-            image = cur_image_transform(img_as_float(image))
+            image = cur_image_transform(image)
 
             # scale focal length
             focal_length *= scale_factor
