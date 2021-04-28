@@ -139,14 +139,14 @@ class JellyfishDataset(Dataset):
         R[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
         R[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
         R[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1 
-        # T = -np.matmul(R, p.T)[:, np.newaxis]
+        T = -np.matmul(R, p.T)[:, np.newaxis]
         
         pose = None
         if np.absolute(p).max() > 10000:
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(p)
         else:
-            pose = np.hstack((R, p[:, np.newaxis]))
+            pose = np.hstack((R, T))
             pose = np.vstack((pose, [[0, 0, 0, 1]]))
             pose = np.linalg.inv(pose)
 
