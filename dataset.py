@@ -222,7 +222,7 @@ class JellyfishDataset(Dataset):
                     self.calibration_data[i][0:4], \
                     self.calibration_data[i][4:])
             images.append(image)
-        return images
+        return np.array(images)
 
     def __getitem__(self, idx):
         # image = img_as_ubyte(io.imread(self.rgb_files[idx]))
