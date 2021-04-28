@@ -218,8 +218,8 @@ class JellyfishDataset(Dataset):
             image = cv2.imread(path, 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
-                    self.calibration[i][0:4], \
-                    self.calibration[i][4:])
+                    calibration[i][0:4], \
+                    calibration[i][4:])
             images.append(image)
         return images
 
