@@ -193,7 +193,7 @@ class JellyfishDataset(Dataset):
             pose_ = self.__compute_pose_simple__(p,q)
             print('simple')
             print(pose_)
-            if pose:
+            if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
         return np.array(poses), np.array(valid_indices)
