@@ -2,7 +2,9 @@ import os
 import numpy as np
 import random
 import math
+import warnings
 
+import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
@@ -78,11 +80,16 @@ class JellyfishDataset(Dataset):
         entries = [line.strip().split(',') for line in fp.readlines()]
         fp.close()
 
-        self.timestamps = [os.path.split(e[0])[-1].split('.')[0] for e in entries]
-        self.rgb_files = [e[0] for e in entries]
-        self.pose_data = [self.__to_cam_matrix__(
-            [float(v) for v in e[1:8]]) for e in entries]
-        self.calibration_data = [e[-1] for e in entries]
+        # collect poses, timestamps, images and calibration data from `map_file`
+        self.pose_data, vid = self.__get_poses__(entries)
+        self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
+        self.rgb_files = np.array([e[0] for e in entries])
+        self.calibration_data = np.array([float(e[8:]) for e in entries])
+       
+        # only images indexed with vid have valid pose
+        self.timestamps = self.timestamps[vid]
+        sef.rgb_files = self.rgb_files[vid]
+        self.calibration_data = self.calibration_data[vid]
 
         if len(self.rgb_files) != len(self.pose_data):
             raise Exception('RGB file count does not match pose file count!')
@@ -118,10 +125,7 @@ class JellyfishDataset(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
-    def __to_cam_matrix__(self, extrinsics):
-        # 0: q0, 1: q1, 2: q2, 3: q3, 
-        # 4: x, 5: y, 6: z
-        q, p = extrinsics[0:4], extrinsics[4:]
+    def __compute_pose_simple__(self, p, q):
         m = np.zeros((4, 4))
         m[0:3, -1] = p
 
@@ -138,8 +142,61 @@ class JellyfishDataset(Dataset):
         m[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1
 
         m[-1, -1] = 1
+        
+        pose = None
+        if np.absolute(m[:,-1]).max() > 10000:
+            warnings.warn("A matrix with extremely large translation. Outlier?")
+            warnings.warn(m[:-1])
+        else:
+            pose = np.linalg.inv(m)
 
-        return np.linalg.inv(m)
+        return pose
+
+    def __compute_pose_rodrigues__(self, p, q):
+        # quaternion to axis-angle
+        angle = 2 * math.acos(q[3])
+        x = q[0] / math.sqrt(1 - q[3]**2)
+        y = q[1] / math.sqrt(1 - q[3]**2)
+        z = q[2] / math.sqrt(1 - q[3]**2)
+
+        R, _ = cv.Rodrigues(np.array([x * angle, y * angle, z * angle]))
+        T = -np.matmul(R, np.transpose(np.array(p)))
+
+        pose = None
+        if np.absolute(T).max() > 10000:
+            warnings.warn("A matrix with extremely large translation. Outlier?")
+            warnings.warn(T)
+        else:
+            pose = np.concatenate((R,T), axis = 1)
+            pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
+            pose = np.linalg.inv(m)
+        return pose
+
+    def __get_poses__(self, entries):
+        """Get all the quarternions and translation values and return their corresponding
+        pose matrices.
+
+        Also return poses only when the translations are correct. Keep track of all the 
+        indices with correct pose/translation.
+        """
+        poses, valid_indices = [], [] 
+        for i,e in enumerate(entries):
+            extrinsics = [float(v) for v in e[1:8]]
+            # 0: q0 (qx), 1: q1 (qy), 2: q2 (qz), 3: q3 (qw), 
+            # 4: x, 5: y, 6: z
+            q, p = extrinsics[0:4], extrinsics[4:]
+            # compute pose with Rodrigues
+            pose = self.__compute_pose_rodrigues__(p,q)
+            print('rodgrigues')
+            print(pose)
+            # A simpler and faster variant
+            pose_ = self.__compute_pose_simple(p,q)
+            print('simple')
+            print(pose_)
+            if pose:
+                poses.append(pose)
+                valid_indices.append(i)
+        return np.array(poses), np.array(valid_indices)
 
     def __rot__(self, t, angle, order, mode='constant'):
         # rotate input image
@@ -148,13 +205,53 @@ class JellyfishDataset(Dataset):
         t = torch.from_numpy(t).permute(2, 0, 1).float()
         return t
 
+    def __unfish__(self, image, intrinsics, distortion_coeffs):
+        """Undistort an fisheye image.
+
+        In Jellyfish data, the images are from a fisheye camera.
+        So we need to to undistort and rescale the image for the
+        neural net input.
+        """
+        target_height = 480 # rescale images
+        # sub sampling of our CNN architecture, 
+        # for size of the initalization targets
+        nn_subsampling = 8
+
+        [fx, fy, cx, cy] = intrinsics
+        cam_matrix = np.array([(fx, 0, cx), (0, fy, cy), (0,0,1)])
+
+        # undistort
+        h, w, _ = image.shape
+        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, \
+                np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
+        image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
+       
+        # rescale
+        img_aspect = image.shape[0] / image.shape[1]
+        if  img_aspect > 1:
+            #portrait
+            img_w = target_height
+            img_h = int(np.ceil(target_height * img_aspect))	
+        else:
+            #landscape
+            img_w = int(np.ceil(target_height / img_aspect))
+            img_h = target_height
+
+        out_w = int(np.ceil(img_w / nn_subsampling))
+        out_h = int(np.ceil(img_h / nn_subsampling))
+        out_scale = out_w / image.shape[1]
+        img_scale = img_w / image.shape[1]
+        image = cv2.resize(image, (img_w, img_h))
+        return image
+
     def __getitem__(self, idx):
         image = io.imread(self.rgb_files[idx])
-
+        # the image are fisheyed, unfish it
+        image = self.__unfish__(image, self.calibration_data[0:4], \
+                                        self.calibration_data[4:])
         if len(image.shape) < 3:
-            image = color.gray2rgb(image)
-
-        focal_length = float(self.calibration_data[idx])
+            image = color.gray2rgb(image) # why though?
+        focal_length = float(self.calibration_data[idx][0])
 
         # image will be normalized to standard height, adjust focal length as well
         f_scale_factor = self.image_height / image.shape[0]
