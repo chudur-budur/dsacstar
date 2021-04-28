@@ -74,7 +74,7 @@ if not os.path.exists(model_root):
 trainset = JellyfishDataset(opt.scene, mode=min(
     opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
-    trainset, shuffle=True, num_workers=0)
+    trainset, shuffle=True, num_workers=6)
 
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
@@ -169,7 +169,7 @@ for epoch in range(1, epochs+1):
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
         print("here2")
         if sanity_check and count < 10 and epoch < 2:
-            home = os.environ['$HOME']
+            home = os.environ['HOME']
             path = os.path.join(home, 'tmp/{0:d}-unfished.png'.format(count))
             print("Saving", path)
             utils.save_image(image, path)
