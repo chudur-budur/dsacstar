@@ -169,8 +169,8 @@ for epoch in range(1, epochs+1):
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
         print("here2")
         if sanity_check and count < 10 and epoch < 2:
-            # home = os.getenv('$HOME')
-            path = os.path.join('/home/khaled', 'tmp/{0:d}-unfished.png'.format(count))
+            home = os.environ['$HOME']
+            path = os.path.join(home, 'tmp/{0:d}-unfished.png'.format(count))
             print("Saving", path)
             utils.save_image(image, path)
 
