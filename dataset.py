@@ -215,13 +215,15 @@ class JellyfishDataset(Dataset):
 
     def __get_images__(self, entries, Id):
         images = []
-        for i in Id:
-            image = cv2.imread(entries[i][0], 1)
+        for i,j in enumerate(Id):
+            image = cv2.imread(entries[j][0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
-                    self.calibration_data[i][0:4], \
-                    self.calibration_data[i][4:])
+                    self.calibration_data[j][0:4], \
+                    self.calibration_data[j][4:])
             images.append(image)
+            if i % 100 == 0:
+                print("Prepared {0:d} images.".format(i))
         return np.array(images)
 
     def __getitem__(self, idx):
