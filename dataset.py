@@ -86,12 +86,13 @@ class JellyfishDataset(Dataset):
         self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
         self.rgb_files = np.array([e[0] for e in entries])
         self.calibration_data = np.array([[float(v) for v in e[8:-1]] for e in entries])
-        self.images = self.__get_images__(self.rgb_files, self.calibration_data)
+        self.images = self.__get_images__(entries)
        
         # only images indexed with vid have valid pose
         self.timestamps = self.timestamps[vid]
         self.rgb_files = self.rgb_files[vid]
         self.calibration_data = self.calibration_data[vid]
+        self.images = self.images[vid]
 
         if len(self.rgb_files) != len(self.pose_data):
             raise Exception('RGB file count does not match pose file count!')
@@ -212,14 +213,14 @@ class JellyfishDataset(Dataset):
         image = cv2.resize(image, (img_w, img_h))
         return image
 
-    def __get_images__(self, files, calibration):
+    def __get_images__(self, entries):
         images = []
-        for i,path in enumerate(files):
-            image = cv2.imread(path, 1)
+        for i,e in enumerate(entries):
+            image = cv2.imread(e[0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
-                    calibration[i][0:4], \
-                    calibration[i][4:])
+                    self.calibration_data[i][0:4], \
+                    self.calibration_data[i][4:])
             images.append(image)
         return images
 
