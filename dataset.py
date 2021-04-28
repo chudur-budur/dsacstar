@@ -139,8 +139,12 @@ class JellyfishDataset(Dataset):
         R[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
         R[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
         R[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1 
-        print('*----------> R')
+        print('----------> R**')
+        print(R)
+        print(np.linalg.inv(R))
         print(np.linalg.inv(-R))
+        print(np.linalg.inv(R.T))
+        print(np.linalg.inv(-R.T))
         T = -np.matmul(R, p.T)[:, np.newaxis]
         
         pose = None
