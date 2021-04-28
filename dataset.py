@@ -189,7 +189,8 @@ class JellyfishDataset(Dataset):
 
         # undistort
         h, w, _ = image.shape
-        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
+        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, \
+                np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
         image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
        
         # rescale
@@ -211,14 +212,9 @@ class JellyfishDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        # image = io.imread(self.rgb_files[idx])
-        image = cv2.imread(self.rgb_files[idx], 1)
-        print(idx, image.dtype)
-        print(idx, '---------->', self.rgb_files[idx])
-        print(idx, '---------->', image.shape)
+        image = io.imread(self.rgb_files[idx])
+        # image = cv2.imread(self.rgb_files[idx], 1)
         # the image are fisheyed, unfish it
-        print(idx, "----------> f,c", self.calibration_data[idx][0:4])
-        print(idx, "----------> k", self.calibration_data[idx][4:])
         image = self.__unfish__(image, self.calibration_data[idx][0:4], self.calibration_data[idx][4:])
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
