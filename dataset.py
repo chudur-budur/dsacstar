@@ -170,8 +170,11 @@ class JellyfishDataset(Dataset):
             warnings.warn(T)
         else:
             # pose = np.concatenate((R,T), axis = 1)
-            pos = np.hstack((R,T))
-            pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
+            pose = np.hstack((R,T))
+            print(pose)
+            # pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
+            pose = np.vstack((pose, [[0, 0, 0, 1]]))
+            print(pose)
             pose = np.linalg.inv(m)
         return pose
 
