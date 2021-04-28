@@ -214,7 +214,7 @@ class JellyfishDataset(Dataset):
     def __getitem__(self, idx):
         image = io.imread(self.rgb_files[idx])
         # the image are fisheyed, unfish it
-        image = img_as_int(self.__unfish__(img_as_ubyte(image), \
+        image = img_as_float(self.__unfish__(img_as_ubyte(image), \
                 self.calibration_data[idx][0:4], \
                 self.calibration_data[idx][4:]))
         
@@ -247,6 +247,7 @@ class JellyfishDataset(Dataset):
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.4], std=[0.25])
             ])
+            image = img_as_ubyte(image)
             image = cur_image_transform(image)
 
             # scale focal length
