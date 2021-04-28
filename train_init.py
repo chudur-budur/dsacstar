@@ -71,6 +71,7 @@ if not os.path.exists(model_root):
 # as in mode 2 (RGB + ground truth scene coordinates)
 # trainset = CamLocDataset(opt.scene + "/train", mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
+print("Preparing dataset, will take a while ...")
 trainset = JellyfishDataset(opt.scene, mode=min(
     opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
