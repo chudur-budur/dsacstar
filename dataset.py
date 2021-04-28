@@ -85,6 +85,7 @@ class JellyfishDataset(Dataset):
         self.pose_data, vid = self.__get_poses__(entries)
         self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
         self.rgb_files = np.array([e[0] for e in entries])
+        self.images = self.__get_images__(self.rgb_files)
         self.calibration_data = np.array([[float(v) for v in e[8:-1]] for e in entries])
        
         # only images indexed with vid have valid pose
@@ -211,14 +212,26 @@ class JellyfishDataset(Dataset):
         image = cv2.resize(image, (img_w, img_h))
         return image
 
+    def __get_images__(self, files):
+        images = []
+        for f in files:
+            image = cv2.imread(f, 1)
+            # the image are fisheyed, unfish it
+            image = self.__unfish__(image, \
+                    self.calibration_data[idx][0:4], \
+                    self.calibration_data[idx][4:])
+            images.append(image)
+        return images
+
     def __getitem__(self, idx):
         # image = img_as_ubyte(io.imread(self.rgb_files[idx]))
-        image = cv2.imread(self.rgb_files[idx], 1)
+        # image = cv2.imread(self.rgb_files[idx], 1)
         # the image are fisheyed, unfish it
         # image = self.__unfish__(image, \
         #         self.calibration_data[idx][0:4], \
         #         self.calibration_data[idx][4:])
         
+        image = self.images[idx]
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
         
