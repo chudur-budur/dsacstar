@@ -7,6 +7,7 @@ from datetime import datetime
 
 import torch
 import torch.optim as optim
+from torchvision import utils
 
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
@@ -154,6 +155,7 @@ for x in range(0, pixel_grid.size(2)):
 pixel_grid = pixel_grid.cuda()
 
 iteration = 0
+sanity_check = True
 for epoch in range(1, epochs+1):
 
     now = datetime.now()
@@ -164,6 +166,12 @@ for epoch in range(1, epochs+1):
     mean_loss = 0.0
     mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
+
+        if sanity_check and count < 10 and epoch < 2:
+            home = os.env['$HOME']
+            path = os.path.join(home, '/tmp/{0:d}-unfished.png'.format(count))
+            print("Saving", path)
+            utils.save_image(image, path)
 
         start_time = time.time()
 

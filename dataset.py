@@ -14,7 +14,6 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import transforms
-from torchvision import utils
 
 from network import Network
 
@@ -263,8 +262,6 @@ class JellyfishDataset(Dataset):
         else:
             image = self.image_transform(image)
 
-        print("saving", idx)
-        utils.save_image(image, '/home/khaled/tmp/{0:d}-unfished.png'.format(idx))
         return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx]
 
 
