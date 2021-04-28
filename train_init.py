@@ -341,7 +341,7 @@ for epoch in range(1, epochs+1):
     mean_num_valid_sc = mean_num_valid_sc / count
     train_epoch_log.write('{0:d} {1:f} {2:f}\n'.format(
         epoch, mean_loss, mean_num_valid_sc))
-    
+
     if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(
             model_root, "{0:s}-e{1:d}-init.ann".format(opt.network, epoch))

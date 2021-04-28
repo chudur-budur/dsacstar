@@ -44,7 +44,7 @@ parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Load a model with massively reduced capacity for a low memory footprint.')
 
 now = datetime.now()
-parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S") ,
+parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
                     help='custom session name appended to output files, useful to separate different runs of a script')
 
 opt = parser.parse_args()
@@ -59,7 +59,8 @@ if not os.path.exists(opt.network):
 
 # testset = CamLocDataset(opt.scene + "/test", mode=opt.mode)
 testset = JellyfishDataset(opt.scene, mode=opt.mode)
-testset_loader = torch.utils.data.DataLoader(testset, shuffle=False, num_workers=6)
+testset_loader = torch.utils.data.DataLoader(
+    testset, shuffle=False, num_workers=6)
 
 # load network
 network = Network(torch.zeros((3)), opt.tiny)
@@ -68,8 +69,10 @@ network = network.cuda()
 network.eval()
 
 network_name = os.path.split(opt.network)[-1].split('.')[0]
-test_log = open('log_test_{0:s}_{1:s}.txt'.format(network_name, opt.session), 'w', 1)
-pose_log = open('log_poses_{0:s}_{1:s}.txt'.format(network_name, opt.session), 'w', 1)
+test_log = open('log_test_{0:s}_{1:s}.txt'.format(
+    network_name, opt.session), 'w', 1)
+pose_log = open('log_poses_{0:s}_{1:s}.txt'.format(
+    network_name, opt.session), 'w', 1)
 
 print('Test images found: ', len(testset))
 
@@ -137,7 +140,7 @@ with torch.no_grad():
         r_err = np.linalg.norm(r_err) * 180 / math.pi
 
         print("\nRotation Error: {0:.2f}deg, Translation Error: {1:.1f}cm"
-                .format(r_err, t_err*100))
+              .format(r_err, t_err*100))
 
         rErrs.append(r_err)
         tErrs.append(t_err * 100)
@@ -165,8 +168,10 @@ with torch.no_grad():
 
         line = "{0:s}".format(timestamp[0])
         line = line + "\t{0:.6f}\t{1:.6f}\t{2:.6f}\t{3:.6f}"\
-                .format(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0])
-        line = line + "\t{0:.6f}\t{1:.6f}\t{2:.6f}".format(t[0].item(), t[1].item(), t[2].item())
+            .format(q_w, q_xyz[0][0], q_xyz[1][0], q_xyz[2][0])
+        line = line + \
+            "\t{0:.6f}\t{1:.6f}\t{2:.6f}".format(
+                t[0].item(), t[1].item(), t[2].item())
         line = line + "\t{0:.6f}\t{1:.6f}\n".format(r_err, t_err)
         pose_log.write(line)
 
@@ -183,11 +188,13 @@ print('\n5cm5deg: {0:.1f}%%'.format(pct5 / len(rErrs) * 100))
 print('2cm2deg: {0:.1f}%%'.format(pct2 / len(rErrs) * 100))
 print('1cm1deg: {0:.1f}%%'.format(pct1 / len(rErrs) * 100))
 
-print("\nMedian Error: {0:.1f}deg, {1:.1f}cm".format(rErrs[median_idx], tErrs[median_idx]))
-print("Mean Error: {0:.2f}deg, {1:.2f}cm".format(np.mean(rErrs), np.mean(tErrs)))
+print("\nMedian Error: {0:.1f}deg, {1:.1f}cm".format(
+    rErrs[median_idx], tErrs[median_idx]))
+print("Mean Error: {0:.2f}deg, {1:.2f}cm".format(
+    np.mean(rErrs), np.mean(tErrs)))
 print("Avg. processing time: {0:4.1f}ms".format(avg_time * 1000))
 test_log.write('Median rError: {0:f}\nMedian tError: {1:f}\nAvg. Time{2:f}\n'
-        .format(rErrs[median_idx], tErrs[median_idx], avg_time))
+               .format(rErrs[median_idx], tErrs[median_idx], avg_time))
 
 test_log.close()
 pose_log.close()

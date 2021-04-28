@@ -89,14 +89,16 @@ class JellyfishDataset(Dataset):
         print("{0:d} valid poses found.".format(len(Id)))
 
         print("Collecting {0:d} timestamps ...".format(len(Id)))
-        self.timestamps = np.array([os.path.split(entries[i][0])[-1].split('.')[0] for i in Id])
-        
+        self.timestamps = np.array(
+            [os.path.split(entries[i][0])[-1].split('.')[0] for i in Id])
+
         print("Collecting {0:d} file paths ...".format(len(Id)))
         self.rgb_files = np.array([entries[i][0] for i in Id])
 
         print("Collecting {0:d} camera calibrations ...".format(len(Id)))
-        self.calibration_data = np.array([[float(v) for v in entries[i][8:-1]] for i in Id])
-        
+        self.calibration_data = np.array(
+            [[float(v) for v in entries[i][8:-1]] for i in Id])
+
         print("Collecting {0:d} images ...".format(len(Id)))
         self.images = self.__get_images__(entries, Id)
         print("Done.")
@@ -147,10 +149,11 @@ class JellyfishDataset(Dataset):
 
         pose = None
         if np.absolute(T).max() > 10000:
-            warnings.warn("A matrix with extremely large translation. Outlier?")
+            warnings.warn(
+                "A matrix with extremely large translation. Outlier?")
             warnings.warn(T)
         else:
-            pose = np.hstack((R,T))
+            pose = np.hstack((R, T))
             pose = np.vstack((pose, [[0, 0, 0, 1]]))
             pose = np.linalg.inv(pose)
         return pose
@@ -162,14 +165,14 @@ class JellyfishDataset(Dataset):
         Also return poses only when the translations are correct. Keep track of all the 
         indices with correct pose/translation.
         """
-        poses, valid_indices = [], [] 
-        for i,e in enumerate(entries):
+        poses, valid_indices = [], []
+        for i, e in enumerate(entries):
             extrinsics = [float(v) for v in e[1:8]]
-            # 0: q0 (qx), 1: q1 (qy), 2: q2 (qz), 3: q3 (qw), 
+            # 0: q0 (qx), 1: q1 (qy), 2: q2 (qz), 3: q3 (qw),
             # 4: x, 5: y, 6: z
             q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
-            pose = self.__compute_pose__(p,q)
+            pose = self.__compute_pose__(p, q)
             if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
@@ -189,8 +192,8 @@ class JellyfishDataset(Dataset):
         So we need to to undistort and rescale the image for the
         neural net input.
         """
-        target_height = 480 # rescale images
-        # sub sampling of our CNN architecture, 
+        target_height = 480  # rescale images
+        # sub sampling of our CNN architecture,
         # for size of the initalization targets
         nn_subsampling = 8
 
@@ -198,18 +201,18 @@ class JellyfishDataset(Dataset):
         cam_matrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
 
         # undistort
-        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, \
-                np.eye(3), cam_matrix, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
+        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs,
+                                                         np.eye(3), cam_matrix, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
         image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
-       
+
         # rescale
         img_aspect = image.shape[0] / image.shape[1]
-        if  img_aspect > 1:
-            #portrait
+        if img_aspect > 1:
+            # portrait
             img_w = target_height
-            img_h = int(np.ceil(target_height * img_aspect))	
+            img_h = int(np.ceil(target_height * img_aspect))
         else:
-            #landscape
+            # landscape
             img_w = int(np.ceil(target_height / img_aspect))
             img_h = target_height
 
@@ -223,12 +226,12 @@ class JellyfishDataset(Dataset):
     def __get_images__(self, entries, Id):
         images = []
         a = time.time()
-        for i,j in enumerate(Id):
+        for i, j in enumerate(Id):
             image = cv2.imread(entries[j][0], 1)
             # the image are fisheyed, unfish it
-            image = self.__unfish__(image, \
-                    self.calibration_data[j][0:4], \
-                    self.calibration_data[j][4:])
+            image = self.__unfish__(image,
+                                    self.calibration_data[j][0:4],
+                                    self.calibration_data[j][4:])
             images.append(image)
             if i > 0 and i % 500 == 0:
                 b = time.time()
@@ -236,15 +239,15 @@ class JellyfishDataset(Dataset):
                 hrs, r = divmod(t, 3600)
                 mins, sec = divmod(r, 60)
                 print("\tPreprocessed {0:d} images. Time taken {1:.1f}:{2:.1f}:{3:.1f}"
-                        .format(i, hrs, mins, sec))
+                      .format(i, hrs, mins, sec))
                 a = time.time()
         return np.array(images)
 
     def __getitem__(self, idx):
         image = self.images[idx]
         if len(image.shape) < 3:
-            image = color.gray2rgb(image) # why though?
-        
+            image = color.gray2rgb(image)  # why though?
+
         focal_length = self.calibration_data[idx][0]
 
         # image will be normalized to standard height, adjust focal length as well

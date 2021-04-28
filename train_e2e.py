@@ -27,7 +27,7 @@ parser.add_argument('--hypotheses', '-hyps', type=int, default=64,
 parser.add_argument('--threshold', '-t', type=float, default=10,
                     help='inlier threshold in pixels (RGB) or centimeters (RGB-D)')
 parser.add_argument('--inlieralpha', '-ia', type=float, default=100,
-                    help='alpha parameter of the soft inlier count; ' 
+                    help='alpha parameter of the soft inlier count; '
                     + 'controls the softness of the hypotheses score distribution; lower means softer')
 parser.add_argument('--learningrate', '-lr', type=float, default=0.000001,
                     help='learning rate')
@@ -42,8 +42,8 @@ parser.add_argument('--weighttrans', '-wt', type=float, default=100.0,
 parser.add_argument('--softclamp', '-sc', type=float, default=100,
                     help='robust square root loss after this threshold')
 parser.add_argument('--maxpixelerror', '-maxerrr', type=float, default=100,
-                    help='maximum reprojection (RGB, in px) or 3D distance (RGB-D, in cm)' 
-                    + ' error when checking pose consistency towards all measurements;' 
+                    help='maximum reprojection (RGB, in px) or 3D distance (RGB-D, in cm)'
+                    + ' error when checking pose consistency towards all measurements;'
                     + ' error is clamped to this value for stability')
 parser.add_argument('--mode', '-m', type=int, default=1, choices=[1, 2],
                     help='test mode: 1 = RGB, 2 = RGB-D')
@@ -51,7 +51,7 @@ parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
 now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
-                    help='custom session name appended to output files. ' 
+                    help='custom session name appended to output files. '
                     + 'Useful to separate different runs of the program')
 
 # parse now
