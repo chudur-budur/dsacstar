@@ -159,7 +159,7 @@ class JellyfishDataset(Dataset):
         y = q[1] / math.sqrt(1 - q[3]**2)
         z = q[2] / math.sqrt(1 - q[3]**2)
 
-        R, _ = cv.Rodrigues(np.array([x * angle, y * angle, z * angle]))
+        R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
         T = -np.matmul(R, np.transpose(np.array(p)))
 
         pose = None
