@@ -139,6 +139,8 @@ class JellyfishDataset(Dataset):
         R[2, 0] = 2 * (q[1] * q[3] - q[0] * q[2])
         R[2, 1] = 2 * (q[2] * q[3] - q[0] * q[1])
         R[2, 2] = 2 * (q[0] * q[0] + q[3] * q[3]) - 1 
+        print('*----------> R')
+        print(R)
         T = -np.matmul(R, p.T)[:, np.newaxis]
         
         pose = None
@@ -160,6 +162,8 @@ class JellyfishDataset(Dataset):
         z = q[2] / math.sqrt(1 - q[3]**2)
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
+        print('----------> R')
+        print(R)
         T = -np.matmul(R, p.T)[:, np.newaxis]
 
         pose = None
