@@ -8,7 +8,7 @@ import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
-from skimage.util import img_as_ubyte
+from skimage.util import img_as_ubyte, img_as_float
 
 import torch
 import torch.nn.functional as F
@@ -214,8 +214,9 @@ class JellyfishDataset(Dataset):
     def __getitem__(self, idx):
         image = img_as_ubyte(io.imread(self.rgb_files[idx]))
         # the image are fisheyed, unfish it
-        image = self.__unfish__(image, self.calibration_data[idx][0:4], \
-                self.calibration_data[idx][4:])
+        image = img_as_float(self.__unfish__(image, self.calibration_data[idx][0:4], \
+                self.calibration_data[idx][4:]))
+        
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
         focal_length = self.calibration_data[idx][0]
