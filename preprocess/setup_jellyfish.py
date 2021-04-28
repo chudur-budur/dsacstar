@@ -129,7 +129,7 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    intrinsics, _, _ = get_intrinsics(root)
+    intrinsics, _, timeshift = get_intrinsics(root)
     focal_length = intrinsics[0]
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
     poses = {}
@@ -137,7 +137,7 @@ def collect_poses(root):
     with open(pose_path, 'r') as fp:
         for line in fp.readlines()[1:]:
             vals = line.strip().split(',')
-            ts, pose = int(vals[0]) + int(shift), [float(v)
+            ts, pose = int(vals[0]) + int(timeshift), [float(v)
                                                    for v in vals[1:]]
             pose.append(focal_length)
             if ts not in poses:
