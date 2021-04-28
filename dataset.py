@@ -262,6 +262,7 @@ class JellyfishDataset(Dataset):
         else:
             image = self.image_transform(image)
 
+        print(idx, "image ready")
         return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx]
 
 
