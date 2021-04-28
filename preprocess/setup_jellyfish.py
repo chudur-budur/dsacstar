@@ -223,7 +223,6 @@ def approximate(images, poses, interpolate=True):
                 # All values after 7th item are intrinsics
                 # taking poses[pose_ts[j]][7:] since there
                 # is no way to approximate it
-                print(poses[pose_ts[j]][7:])
                 approx_pose.extend(poses[pose_ts[j]][7:])
             else:
                 approx_pose = poses[pose_ts[j]]
