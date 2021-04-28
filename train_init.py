@@ -7,7 +7,6 @@ from datetime import datetime
 
 import torch
 import torch.optim as optim
-from torchvision import utils
 
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
@@ -165,10 +164,6 @@ for epoch in range(1, epochs+1):
     mean_loss = 0.0
     mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
-
-        if count < 10 and epoch < 2:
-            print("saving", count)
-            utils.save_image(image, '/tmp/{0:d}-unfished.png'.format(count))
 
         start_time = time.time()
 
