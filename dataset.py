@@ -264,7 +264,7 @@ class JellyfishDataset(Dataset):
             image = self.image_transform(image)
 
         print("saving", idx)
-        utils.save_image(image, '/home/khaled/tmp/{0:d}-unfished.png'.format(count))
+        utils.save_image(image, '/home/khaled/tmp/{0:d}-unfished.png'.format(idx))
         return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx]
 
 
