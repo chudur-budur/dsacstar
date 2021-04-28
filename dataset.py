@@ -215,9 +215,9 @@ class JellyfishDataset(Dataset):
         # image = img_as_ubyte(io.imread(self.rgb_files[idx]))
         image = cv2.imread(self.rgb_files[idx], 1)
         # the image are fisheyed, unfish it
-        image = self.__unfish__(image, \
-                self.calibration_data[idx][0:4], \
-                self.calibration_data[idx][4:])
+        # image = self.__unfish__(image, \
+        #         self.calibration_data[idx][0:4], \
+        #         self.calibration_data[idx][4:])
         
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
