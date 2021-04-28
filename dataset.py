@@ -228,7 +228,7 @@ class JellyfishDataset(Dataset):
                     self.calibration_data[j][4:])
             images.append(image)
             if i > 0 and i % 500 == 0:
-                print("Preprocessed {0:d} images.".format(i))
+                print("\tPreprocessed {0:d} images.".format(i))
         return np.array(images)
 
     def __getitem__(self, idx):
