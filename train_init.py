@@ -74,7 +74,7 @@ if not os.path.exists(model_root):
 trainset = JellyfishDataset(opt.scene, mode=min(
     opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
-    trainset, shuffle=True, num_workers=6)
+    trainset, shuffle=True, num_workers=0)
 
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
