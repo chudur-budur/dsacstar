@@ -167,7 +167,8 @@ for epoch in range(1, epochs+1):
     mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
 
-        cv2.imwrite('/tmp/{0:d}-unfished.png'.format(count), image)
+        if count < 10 and epoch < 2:
+            cv2.imwrite('/tmp/{0:d}-unfished.png'.format(count), image)
 
         start_time = time.time()
 
