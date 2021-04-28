@@ -185,7 +185,7 @@ class JellyfishDataset(Dataset):
         nn_subsampling = 8
 
         [fx, fy, cx, cy] = intrinsics
-        cam_matrix = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]
+        cam_matrix = np.array([(fx, 0, cx), (0, fy, cy), (0, 0, 1)])
 
         # undistort
         h, w, _ = image.shape
