@@ -160,22 +160,16 @@ class JellyfishDataset(Dataset):
         z = q[2] / math.sqrt(1 - q[3]**2)
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
-        print(R)
         T = -np.matmul(R, np.transpose(np.array(p)))[:, np.newaxis]
-        print(T)
 
         pose = None
         if np.absolute(T).max() > 10000:
             warnings.warn("A matrix with extremely large translation. Outlier?")
             warnings.warn(T)
         else:
-            # pose = np.concatenate((R,T), axis = 1)
             pose = np.hstack((R,T))
-            print(pose)
-            # pose = np.concatenate((pose, [[0, 0, 0, 1]]), axis = 0)
             pose = np.vstack((pose, [[0, 0, 0, 1]]))
-            print(pose)
-            pose = np.linalg.inv(m)
+            pose = np.linalg.inv(pose)
         return pose
 
     def __get_poses__(self, entries):
