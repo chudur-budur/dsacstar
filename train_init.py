@@ -6,7 +6,7 @@ import math
 from datetime import datetime
 
 import cv2
-from skimage.util import img_as_ubyte
+from skimage import io
 
 import torch
 import torch.optim as optim
@@ -169,7 +169,7 @@ for epoch in range(1, epochs+1):
     for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
 
         if count < 10 and epoch < 2:
-            cv2.imwrite('/tmp/{0:d}-unfished.png'.format(count), img_as_ubyte(image))
+            io.imsave('/tmp/{0:d}-unfished.png'.format(count), image)
 
         start_time = time.time()
 
