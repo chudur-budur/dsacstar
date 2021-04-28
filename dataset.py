@@ -218,7 +218,7 @@ class JellyfishDataset(Dataset):
                 self.calibration_data[idx][4:])
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
-        focal_length = float(self.calibration_data[idx][0])
+        focal_length = self.calibration_data[idx][0]
 
         # image will be normalized to standard height, adjust focal length as well
         f_scale_factor = self.image_height / image.shape[0]
