@@ -86,14 +86,16 @@ def get_intrinsics(root):
     config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
     if os.path.exists(config_path):
         try:
-            intrinsics, distortion_coeffs, timeshift = parse_nodconfig(config_path)
+            intrinsics, distortion_coeffs, timeshift = parse_nodconfig(
+                config_path)
         except:
             # Default values
             # intrinsics [fx, fy, cx, cy]
-            intrinsics = [628.562541875901, 627.2138591418039, 949.2413699450868, 519.1072917895697]
+            intrinsics = [628.562541875901, 627.2138591418039,
+                          949.2413699450868, 519.1072917895697]
             # distortion coefficients [k1, k2, k3 k4]
-            distortion_coeffs = [0.20157950702488608, -0.05621291427717055, \
-                                -0.030506199533652974, 0.021067301350824064]            
+            distortion_coeffs = [0.20157950702488608, -0.05621291427717055,
+                                 -0.030506199533652974, 0.021067301350824064]
             timeshift = 0.0
     return intrinsics, distortion_coeffs, timeshift
 
@@ -314,16 +316,17 @@ def prepare_recordvi(data_home, train_perc):
 
     return train, test
 
+
 def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
     r"""Prepare the latest Jellyfish SLAM data.
 
     This scheme will prepare and load Jellyfish SLAM data collected
     on 04/21/21. Most likely these data points are accurate sensor readings.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23") 
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23")
     takes = [
-            "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
-            "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
+        "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
+        "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
     data = []
     # for i in range(len(takes)):
     path = os.path.join(root, takes[0])
@@ -364,12 +367,12 @@ def prepare_jellyfish_separated(data_home):
     This scheme will prepare and load Jellyfish SLAM data collected
     on 04/21/21. Most likely these data points are accurate sensor readings.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23") 
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23")
     takes = [
-            "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
-            "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
-    train, test = [],[]
-    
+        "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
+        "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
+    train, test = [], []
+
     path = os.path.join(root, takes[0])
     # Collect images.
     images = collect_images(path)
@@ -382,7 +385,7 @@ def prepare_jellyfish_separated(data_home):
     poses_ = approximate(images, poses)
     for k in poses_.keys():
         train.append([images[k], poses_[k]])
-    
+
     path = os.path.join(root, takes[1])
     # Collect images.
     images = collect_images(path)
@@ -459,7 +462,8 @@ if __name__ == "__main__":
     if opt.recordvi:
         train, test = prepare_recordvi(opt.home, train_perc)
     elif opt.jellyfish:
-        train, test = prepare_jellyfish(opt.home, train_perc, n_samples=n_samples)
+        train, test = prepare_jellyfish(
+            opt.home, train_perc, n_samples=n_samples)
     elif opt.jellyfishseparated:
         train, test = prepare_jellyfish_separated(opt.home)
     else:
