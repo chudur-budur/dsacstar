@@ -160,7 +160,9 @@ class JellyfishDataset(Dataset):
         z = q[2] / math.sqrt(1 - q[3]**2)
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
+        print(R)
         T = -np.matmul(R, np.transpose(np.array(p)))
+        print(T)
 
         pose = None
         if np.absolute(T).max() > 10000:
