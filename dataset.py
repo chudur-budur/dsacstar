@@ -235,7 +235,7 @@ class JellyfishDataset(Dataset):
                 t = b - a
                 hrs, r = divmod(t, 3600)
                 mins, sec = divmod(r, 60)
-                print("\tPreprocessed {0:d} images. Time taken {0:d}:{0:d}:{0:d}"
+                print("\tPreprocessed {0:d} images. Time taken {1:d}:{2:d}:{3:d}"
                         .format(i, hrs, mins, sec))
         return np.array(images)
 
