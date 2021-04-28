@@ -190,7 +190,7 @@ class JellyfishDataset(Dataset):
 
         # undistort
         h, w, _ = image.shape
-        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
+        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, np.eye(3), cam_matrix, (w,h), cv2.CV_8UC1) #cv2.CV_16SC2)
         image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
        
         # rescale
