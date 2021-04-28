@@ -1,10 +1,12 @@
 import os
-import numpy as np
 import random
 import math
 import warnings
+import datetime
 
+import numpy as np
 import cv2
+
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
@@ -221,6 +223,7 @@ class JellyfishDataset(Dataset):
     def __get_images__(self, entries, Id):
         images = []
         for i,j in enumerate(Id):
+            a = datetime.datetime.now()
             image = cv2.imread(entries[j][0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
@@ -228,7 +231,8 @@ class JellyfishDataset(Dataset):
                     self.calibration_data[j][4:])
             images.append(image)
             if i > 0 and i % 500 == 0:
-                print("\tPreprocessed {0:d} images.".format(i))
+                b = datetime.datetime.now()
+                print("\tPreprocessed {0:d} images.".format(i), "Time taken:", (b-a))
         return np.array(images)
 
     def __getitem__(self, idx):
