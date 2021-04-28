@@ -190,7 +190,7 @@ class JellyfishDataset(Dataset):
 
         # undistort
         h, w, _ = image.shape
-        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, np.eye(3), cam_matrix, (w,h), cv2.CV_32FC1) #cv2.CV_16SC2)
+        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
         image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
        
         # rescale
@@ -212,7 +212,8 @@ class JellyfishDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        image = io.imread(self.rgb_files[idx])
+        # image = io.imread(self.rgb_files[idx])
+        image = cv2.imread(self.rgb_files[idx], 1)
         print('---------->', image.shape)
         # the image are fisheyed, unfish it
         print("----------> f,c", self.calibration_data[idx][0:4])
