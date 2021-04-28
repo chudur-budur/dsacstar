@@ -92,7 +92,7 @@ class JellyfishDataset(Dataset):
         self.calibration_data = np.array([[float(v) for v in entries[i][8:-1]] for i in Id])
         print("Getting images ...")
         self.images = self.__get_images__(entries, Id)
-        print("Done."
+        print("Done.")
 
         if len(self.rgb_files) != len(self.pose_data):
             raise Exception('RGB file count does not match pose file count!')
