@@ -82,17 +82,11 @@ class JellyfishDataset(Dataset):
         fp.close()
 
         # collect poses, timestamps, images and calibration data from `map_file`
-        self.pose_data, vid = self.__get_poses__(entries)
-        self.timestamps = np.array([os.path.split(e[0])[-1].split('.')[0] for e in entries])
-        self.rgb_files = np.array([e[0] for e in entries])
-        self.calibration_data = np.array([[float(v) for v in e[8:-1]] for e in entries])
-        self.images = self.__get_images__(entries)
-       
-        # only images indexed with vid have valid pose
-        self.timestamps = self.timestamps[vid]
-        self.rgb_files = self.rgb_files[vid]
-        self.calibration_data = self.calibration_data[vid]
-        self.images = self.images[vid]
+        self.pose_data, Id = self.__get_poses__(entries)
+        self.timestamps = np.array([os.path.split(entries[i][0])[-1].split('.')[0] for i in Id])
+        self.rgb_files = np.array([entries[i][0] for i in Id])
+        self.calibration_data = np.array([[float(v) for v in entries[i][8:-1]] for i in Id])
+        self.images = self.__get_images__(entries, Id)
 
         if len(self.rgb_files) != len(self.pose_data):
             raise Exception('RGB file count does not match pose file count!')
@@ -213,10 +207,10 @@ class JellyfishDataset(Dataset):
         image = cv2.resize(image, (img_w, img_h))
         return image
 
-    def __get_images__(self, entries):
+    def __get_images__(self, entries, Id):
         images = []
-        for i,e in enumerate(entries):
-            image = cv2.imread(e[0], 1)
+        for i in Id:
+            image = cv2.imread(entries[i][0], 1)
             # the image are fisheyed, unfish it
             image = self.__unfish__(image, \
                     self.calibration_data[i][0:4], \
@@ -225,13 +219,6 @@ class JellyfishDataset(Dataset):
         return np.array(images)
 
     def __getitem__(self, idx):
-        # image = img_as_ubyte(io.imread(self.rgb_files[idx]))
-        # image = cv2.imread(self.rgb_files[idx], 1)
-        # the image are fisheyed, unfish it
-        # image = self.__unfish__(image, \
-        #         self.calibration_data[idx][0:4], \
-        #         self.calibration_data[idx][4:])
-        
         image = self.images[idx]
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
