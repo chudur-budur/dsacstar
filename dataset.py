@@ -82,10 +82,15 @@ class JellyfishDataset(Dataset):
         fp.close()
 
         # collect poses, timestamps, images and calibration data from `map_file`
+        print("Getting poses")
         self.pose_data, Id = self.__get_poses__(entries)
+        print("Getting timestamps")
         self.timestamps = np.array([os.path.split(entries[i][0])[-1].split('.')[0] for i in Id])
+        print("Getting file paths")
         self.rgb_files = np.array([entries[i][0] for i in Id])
+        print("Getting file calibration")
         self.calibration_data = np.array([[float(v) for v in entries[i][8:-1]] for i in Id])
+        print("Getting images")
         self.images = self.__get_images__(entries, Id)
 
         if len(self.rgb_files) != len(self.pose_data):
