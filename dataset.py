@@ -232,10 +232,10 @@ class JellyfishDataset(Dataset):
             images.append(image)
             if i > 0 and i % 500 == 0:
                 b = time.time()
-                t = int(b) - int(a)
+                t = b - a
                 hrs, r = divmod(t, 3600)
                 mins, sec = divmod(r, 60)
-                print("\tPreprocessed {0:d} images. Time taken {1:d}:{2:d}:{3:d}"
+                print("\tPreprocessed {0:d} images. Time taken {1:.1f}:{2:.1f}:{3:.1f}"
                         .format(i, hrs, mins, sec))
         return np.array(images)
 
