@@ -161,7 +161,7 @@ class JellyfishDataset(Dataset):
 
         R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
         print(R)
-        T = -np.matmul(R, np.transpose(np.array(p))).T
+        T = -np.matmul(R, np.transpose(np.array(p)))[:, np.newaxis]
         print(T)
 
         pose = None
