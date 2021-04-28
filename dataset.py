@@ -14,7 +14,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from torchvision import transforms
-from torchvision.utils import save_image
+from torchvision import utils
 
 from network import Network
 
