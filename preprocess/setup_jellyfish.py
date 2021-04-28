@@ -86,16 +86,16 @@ def get_intrinsics(root):
     config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
     if os.path.exists(config_path):
         try:
-            intrinsics, distortion_coeff, timeshift = parse_nodconfig(config_path)
+            intrinsics, distortion_coeffs, timeshift = parse_nodconfig(config_path)
         except:
             # Default values
             # intrinsics [fx, fy, cx, cy]
             intrinsics = [628.562541875901, 627.2138591418039, 949.2413699450868, 519.1072917895697]
             # distortion coefficients [k1, k2, k3 k4]
-            distortion_coeff = [0.20157950702488608, -0.05621291427717055, \
+            distortion_coeffs = [0.20157950702488608, -0.05621291427717055, \
                                 -0.030506199533652974, 0.021067301350824064]            
             timeshift = 0.0
-    return intrinsics, distortion_coeff, timeshift
+    return intrinsics, distortion_coeffs, timeshift
 
 
 def collect_images(root):
@@ -129,7 +129,7 @@ def collect_poses(root):
     The keys are the timestamps of each pose and the values are camera position in
     3D and orientation in quarternion.
     """
-    intrinsics, distortion_coeff, timeshift = get_intrinsics(root)
+    intrinsics, distortion_coeffs, timeshift = get_intrinsics(root)
     pose_path = os.path.join(root, 'nodvi/groundtruth/data.csv')
     poses = {}
     duplicates = 0
@@ -138,7 +138,7 @@ def collect_poses(root):
             vals = line.strip().split(',')
             ts, pose = int(vals[0]), [float(v) for v in vals[1:]]
             pose.extend(intrinsics)
-            pose.extend(distortion_coeff)
+            pose.extend(distortion_coeffs)
             pose.append(timeshift)
             if ts not in poses:
                 poses[ts] = pose
