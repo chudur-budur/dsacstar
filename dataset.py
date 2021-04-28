@@ -213,7 +213,7 @@ class JellyfishDataset(Dataset):
     def __getitem__(self, idx):
         # image = io.imread(self.rgb_files[idx])
         image = cv2.imread(self.rgb_files[idx], 1)
-        print(image.dtype)
+        print(idx, image.dtype)
         print(idx, '---------->', self.rgb_files[idx])
         print(idx, '---------->', image.shape)
         # the image are fisheyed, unfish it
