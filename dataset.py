@@ -87,7 +87,6 @@ class JellyfishDataset(Dataset):
         self.calibration_data = np.array([[float(v) for v in e[8:-1]] for e in entries])
        
         # only images indexed with vid have valid pose
-        print('----------> ', vid)
         self.timestamps = self.timestamps[vid]
         self.rgb_files = self.rgb_files[vid]
         self.calibration_data = self.calibration_data[vid]
@@ -219,8 +218,7 @@ class JellyfishDataset(Dataset):
         # the image are fisheyed, unfish it
         print(idx, "----------> f,c", self.calibration_data[idx][0:4])
         print(idx, "----------> k", self.calibration_data[idx][4:])
-        image = self.__unfish__(image, self.calibration_data[idx][0:4], \
-                                        self.calibration_data[idx][4:])
+        image = self.__unfish__(image, self.calibration_data[idx][0:4], self.calibration_data[idx][4:])
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
         focal_length = float(self.calibration_data[idx][0])
