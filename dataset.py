@@ -184,8 +184,8 @@ class JellyfishDataset(Dataset):
         # for size of the initalization targets
         nn_subsampling = 8
 
-        [fx, fy, cx, cy] = intrinsics
-        cam_matrix = np.array([(fx, 0, cx), (0, fy, cy), (0, 0, 1)], dtype=object)
+        fx, fy, cx, cy = intrinsics[0], intrinsics[1], intrinsics[2], intrinsics[3]
+        cam_matrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
 
         # undistort
         h, w, _ = image.shape
