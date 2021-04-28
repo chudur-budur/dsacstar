@@ -82,15 +82,20 @@ class JellyfishDataset(Dataset):
         fp.close()
 
         # collect poses, timestamps, images and calibration data from `map_file`
-        print("Getting poses ...")
+        print("Getting {0:d} poses ...".format(len(entries)))
         self.pose_data, Id = self.__get_poses__(entries)
-        print("Getting timestamps ...")
+        print("{0:d} valid poses found.".format(len(Id)))
+
+        print("Getting {0:d} timestamps ...".format(len(Id)))
         self.timestamps = np.array([os.path.split(entries[i][0])[-1].split('.')[0] for i in Id])
-        print("Getting file paths ..")
+        
+        print("Getting {0:d} file paths ...".format(len(Id)))
         self.rgb_files = np.array([entries[i][0] for i in Id])
-        print("Getting file calibration ...")
+
+        print("Getting {0:d} camera calibrations ...".format(len(Id)))
         self.calibration_data = np.array([[float(v) for v in entries[i][8:-1]] for i in Id])
-        print("Getting images ...")
+        
+        print("Getting {0:d} images ...".format(len(Id)))
         self.images = self.__get_images__(entries, Id)
         print("Done.")
 
@@ -222,8 +227,8 @@ class JellyfishDataset(Dataset):
                     self.calibration_data[j][0:4], \
                     self.calibration_data[j][4:])
             images.append(image)
-            if i > 0 and i % 100 == 0:
-                print("Prepared {0:d} images.".format(i))
+            if i > 0 and i % 500 == 0:
+                print("Preprocessed {0:d} images.".format(i))
         return np.array(images)
 
     def __getitem__(self, idx):
