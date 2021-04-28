@@ -8,6 +8,7 @@ import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
+from skimage.util import image_as_float, img_as_ubyte
 
 import torch
 import torch.nn.functional as F
@@ -188,9 +189,8 @@ class JellyfishDataset(Dataset):
         cam_matrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
 
         # undistort
-        h, w, _ = image.shape
         mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs, \
-                np.eye(3), cam_matrix, (w,h), cv2.CV_16SC2)
+                np.eye(3), cam_matrix, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
         image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
        
         # rescale
@@ -212,10 +212,10 @@ class JellyfishDataset(Dataset):
         return image
 
     def __getitem__(self, idx):
-        image = io.imread(self.rgb_files[idx])
-        # image = cv2.imread(self.rgb_files[idx], 1)
+        image = img_as_ubyte(io.imread(self.rgb_files[idx]))
         # the image are fisheyed, unfish it
-        image = self.__unfish__(image, self.calibration_data[idx][0:4], self.calibration_data[idx][4:])
+        image = self.__unfish__(image, self.calibration_data[idx][0:4], \
+                self.calibration_data[idx][4:])
         if len(image.shape) < 3:
             image = color.gray2rgb(image) # why though?
         focal_length = float(self.calibration_data[idx][0])
