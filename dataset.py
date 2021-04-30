@@ -154,6 +154,8 @@ class JellyfishDataset(Dataset):
 
         # for jellyfish coords are none
         coords = 0
+            
+        image = tr.cambridgify(image)
 
         if self.augment:
             scale_factor = random.uniform(
@@ -163,7 +165,7 @@ class JellyfishDataset(Dataset):
             # get the intrinsics and lens distortion
             camera_intrinsics = self.calibration_data[idx][0:4]
             distortion_coeffs = self.calibration_data[idx][4:]
-            
+ 
             # augment input image
             pipeline = transforms.Compose([
                 # transforms.Lambda(lambda img: \
@@ -172,7 +174,7 @@ class JellyfishDataset(Dataset):
                 # transforms.Lambda(tr.cambridgify),
                 # transforms.Lambda(lambda img: \
                 #         tr.rotate(img, angle, 1, 'reflect'))
-                # transforms.ToPILImage(),
+                transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
