@@ -78,7 +78,7 @@ print("Preparing dataset, will take a while ...")
 trainset = JellyfishDataset(opt.scene, mode=min(
     opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
-    trainset, shuffle=True, num_workers=6, multiprocessing_context='spawn')
+    trainset, shuffle=True, num_workers=6)
 
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
