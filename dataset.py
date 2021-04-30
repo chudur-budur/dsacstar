@@ -179,31 +179,35 @@ class JellyfishDataset(Dataset):
         camera_intrinsics = self.calibration_data[idx][0:4]
         distortion_coeffs = self.calibration_data[idx][4:]
         
-        def __unfish__(img, intrinsics, distortions):
+        def __unfish__(t, intrinsics, distortions):
             """Undistort an fisheye image.
         
             In Jellyfish data, the images are from a fisheye camera.
             So we need to to undistort and rescale the image for the
             neural net input.
             """
+
+            t = t.permute(1, 2, 0).numpy()
+            
             [fx, fy, cx, cy] = intrinsics[0],intrinsics[1], intrinsics[2], intrinsics[3]
             cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
         
             # undistort
             mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortions, \
-                   np.eye(3), cmat, (img.shape[1], img.shape[0]), cv2.CV_16SC2)
-            img = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR) 
+                   np.eye(3), cmat, (t.shape[1], t.shape[0]), cv2.CV_16SC2)
+            t = cv2.remap(t, mapx, mapy, cv2.INTER_LINEAR) 
         
-            return img
+            t = torch.from_numpy(t).permute(2, 0, 1).float()
+            return t
         
-        # image = __unfish__(image, camera_intrinsics, distortion_coeffs)
+        image = __unfish__(image, camera_intrinsics, distortion_coeffs)
         
-        def __cambridgify__(img):
+        def __cambridgify__(t):
             target_height = 480  # rescale images
             # sub sampling of our CNN architecture,
             # for size of the initalization targets
             nn_subsampling = 8
-            img_aspect = img.shape[0] / img.shape[1]
+            img_aspect = t.shape[0] / t.shape[1]
             if img_aspect > 1:
                 # portrait
                 img_w = target_height
@@ -215,12 +219,13 @@ class JellyfishDataset(Dataset):
         
             out_w = int(np.ceil(img_w / nn_subsampling))
             out_h = int(np.ceil(img_h / nn_subsampling))
-            out_scale = out_w / img.shape[1]
-            img_scale = img_w / img.shape[1]
-            img = cv2.resize(img, (img_w, img_h))
-            return img
+            out_scale = out_w / t.shape[1]
+            img_scale = img_w / t.shape[1]
+            t = cv2.resize(t, (img_w, img_h))
+            t = torch.from_numpy(t).permute(2, 0, 1).float()
+            return t
         
-        # image = __cambridgify__(image)
+        image = __cambridgify__(image)
 
         if self.augment:
             scale_factor = random.uniform(
@@ -245,9 +250,11 @@ class JellyfishDataset(Dataset):
             # rotate input image
             def __rotate__(t, angle, order, mode='constant'):
                 # rotate input image
+                print(type(t))
                 t = t.permute(1, 2, 0).numpy()
                 t = rotate(t, angle, order=order, mode=mode)
                 t = torch.from_numpy(t).permute(2, 0, 1).float()
+                print(type(t))
                 return t
 
             image = __rotate__(image, angle, 1, 'reflect')
