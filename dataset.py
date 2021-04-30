@@ -252,7 +252,7 @@ class JellyfishDataset(Dataset):
                 transforms.ToTensor()
             ])
             print(type(pipeline))
-            for t in pipeline:
+            for t in pipeline.transforms:
                 image = t(image)
 
             # scale focal length
