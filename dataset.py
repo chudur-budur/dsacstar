@@ -198,7 +198,6 @@ class JellyfishDataset(Dataset):
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
@@ -206,15 +205,8 @@ class JellyfishDataset(Dataset):
             # scale focal length
             focal_length *= scale_factor
 
-            # rotate input image
-            # def __rotate__(t, angle, order, mode='constant'):
-            #     # rotate input image
-            #     t = t.permute(1, 2, 0).numpy()
-            #     t = rotate(t, angle, order=order, mode=mode)
-            #     t = torch.from_numpy(t).permute(2, 0, 1).float()
-            #     return t
-
-            # image = __rotate__(image, angle, 1, 'reflect')
+            # rotate image
+            image = tr.rotate(image, angle, 1, 'reflect')
 
             if self.init:
                 # rotate and scale depth maps
