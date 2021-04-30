@@ -200,7 +200,8 @@ class JellyfishDataset(Dataset):
             t = torch.from_numpy(t).permute(2, 0, 1).float()
             return t
         
-        image = __unfish__(image, camera_intrinsics, distortion_coeffs)
+        image = __unfish__(torch.from_numpy(img).permute(2, 0, 1).float()\
+                , camera_intrinsics, distortion_coeffs)
         
         def __cambridgify__(t):
             target_height = 480  # rescale images
