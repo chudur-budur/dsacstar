@@ -210,7 +210,7 @@ class JellyfishDataset(Dataset):
                 # do a canny filter here?
                 transforms.ToTensor()
                 ])
-            image = self.default_pipeline(image)
+            image = pipeline(image)
 
         if self.init and not self.sparse:
             # generate initialization targets from depth map
