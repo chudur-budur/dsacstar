@@ -12,6 +12,9 @@ from torchvision import utils
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
+import cv2
+cv2.setNumThreads(0)
+
 parser = argparse.ArgumentParser(
     description='Initialize a scene coordinate regression network.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
