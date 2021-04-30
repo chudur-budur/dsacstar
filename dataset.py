@@ -169,10 +169,10 @@ class JellyfishDataset(Dataset):
                 # transforms.Lambda(lambda img: \
                 #         tr.unfish(img, camera_intrinsics, \
                 #                 distortion_coeffs)),
-                transforms.Lambda(tr.cambridgify),
+                # transforms.Lambda(tr.cambridgify),
                 # transforms.Lambda(lambda img: \
                 #         tr.rotate(img, angle, 1, 'reflect'))
-                transforms.ToPILImage(),
+                # transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
