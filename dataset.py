@@ -191,7 +191,7 @@ class JellyfishDataset(Dataset):
             # augment input image
             pipeline = transforms.Compose([
                 transforms.Lambda(lambda img: tr.unfish(img, camera_intrinsics, distortion_coeffs)),
-                transforms.Lambda(tr.cambridgify),
+                transforms.Lambda(lambda img: tr.cambridgify(img)),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
