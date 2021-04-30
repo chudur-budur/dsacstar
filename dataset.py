@@ -118,28 +118,6 @@ class JellyfishDataset(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
-    def __compute_pose__(self, p, q):
-        # quaternion to axis-angle
-        angle = 2 * np.arccos(q[3])
-        x = q[0] / np.sqrt(1 - q[3]**2)
-        y = q[1] / np.sqrt(1 - q[3]**2)
-        z = q[2] / np.sqrt(1 - q[3]**2)
-
-        R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
-        T = -np.matmul(R, p.T)[:, np.newaxis]
-
-        pose = None
-        if np.absolute(T).max() > 10000:
-            warnings.warn(
-                "A matrix with extremely large translation. Outlier?")
-            warnings.warn(T)
-        else:
-            pose = np.hstack((R, T))
-            pose = np.vstack((pose, [[0, 0, 0, 1]]))
-            pose = np.linalg.inv(pose)
-        return pose
-
-
     def __get_poses__(self, entries):
         """Get all the quarternions and translation values and return their corresponding
         pose matrices.
@@ -154,7 +132,7 @@ class JellyfishDataset(Dataset):
             # 4: x, 5: y, 6: z
             q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
-            pose = self.__compute_pose__(p, q)
+            pose = tr.compute_pose(p, q)
             if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
