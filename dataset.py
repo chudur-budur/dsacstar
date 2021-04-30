@@ -10,7 +10,6 @@ import cv2
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
-from skimage.util import img_as_ubyte, img_as_float, img_as_float32, img_as_uint, img_as_int
 
 import torch
 import torch.nn.functional as F
@@ -18,6 +17,8 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 from network import Network
+
+import transforms as tr
 
 
 class JellyfishDataset(Dataset):
@@ -99,29 +100,8 @@ class JellyfishDataset(Dataset):
         self.calibration_data = np.array(
             [[float(v) for v in entries[i][8:-1]] for i in Id])
 
-        print("Collecting {0:d} images ...".format(len(Id)))
-        self.images = self.__get_images__(entries, Id)
-        print("Done.")
-
         if len(self.rgb_files) != len(self.pose_data):
             raise Exception('RGB file count does not match pose file count!')
-
-        self.image_transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize(self.image_height),
-            transforms.Grayscale(),
-            # do a canny filter here?
-            transforms.ToTensor(),
-            transforms.Normalize(
-                # statistics calculated over 7scenes training set, should generalize fairly well
-                mean=[0.4],
-                std=[0.25]
-            )
-        ])
-
-        self.pose_transform = transforms.Compose([
-            transforms.ToTensor()
-        ])
 
         if not sparse:
             # create grid of 2D pixel positions when generating scene coordinates from depth
@@ -137,27 +117,6 @@ class JellyfishDataset(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
-    def __compute_pose__(self, p, q):
-        # quaternion to axis-angle
-        angle = 2 * math.acos(q[3])
-        x = q[0] / math.sqrt(1 - q[3]**2)
-        y = q[1] / math.sqrt(1 - q[3]**2)
-        z = q[2] / math.sqrt(1 - q[3]**2)
-
-        R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
-        T = -np.matmul(R, p.T)[:, np.newaxis]
-
-        pose = None
-        if np.absolute(T).max() > 10000:
-            warnings.warn(
-                "A matrix with extremely large translation. Outlier?")
-            warnings.warn(T)
-        else:
-            pose = np.hstack((R, T))
-            pose = np.vstack((pose, [[0, 0, 0, 1]]))
-            pose = np.linalg.inv(pose)
-        return pose
-
     def __get_poses__(self, entries):
         """Get all the quarternions and translation values and return their corresponding
         pose matrices.
@@ -172,114 +131,61 @@ class JellyfishDataset(Dataset):
             # 4: x, 5: y, 6: z
             q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
-            pose = self.__compute_pose__(p, q)
+            pose = tr.compute_pose(p, q)
             if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
         return np.array(poses), np.array(valid_indices)
 
-    def __rot__(self, t, angle, order, mode='constant'):
-        # rotate input image
-        t = t.permute(1, 2, 0).numpy()
-        t = rotate(t, angle, order=order, mode=mode)
-        t = torch.from_numpy(t).permute(2, 0, 1).float()
-        return t
-
-    def __unfish__(self, image, intrinsics, distortion_coeffs):
-        """Undistort an fisheye image.
-
-        In Jellyfish data, the images are from a fisheye camera.
-        So we need to to undistort and rescale the image for the
-        neural net input.
-        """
-        target_height = 480  # rescale images
-        # sub sampling of our CNN architecture,
-        # for size of the initalization targets
-        nn_subsampling = 8
-
-        fx, fy, cx, cy = intrinsics[0], intrinsics[1], intrinsics[2], intrinsics[3]
-        cam_matrix = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
-
-        # undistort
-        mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cam_matrix, distortion_coeffs,
-                                                         np.eye(3), cam_matrix, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
-        image = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
-
-        # rescale
-        img_aspect = image.shape[0] / image.shape[1]
-        if img_aspect > 1:
-            # portrait
-            img_w = target_height
-            img_h = int(np.ceil(target_height * img_aspect))
-        else:
-            # landscape
-            img_w = int(np.ceil(target_height / img_aspect))
-            img_h = target_height
-
-        out_w = int(np.ceil(img_w / nn_subsampling))
-        out_h = int(np.ceil(img_h / nn_subsampling))
-        out_scale = out_w / image.shape[1]
-        img_scale = img_w / image.shape[1]
-        image = cv2.resize(image, (img_w, img_h))
-        return image
-
-    def __get_images__(self, entries, Id):
-        images = []
-        a = time.time()
-        for i, j in enumerate(Id):
-            image = cv2.imread(entries[j][0], 1)
-            # the image are fisheyed, unfish it
-            image = self.__unfish__(image,
-                                    self.calibration_data[j][0:4],
-                                    self.calibration_data[j][4:])
-            images.append(image)
-            if i > 0 and i % 500 == 0:
-                b = time.time()
-                t = b - a
-                hrs, r = divmod(t, 3600)
-                mins, sec = divmod(r, 60)
-                print("\tPreprocessed {0:d} images. Time taken {1:.1f}:{2:.1f}:{3:.1f}"
-                      .format(i, hrs, mins, sec))
-                a = time.time()
-        return np.array(images)
-
     def __getitem__(self, idx):
-        image = self.images[idx]
-        if len(image.shape) < 3:
-            image = color.gray2rgb(image)  # why though?
+        image = io.imread(self.rgb_files[idx])
 
-        focal_length = self.calibration_data[idx][0]
+        if len(image.shape) < 3:
+            image = color.gray2rgb(image)
+
+        focal_length = float(self.calibration_data[idx])
 
         # image will be normalized to standard height, adjust focal length as well
         f_scale_factor = self.image_height / image.shape[0]
         focal_length *= f_scale_factor
 
-        pose = self.pose_data[idx]
-        pose = torch.from_numpy(pose).float()
-
-        coords = 0
+        # pose = np.loadtxt(self.pose_files[idx])
+        pose = torch.from_numpy(self.pose_data[idx]).float()
 
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
 
+            # get the intrinsics and lens distortion
+            camera_intrinsics = self.calibration_data[idx][0:4]
+            distortion_coeffs = self.calibration_data[idx][4:]
+            
             # augment input image
-            cur_image_transform = transforms.Compose([
+            pipeline = transforms.Compose([
+                transforms.Lambda(lambda img: \
+                        tr.unfish(img, camera_intrinsics, \
+                                distortion_coeffs)),
+                transforms.Lambda(tr.cambridgify),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
-                    brightness=self.aug_brightness, contrast=self.aug_contrast),
-                transforms.ToTensor(),
-                transforms.Normalize(mean=[0.4], std=[0.25])
+                    brightness=self.aug_brightness, \
+                            contrast=self.aug_contrast),
+                transforms.Lamda(lambda img: \
+                        tr.rotate(img, angle, 1, 'reflect')),
+                transforms.ToTensor()
             ])
-            image = cur_image_transform(image)
+            image = pipeline(image)
 
             # scale focal length
             focal_length *= scale_factor
 
-            image = self.__rot__(image, angle, 1, 'reflect')
+            if self.init:
+                # rotate and scale depth maps
+                depth = resize(depth, image.shape[1:], order=0)
+                depth = rotate(depth, angle, order=0, mode='constant')
 
             # rotate ground truth camera pose
             angle = angle * math.pi / 180
@@ -290,9 +196,66 @@ class JellyfishDataset(Dataset):
             pose_rot[1, 1] = math.cos(angle)
             pose = torch.matmul(pose, pose_rot)
         else:
-            image = self.image_transform(image)
+            pipeline = transforms.Compose([
+                transforms.Lambda(lambda img: \
+                    tr.unfish(img, camera_intrinsics, \
+                                distortion_coeffs)),
+                transforms.Lambda(tr.cambridgify),
+                transforms.ToPILImage(),
+                transforms.Resize(self.image_height),
+                transforms.Grayscale(),
+                # do a canny filter here?
+                transforms.ToTensor()
+                ])
+            image = self.default_pipeline(image)
 
-        return image, pose, coords, focal_length, self.rgb_files[idx], self.timestamps[idx]
+        if self.init and not self.sparse:
+            # generate initialization targets from depth map
+
+            offsetX = int(Network.OUTPUT_SUBSAMPLE/2)
+            offsetY = int(Network.OUTPUT_SUBSAMPLE/2)
+
+            coords = torch.zeros((3,
+                                  math.ceil(
+                                      image.shape[1] / Network.OUTPUT_SUBSAMPLE),
+                                  math.ceil(image.shape[2] / Network.OUTPUT_SUBSAMPLE)))
+
+            # subsample to network output size
+            depth = depth[offsetY::Network.OUTPUT_SUBSAMPLE,
+                          offsetX::Network.OUTPUT_SUBSAMPLE]
+
+            # construct x and y coordinates of camera coordinate
+            xy = self.prediction_grid[:,
+                                      :depth.shape[0], :depth.shape[1]].copy()
+            # add random pixel shift
+            xy[0] += offsetX
+            xy[1] += offsetY
+            # substract principal point (assume image center)
+            xy[0] -= image.shape[2] / 2
+            xy[1] -= image.shape[1] / 2
+            # reproject
+            xy /= focal_length
+            xy[0] *= depth
+            xy[1] *= depth
+
+            # assemble camera coordinates trensor
+            eye = np.ndarray((4, depth.shape[0], depth.shape[1]))
+            eye[0:2] = xy
+            eye[2] = depth
+            eye[3] = 1
+
+            # eye to scene coordinates
+            sc = np.matmul(pose.numpy(), eye.reshape(4, -1))
+            sc = sc.reshape(4, depth.shape[0], depth.shape[1])
+
+            # mind pixels with invalid depth
+            sc[:, depth == 0] = 0
+            sc[:, depth > 1000] = 0
+            sc = torch.from_numpy(sc[0:3])
+
+            coords[:, :sc.shape[1], :sc.shape[2]] = sc
+
+        return image, pose, coords, focal_length, self.timestamps[idx], self.rgb_files[idx]
 
 
 class CamLocDatasetLite(Dataset):
@@ -400,13 +363,6 @@ class CamLocDatasetLite(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
-    def __rot__(self, t, angle, order, mode='constant'):
-        # rotate input image
-        t = t.permute(1, 2, 0).numpy()
-        t = rotate(t, angle, order=order, mode=mode)
-        t = torch.from_numpy(t).permute(2, 0, 1).float()
-        return t
-
     def __getitem__(self, idx):
         image = io.imread(self.rgb_files[idx])
 
@@ -454,7 +410,15 @@ class CamLocDatasetLite(Dataset):
             # scale focal length
             focal_length *= scale_factor
 
-            image = self.__rot__(image, angle, 1, 'reflect')
+            # rotate input image
+            def __rotate__(t, angle, order, mode='constant'):
+                # rotate input image
+                t = t.permute(1, 2, 0).numpy()
+                t = rotate(t, angle, order=order, mode=mode)
+                t = torch.from_numpy(t).permute(2, 0, 1).float()
+                return t
+
+            image = __rotate__(image, angle, 1, 'reflect')
 
             if self.init:
                 if self.sparse:
