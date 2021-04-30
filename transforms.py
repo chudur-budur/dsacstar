@@ -2,16 +2,18 @@ import numpy as np
 import cv2
 import torch
 from skimage import transform
-import PIL
+from PIL import Image
 
 __all__ = ["rotate_angle"]
 
 def rotate(img, angle, order, mode='constant'):
     # rotate input image
-    img_ = img.permute(1, 2, 0).numpy()
-    img__ = transform.rotate(img, angle, order=order, mode=mode)
-    img__ = torch.from_numpy(img__).permute(2, 0, 1).float()
-    return img__
+    # img_ = img.permute(1, 2, 0).numpy()
+    img_ = np.array(img)
+    img__ = transform.rotate(img_, angle, order=order, mode=mode)
+    img___ = Image.fromarray(img__)
+    # img__ = torch.from_numpy(img__).permute(2, 0, 1).float()
+    return img___
 
 def unfish(image, \
         camera_intrinsics = np.array(\
