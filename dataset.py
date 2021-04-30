@@ -37,7 +37,7 @@ class JellyfishDataset(Dataset):
                  sparse=False,
                  augment=False,
                  aug_rotation=30,
-                 aug_scale_min=0.66667.,
+                 aug_scale_min=0.66667,
                  aug_scale_max=1.5,
                  aug_contrast=0.1,
                  aug_brightness=0.1,
