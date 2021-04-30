@@ -198,7 +198,7 @@ class JellyfishDataset(Dataset):
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                # transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
+                transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
