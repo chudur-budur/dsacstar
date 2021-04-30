@@ -15,7 +15,7 @@ def rotate(img, angle, order, mode='constant'):
     
     img_ = transform.rotate(img_, angle, order=order, mode=mode)
     
-    if isinstance(img, torch.Tensor)
+    if isinstance(img, torch.Tensor):
         img_ = torch.from_numpy(img_).permute(2, 0, 1).float()
     elif isinstance(img, Image.Image):
         img_ = Image.fromarray(img_)
