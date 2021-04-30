@@ -178,24 +178,27 @@ class JellyfishDataset(Dataset):
         # for jellyfish coords are none
         coords = 0
 
-        # get the intrinsics and lens distortion
-        camera_intrinsics = self.calibration_data[idx][0:4]
-        distortion_coeffs = self.calibration_data[idx][4:]
         
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
+        
+            # get the intrinsics and lens distortion
+            camera_intrinsics = self.calibration_data[idx][0:4]
+            distortion_coeffs = self.calibration_data[idx][4:]
  
             # augment input image
             pipeline = transforms.Compose([
                 transforms.Lambda(lambda img: tr.unfish(img, camera_intrinsics, distortion_coeffs)),
+                transforms.Lambda(tr.cambridgify),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
+                transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
@@ -204,14 +207,14 @@ class JellyfishDataset(Dataset):
             focal_length *= scale_factor
 
             # rotate input image
-            def __rotate__(t, angle, order, mode='constant'):
-                # rotate input image
-                t = t.permute(1, 2, 0).numpy()
-                t = rotate(t, angle, order=order, mode=mode)
-                t = torch.from_numpy(t).permute(2, 0, 1).float()
-                return t
+            # def __rotate__(t, angle, order, mode='constant'):
+            #     # rotate input image
+            #     t = t.permute(1, 2, 0).numpy()
+            #     t = rotate(t, angle, order=order, mode=mode)
+            #     t = torch.from_numpy(t).permute(2, 0, 1).float()
+            #     return t
 
-            image = __rotate__(image, angle, 1, 'reflect')
+            # image = __rotate__(image, angle, 1, 'reflect')
 
             if self.init:
                 # rotate and scale depth maps
@@ -227,17 +230,10 @@ class JellyfishDataset(Dataset):
             pose_rot[1, 1] = math.cos(angle)
             pose = torch.matmul(pose, pose_rot)
         else:
-            # pipeline = transforms.Compose([
-            #     transforms.ToPILImage(),
-            #     transforms.Resize(self.image_height),
-            #     transforms.Grayscale(),
-            #     # do a canny filter here?
-            #     transforms.ToTensor()
-            #     ])
-            pipeline = cvtransforms.Compose([
-                cvtransforms.ToPILImage(),
-                cvtransforms.Resize(self.image_height),
-                cvtransforms.Grayscale(),
+            pipeline = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize(self.image_height),
+                transforms.Grayscale(),
                 # do a canny filter here?
                 cvtransforms.ToTensor()
                 ])
