@@ -64,7 +64,7 @@ def cambridgify(image):
 
 def compute_pose(p, q):
     # quaternion to axis-angle
-    angle = 2 * np.acos(q[3])
+    angle = 2 * np.arccos(q[3])
     x = q[0] / np.sqrt(1 - q[3]**2)
     y = q[1] / np.sqrt(1 - q[3]**2)
     z = q[2] / np.sqrt(1 - q[3]**2)
