@@ -18,6 +18,9 @@ from torchvision import transforms
 
 from network import Network
 
+homepath = os.environ['HOME']
+sys.path.append(os.path.join(homepath, '/dsacstar/opecv_transforms_torchvision'))
+from cvtorchvision import cvtransforms
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
@@ -179,56 +182,56 @@ class JellyfishDataset(Dataset):
         camera_intrinsics = self.calibration_data[idx][0:4]
         distortion_coeffs = self.calibration_data[idx][4:]
         
-        def __unfish__(t, intrinsics, distortions):
-            """Undistort an fisheye image.
-        
-            In Jellyfish data, the images are from a fisheye camera.
-            So we need to to undistort and rescale the image for the
-            neural net input.
-            """
+        # def __unfish__(t, intrinsics, distortions):
+        #     """Undistort an fisheye image.
+        # 
+        #     In Jellyfish data, the images are from a fisheye camera.
+        #     So we need to to undistort and rescale the image for the
+        #     neural net input.
+        #     """
 
-            t = t.permute(1, 2, 0).numpy()
-            
-            [fx, fy, cx, cy] = intrinsics[0],intrinsics[1], intrinsics[2], intrinsics[3]
-            cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
-        
-            # undistort
-            mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortions, \
-                   np.eye(3), cmat, (t.shape[1], t.shape[0]), cv2.CV_16SC2)
-            t = cv2.remap(t, mapx, mapy, cv2.INTER_LINEAR) 
-        
-            t = torch.from_numpy(t).permute(2, 0, 1).float()
-            return t
-        
-        image = __unfish__(torch.from_numpy(image).permute(2, 0, 1).float()\
-                , camera_intrinsics, distortion_coeffs)
-        
-        def __cambridgify__(t):
-            t = t.permute(1, 2, 0).numpy()
-            
-            target_height = 480  # rescale images
-            # sub sampling of our CNN architecture,
-            # for size of the initalization targets
-            nn_subsampling = 8
-            img_aspect = t.shape[0] / t.shape[1]
-            if img_aspect > 1:
-                # portrait
-                img_w = target_height
-                img_h = int(np.ceil(target_height * img_aspect))
-            else:
-                # landscape
-                img_w = int(np.ceil(target_height / img_aspect))
-                img_h = target_height
-        
-            out_w = int(np.ceil(img_w / nn_subsampling))
-            out_h = int(np.ceil(img_h / nn_subsampling))
-            out_scale = out_w / t.shape[1]
-            img_scale = img_w / t.shape[1]
-            t = cv2.resize(t, (img_w, img_h))
-            t = torch.from_numpy(t).permute(2, 0, 1).float()
-            return t
-        
-        image = __cambridgify__(image)
+        #     t = t.permute(1, 2, 0).numpy()
+        #     
+        #     [fx, fy, cx, cy] = intrinsics[0],intrinsics[1], intrinsics[2], intrinsics[3]
+        #     cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
+        # 
+        #     # undistort
+        #     mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortions, \
+        #            np.eye(3), cmat, (t.shape[1], t.shape[0]), cv2.CV_16SC2)
+        #     t = cv2.remap(t, mapx, mapy, cv2.INTER_LINEAR) 
+        # 
+        #     t = torch.from_numpy(t).permute(2, 0, 1).float()
+        #     return t
+        # 
+        # image = __unfish__(torch.from_numpy(image).permute(2, 0, 1).float()\
+        #         , camera_intrinsics, distortion_coeffs)
+        # 
+        # def __cambridgify__(t):
+        #     t = t.permute(1, 2, 0).numpy()
+        #     
+        #     target_height = 480  # rescale images
+        #     # sub sampling of our CNN architecture,
+        #     # for size of the initalization targets
+        #     nn_subsampling = 8
+        #     img_aspect = t.shape[0] / t.shape[1]
+        #     if img_aspect > 1:
+        #         # portrait
+        #         img_w = target_height
+        #         img_h = int(np.ceil(target_height * img_aspect))
+        #     else:
+        #         # landscape
+        #         img_w = int(np.ceil(target_height / img_aspect))
+        #         img_h = target_height
+        # 
+        #     out_w = int(np.ceil(img_w / nn_subsampling))
+        #     out_h = int(np.ceil(img_h / nn_subsampling))
+        #     out_scale = out_w / t.shape[1]
+        #     img_scale = img_w / t.shape[1]
+        #     t = cv2.resize(t, (img_w, img_h))
+        #     t = torch.from_numpy(t).permute(2, 0, 1).float()
+        #     return t
+        # 
+        # image = __cambridgify__(image)
 
         if self.augment:
             scale_factor = random.uniform(
@@ -236,14 +239,23 @@ class JellyfishDataset(Dataset):
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
  
             # augment input image
-            pipeline = transforms.Compose([
-                transforms.ToPILImage(),
-                transforms.Resize(int(self.image_height * scale_factor)),
-                transforms.Grayscale(),
-                transforms.ColorJitter(
+            # pipeline = transforms.Compose([
+            #     transforms.ToPILImage(),
+            #     transforms.Resize(int(self.image_height * scale_factor)),
+            #     transforms.Grayscale(),
+            #     transforms.ColorJitter(
+            #         brightness=self.aug_brightness, \
+            #                 contrast=self.aug_contrast),
+            #     transforms.ToTensor()
+            # ])
+            pipeline = cvtransforms.Compose([
+                cvtransforms.ToPILImage(),
+                cvtransforms.Resize(int(self.image_height * scale_factor)),
+                cvtransforms.Grayscale(),
+                cvtransforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                transforms.ToTensor()
+                cvtransforms.ToTensor()
             ])
             image = pipeline(image)
 
@@ -274,12 +286,19 @@ class JellyfishDataset(Dataset):
             pose_rot[1, 1] = math.cos(angle)
             pose = torch.matmul(pose, pose_rot)
         else:
-            pipeline = transforms.Compose([
-                transforms.ToPILImage(),
-                transforms.Resize(self.image_height),
-                transforms.Grayscale(),
+            # pipeline = transforms.Compose([
+            #     transforms.ToPILImage(),
+            #     transforms.Resize(self.image_height),
+            #     transforms.Grayscale(),
+            #     # do a canny filter here?
+            #     transforms.ToTensor()
+            #     ])
+            pipeline = cvtransforms.Compose([
+                cvtransforms.ToPILImage(),
+                cvtransforms.Resize(self.image_height),
+                cvtransforms.Grayscale(),
                 # do a canny filter here?
-                transforms.ToTensor()
+                cvtransforms.ToTensor()
                 ])
             image = pipeline(image)
 
