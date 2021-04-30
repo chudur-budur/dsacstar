@@ -8,16 +8,16 @@ __all__ = ["rotate_angle"]
 
 def rotate(t, angle, order, mode='constant'):
     # rotate input image
-    print('transform.rotate ------------------>', type(t))
+    print('transform.rotate(0) ------------------>', type(t))
     if isinstance(t, torch.Tensor):
         t = t.permute(1, 2, 0).numpy()
     elif isinstance(t, PIL.Image.Image):
         t = np.array(t)
-    print('transform.rotate ------------------>', type(t))
+    print('transform.rotate(1) ------------------>', type(t))
     t = transform.rotate(t, angle, order=order, mode=mode)
-    print('transform.rotate ------------------>', type(t))
+    print('transform.rotate(2) ------------------>', type(t))
     t = torch.from_numpy(t).permute(2, 0, 1).float()
-    print('transform.rotate ------------------>', type(t))
+    print('transform.rotate(3) ------------------>', type(t))
     return t
 
 def unfish(image, \
