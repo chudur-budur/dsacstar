@@ -7,9 +7,13 @@ __all__ = ["rotate_angle"]
 
 def rotate(t, angle, order, mode='constant'):
     # rotate input image
+    print('transform.rotate ------------------>', type(t))
     t = t.permute(1, 2, 0).numpy()
+    print('transform.rotate ------------------>', type(t))
     t = transform.rotate(t, angle, order=order, mode=mode)
+    print('transform.rotate ------------------>', type(t))
     t = torch.from_numpy(t).permute(2, 0, 1).float()
+    print('transform.rotate ------------------>', type(t))
     return t
 
 def unfish(image, \
