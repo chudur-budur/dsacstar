@@ -1,25 +1,31 @@
 import numpy as np
 import cv2
 import torch
-from skimage import transform
+from skimage import transform, img_as_ubyte
 from PIL import Image
 
 __all__ = ["rotate", "unfish", "cambridgify", "compute_pose"]
 
-
 def rotate(img, angle, order, mode='constant'):
     # rotate input image
-    if isinstance(img, torch.Tensor):
+    if isinstance(img, torch.Tensor): # tensor to numpy
         img_ = img.permute(1, 2, 0).numpy()
     elif isinstance(img, Image.Image):
         img_ = np.array(img)
+    elif isinstance(img, np.ndarray):
+        img_ = img
+    else:
+        raise TypeError("Couldn't recognize `img` data type", type(img))
 
     img_ = transform.rotate(img_, angle, order=order, mode=mode)
 
-    if isinstance(img, torch.Tensor):
+    if isinstance(img, torch.Tensor): # tensor to numpy
         img_ = torch.from_numpy(img_).permute(2, 0, 1).float()
     elif isinstance(img, Image.Image):
         img_ = Image.fromarray(img_)
+    elif isinstance(img, np.ndarray): 
+        if img.dtype == np.uint8: 
+            img_ = img_as_ubyte(img_)
     return img_
 
 
