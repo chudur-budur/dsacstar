@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import torch
 from skimage import transform
+import PIL
 
 __all__ = ["rotate_angle"]
 
