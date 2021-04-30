@@ -242,20 +242,14 @@ class JellyfishDataset(Dataset):
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
  
             # augment input image
-            # pipeline = transforms.Compose([
-            #     transforms.ToPILImage(),
-            #     transforms.Resize(int(self.image_height * scale_factor)),
-            #     transforms.Grayscale(),
-            #     transforms.ColorJitter(
-            #         brightness=self.aug_brightness, \
-            #                 contrast=self.aug_contrast),
-            #     transforms.ToTensor()
-            # ])
-            pipeline = cvtransforms.Compose([
-                cvtransforms.Resize(int(self.image_height * scale_factor)),
-                cvtransforms.Grayscale(),
-                # cvtransforms.ColorJitter(brightness=self.aug_brightness, contrast=self.aug_contrast),
-                cvtransforms.ToTensor()
+            pipeline = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize(int(self.image_height * scale_factor)),
+                transforms.Grayscale(),
+                transforms.ColorJitter(
+                    brightness=self.aug_brightness, \
+                            contrast=self.aug_contrast),
+                transforms.ToTensor()
             ])
             for t in pipeline:
                 image = t(image)
