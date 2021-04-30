@@ -1,15 +1,17 @@
 import numpy as np
 import cv2
 import torch
-from skimage.transform import rotate
+from skimage import transform
 
 __all__ = ["rotate_angle"]
 
 def rotate(t, angle, order, mode='constant'):
     # rotate input image
     # tensor to numpy image
-    # t = t.permute(1, 2, 0).numpy()
-    t = rotate(t, angle, order=order, mode=mode)
+    if isinstance(t, torch.Tensor):
+        print('------->', type(t))
+        t = t.permute(1, 2, 0).numpy()
+    t = transform.rotate(t, angle, order=order, mode=mode)
     # numpy to tensor
     t = torch.from_numpy(t).permute(2, 0, 1).float()
     return t
