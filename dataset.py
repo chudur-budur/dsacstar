@@ -257,7 +257,8 @@ class JellyfishDataset(Dataset):
                 # cvtransforms.ColorJitter(brightness=self.aug_brightness, contrast=self.aug_contrast),
                 cvtransforms.ToTensor()
             ])
-            image = pipeline(image)
+            for t in pipeline:
+                image = t(image)
 
             # scale focal length
             focal_length *= scale_factor
