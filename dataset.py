@@ -196,7 +196,7 @@ class JellyfishDataset(Dataset):
         
             return img
         
-        image = __unfish__(image, camera_intrinsics, distortion_coeffs)
+        # image = __unfish__(image, camera_intrinsics, distortion_coeffs)
         
         def __cambridgify__(img):
             target_height = 480  # rescale images
@@ -220,7 +220,7 @@ class JellyfishDataset(Dataset):
             img = cv2.resize(img, (img_w, img_h))
             return img
         
-        image = __cambridgify__(image)
+        # image = __cambridgify__(image)
 
         if self.augment:
             scale_factor = random.uniform(
