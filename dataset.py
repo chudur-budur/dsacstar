@@ -21,7 +21,7 @@ from network import Network
 
 homepath = os.environ['HOME']
 print(homepath)
-sys.path.append('/home/khaled/opecv_transforms_torchvision')
+sys.path.append('/home/khaled/opecv_transforms_torchvision/cvtorchvision')
 print(sys.path)
 from cvtorchvision import cvtransforms
 
