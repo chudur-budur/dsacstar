@@ -191,14 +191,14 @@ class JellyfishDataset(Dataset):
             # augment input image
             pipeline = transforms.Compose([
                 transforms.Lambda(lambda img: tr.unfish(img, camera_intrinsics, distortion_coeffs)),
-                transforms.Lambda(lambda img: tr.cambridgify(img)),
+                # transforms.Lambda(lambda img: tr.cambridgify(img)),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
+                # transforms.Lambda(lambda img: tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
