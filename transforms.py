@@ -64,10 +64,10 @@ def cambridgify(image):
 
 def compute_pose(p, q):
     # quaternion to axis-angle
-    angle = 2 * math.acos(q[3])
-    x = q[0] / math.sqrt(1 - q[3]**2)
-    y = q[1] / math.sqrt(1 - q[3]**2)
-    z = q[2] / math.sqrt(1 - q[3]**2)
+    angle = 2 * np.acos(q[3])
+    x = q[0] / np.sqrt(1 - q[3]**2)
+    y = q[1] / np.sqrt(1 - q[3]**2)
+    z = q[2] / np.sqrt(1 - q[3]**2)
 
     R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
     T = -np.matmul(R, p.T)[:, np.newaxis]
