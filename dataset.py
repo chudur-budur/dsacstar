@@ -1,12 +1,3 @@
-import transforms as tr
-from network import Network
-from torchvision import transforms
-from torch.utils.data import Dataset
-import torch.nn.functional as F
-import torch
-from skimage.transform import rotate, resize
-from skimage import color
-from skimage import io
 import sys
 import os
 import random
@@ -15,6 +6,7 @@ import warnings
 import time
 
 import numpy as np
+
 import cv2
 # This cv2 setting is needed since the transforms.Compose in torchvision
 # doesn't work in multi-threaded mode when the cv2 is used. See here:
@@ -22,6 +14,18 @@ import cv2
 # https://github.com/pytorch/pytorch/issues/15808
 # https://github.com/pytorch/vision/issues/3756
 cv2.setNumThreads(0)
+
+import torch
+import torch.nn.functional as F
+from torch.utils.data import Dataset
+from torchvision import transforms
+
+from skimage.transform import rotate, resize
+from skimage import color
+from skimage import io
+
+from network import Network
+import transforms as tr
 
 
 class JellyfishDataset(Dataset):
