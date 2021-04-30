@@ -23,7 +23,7 @@ homepath = os.environ['HOME']
 print(homepath)
 sys.path.append('/home/khaled/dsacstar/opecv_transforms_torchvision')
 print(sys.path)
-import cvtransforms
+from cvtorchvision import cvtransforms
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
