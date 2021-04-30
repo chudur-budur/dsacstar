@@ -20,6 +20,7 @@ from torchvision import transforms
 from network import Network
 
 homepath = os.environ['HOME']
+print(homepath)
 sys.path.append(os.path.join(homepath, '/dsacstar/opecv_transforms_torchvision'))
 print(sys.path)
 from cvtorchvision import cvtransforms
