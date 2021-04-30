@@ -153,7 +153,7 @@ class JellyfishDataset(Dataset):
         pose = torch.from_numpy(self.pose_data[idx]).float()
 
         # for jellyfish coords are none
-        coord = 0
+        coords = 0
 
         if self.augment:
             scale_factor = random.uniform(
