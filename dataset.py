@@ -182,6 +182,9 @@ class JellyfishDataset(Dataset):
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
+            # scale focal length
+            focal_length *= scale_factor
+            
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
         
             # get the intrinsics and lens distortion
@@ -202,25 +205,22 @@ class JellyfishDataset(Dataset):
             ])
             image = pipeline(image)
 
-            # scale focal length
-            focal_length *= scale_factor
-
             # rotate image
-            image = tr.rotate(image, angle, 1, 'reflect')
+            # image = tr.rotate(image, angle, 1, 'reflect')
+            # 
+            # # rotate ground truth camera pose
+            # angle = angle * math.pi / 180
+            # pose_rot = torch.eye(4)
+            # pose_rot[0, 0] = math.cos(angle)
+            # pose_rot[0, 1] = -math.sin(angle)
+            # pose_rot[1, 0] = math.sin(angle)
+            # pose_rot[1, 1] = math.cos(angle)
+            # pose = torch.matmul(pose, pose_rot)
 
             if self.init:
                 # rotate and scale depth maps
                 depth = resize(depth, image.shape[1:], order=0)
                 depth = rotate(depth, angle, order=0, mode='constant')
-
-            # rotate ground truth camera pose
-            angle = angle * math.pi / 180
-            pose_rot = torch.eye(4)
-            pose_rot[0, 0] = math.cos(angle)
-            pose_rot[0, 1] = -math.sin(angle)
-            pose_rot[1, 0] = math.sin(angle)
-            pose_rot[1, 1] = math.cos(angle)
-            pose = torch.matmul(pose, pose_rot)
         else:
             pipeline = transforms.Compose([
                 transforms.ToPILImage(),
