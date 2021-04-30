@@ -8,12 +8,18 @@ __all__ = ["rotate_angle"]
 
 def rotate(img, angle, order, mode='constant'):
     # rotate input image
-    # t = img.permute(1, 2, 0).numpy()
-    img = np.array(img)
-    img = transform.rotate(img, angle, order=order, mode=mode)
-    img = Image.fromarray(np.uint8(img))
-    # t = torch.from_numpy(t).permute(2, 0, 1).float()
-    return img
+    if isinstance(img, torch.Tensor):
+        img_ = img.permute(1, 2, 0).numpy()
+    elif isinstance(img, Image.Image):
+        img_ = np.array(img)
+    
+    img_ = transform.rotate(img_, angle, order=order, mode=mode)
+    
+    if isinstance(img, torch.Tensor)
+        img_ = torch.from_numpy(img_).permute(2, 0, 1).float()
+    elif isinstance(img, Image.Image):
+        img_ = Image.fromarray(img_)
+    return img_
 
 def unfish(image, \
         camera_intrinsics = np.array(\
