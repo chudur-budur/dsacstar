@@ -200,7 +200,7 @@ class JellyfishDataset(Dataset):
             t = torch.from_numpy(t).permute(2, 0, 1).float()
             return t
         
-        image = __unfish__(torch.from_numpy(img).permute(2, 0, 1).float()\
+        image = __unfish__(torch.from_numpy(image:).permute(2, 0, 1).float()\
                 , camera_intrinsics, distortion_coeffs)
         
         def __cambridgify__(t):
