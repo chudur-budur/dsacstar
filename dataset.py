@@ -228,7 +228,7 @@ class JellyfishDataset(Dataset):
             t = torch.from_numpy(t).permute(2, 0, 1).float()
             return t
         
-        image = __cambridgify__(t)
+        image = __cambridgify__(image)
 
         if self.augment:
             scale_factor = random.uniform(
