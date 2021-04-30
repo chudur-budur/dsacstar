@@ -19,11 +19,11 @@ from torchvision import transforms
 
 from network import Network
 
-homepath = os.environ['HOME']
-print(homepath)
-sys.path.append('/home/khaled/dsacstar/opecv_transforms_torchvision/cvtorchvision')
-print(sys.path)
-import cvtransforms
+# homepath = os.environ['HOME']
+# print(homepath)
+# sys.path.append('/home/khaled/dsacstar/opecv_transforms_torchvision/cvtorchvision')
+# print(sys.path)
+from opencv_transforms_torchvision.cvtorchvision import cvtransforms
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
