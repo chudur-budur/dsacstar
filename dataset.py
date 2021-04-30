@@ -173,7 +173,7 @@ class JellyfishDataset(Dataset):
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                transforms.Lamda(lambda img: \
+                transforms.Lambda(lambda img: \
                         tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
