@@ -37,8 +37,8 @@ class JellyfishDataset(Dataset):
                  sparse=False,
                  augment=False,
                  aug_rotation=30,
-                 aug_scale_min=2/3,
-                 aug_scale_max=3/2,
+                 aug_scale_min=2/3.,
+                 aug_scale_max=3/2.,
                  aug_contrast=0.1,
                  aug_brightness=0.1,
                  image_height=480):
@@ -255,8 +255,8 @@ class JellyfishDataset(Dataset):
                 cvtransforms.Resize(int(self.image_height * scale_factor)),
                 cvtransforms.Grayscale(),
                 cvtransforms.ColorJitter(
-                    brightness=float(self.aug_brightness), \
-                            contrast=float(self.aug_contrast)),
+                    brightness=self.aug_brightness, \
+                            contrast=self.aug_contrast),
                 cvtransforms.ToTensor()
             ])
             image = pipeline(image)
