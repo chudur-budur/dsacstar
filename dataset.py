@@ -5,9 +5,6 @@ import math
 import warnings
 import time
 
-import numpy as np
-import cv2
-
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
@@ -19,6 +16,8 @@ from torchvision import transforms
 
 from network import Network
 
+import numpy as np
+import cv2
 import transforms as tr
 
 class JellyfishDataset(Dataset):
@@ -160,7 +159,6 @@ class JellyfishDataset(Dataset):
         return np.array(poses), np.array(valid_indices)
 
     def __getitem__(self, idx):
-        import cv2
         image = io.imread(self.rgb_files[idx])
 
         if len(image.shape) < 3:
