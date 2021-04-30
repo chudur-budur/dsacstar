@@ -12,9 +12,6 @@ from torchvision import utils
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
-# import cv2
-# cv2.setNumThreads(0)
-
 parser = argparse.ArgumentParser(
     description='Initialize a scene coordinate regression network.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -23,6 +20,11 @@ parser.add_argument('scene', help='name of a scene in the dataset folder')
 parser.add_argument('network', help='output file name for the network')
 parser.add_argument('--modelpath', '-mp', type=str, default='models',
                     help='path where the models will be saved')
+parser.add_argument('--checkpoint', '-cp', type=str, default=None,
+                    help='path to saved model (*.ann file) for retraining')
+parser.add_argument('--startepoch', '-se', type=int, default=0,
+                    help='the value of starting epoch, is useful if a model is to be ' 
+                    + 'retrained from checkpoint, the new run will start from this epoch')
 parser.add_argument('--learningrate', '-lr', type=float,
                     default=0.0001, help='learning rate')
 parser.add_argument('--iterations', '-iter', type=int,
@@ -60,8 +62,6 @@ now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
                     help='custom session name appended to output files, useful to '
                     + 'separate different runs of a script')
-parser.add_argument('--checkpoint', '-cp', type=str, default=None,
-                    help='use the checkpoint file (i.e. *.ann) to load and restart training from that point')
 opt = parser.parse_args()
 
 use_init = opt.mode > 0
@@ -127,12 +127,21 @@ for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
         print("Computed mean scene coordinate of {0:d} frames.".format(count))
 
 mean = mean / count
-print("Done. Mean: %.2f, %.2f, %.2f\n" % (mean[0], mean[1], mean[2]))
+print("Done. Mean: {0:.2f}, {1:.2f}, {2:.2f}\n".format(mean[0], mean[1], mean[2]))
 
-# create network
-network = Network(mean, opt.tiny)
-network = network.cuda()
-network.train()
+if opt.checkpoint:
+    # load network
+    network = Network(mean, opt.tiny)
+    network.load_state_dict(torch.load(opt.checkpoint))
+    network = network.cuda()
+    network.train()
+    print("Successfully loaded {0:s}.".format(opt.checkpoint))
+else:
+    # create network
+    network = Network(mean, opt.tiny)
+    network = network.cuda()
+    network.train()
+    print("Successfully created initial network.")
 
 optimizer = optim.Adam(network.parameters(), lr=opt.learningrate)
 
@@ -158,9 +167,10 @@ for x in range(0, pixel_grid.size(2)):
 
 pixel_grid = pixel_grid.cuda()
 
+start_epoch = opt.start_epoch
 iteration = 0
 sanity_check = True
-for epoch in range(1, epochs+1):
+for epoch in range(start_epoch+1, start_epoch + epochs + 1):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
@@ -327,8 +337,8 @@ for epoch in range(1, epochs+1):
         optimizer.step()		# update all model parameters
         optimizer.zero_grad()
 
-        print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.1f},\tValid: {3:.1f}%,\tTime: {4:.2f}s'
-              .format(epoch, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
+        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},\tValid: {4:.1f}%,\tTime: {5:.2f}s'
+              .format(epoch, epochs, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
         train_iter_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
 

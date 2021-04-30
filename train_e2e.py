@@ -181,8 +181,8 @@ for epoch in range(1, epochs+1):
         optimizer.zero_grad()
 
         end_time = time.time()-start_time
-        print('Epoch: {0:d},\tIteration: {1:6d},\tLoss: {2:.2f},\tTime: {3:.2f}s\n'
-              .format(epoch, iteration, loss, end_time), flush=True)
+        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.2f},\tTime: {4:.2f}s\n'
+              .format(epoch, epochs, iteration, loss, end_time), flush=True)
 
         train_iter_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
         mean_loss = mean_loss + loss
