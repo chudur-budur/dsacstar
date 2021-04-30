@@ -34,8 +34,7 @@ def unfish(image, \
     # undistort
     mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortion_coeffs, \
            np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
-    image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
-    
+    image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR) 
 
     return image_
 
