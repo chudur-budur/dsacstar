@@ -9,9 +9,9 @@ __all__ = ["rotate_angle"]
 def rotate(img, angle, order, mode='constant'):
     # rotate input image
     # t = img.permute(1, 2, 0).numpy()
-    img = np.asarray(img)
+    img = np.array(img)
     img = transform.rotate(img, angle, order=order, mode=mode)
-    img = Image.fromarray(np.uint16(img))
+    img = Image.fromarray(img)
     # t = torch.from_numpy(t).permute(2, 0, 1).float()
     return img
 
