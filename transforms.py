@@ -8,7 +8,10 @@ __all__ = ["rotate_angle"]
 def rotate(t, angle, order, mode='constant'):
     # rotate input image
     print('transform.rotate ------------------>', type(t))
-    t = t.permute(1, 2, 0).numpy()
+    if isinstance(t, torch.Tensor):
+        t = t.permute(1, 2, 0).numpy()
+    elif isinstance(t, PIL.Image.Image):
+        t = np.array(t)
     print('transform.rotate ------------------>', type(t))
     t = transform.rotate(t, angle, order=order, mode=mode)
     print('transform.rotate ------------------>', type(t))
