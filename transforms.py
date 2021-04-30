@@ -11,7 +11,7 @@ def rotate(img, angle, order, mode='constant'):
     # t = img.permute(1, 2, 0).numpy()
     img = np.asarray(img)
     img = transform.rotate(img, angle, order=order, mode=mode)
-    img = PIL.Image.fromarray(np.uint8(img))
+    img = Image.fromarray(np.uint8(img))
     # t = torch.from_numpy(t).permute(2, 0, 1).float()
     return img
 
