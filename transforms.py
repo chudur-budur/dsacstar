@@ -4,7 +4,7 @@ import torch
 from skimage import transform
 from PIL import Image
 
-__all__ = ["rotate_angle"]
+__all__ = ["rotate", "unfish", "cambridgify", "compute_pose"]
 
 
 def rotate(img, angle, order, mode='constant'):
@@ -36,13 +36,15 @@ def unfish(image,
     So we need to to undistort and rescale the image for the
     neural net input.
     """
-    [fx, fy, cx, cy] = camera_intrinsics[0], camera_intrinsics[1], \
+    fx, fy, cx, cy = camera_intrinsics[0], camera_intrinsics[1], \
         camera_intrinsics[2], camera_intrinsics[3]
     cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
 
     # undistort
-    mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortion_coeffs,
-                                                     np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
+    mapx, mapy = cv2.fisheye.\
+            initUndistortRectifyMap(cmat, distortion_coeffs, np.eye(3), \
+                cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
+    
     image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
 
     return image_
@@ -68,6 +70,17 @@ def cambridgify(image):
     out_scale = out_w / image.shape[1]
     img_scale = img_w / image.shape[1]
     image_ = cv2.resize(image, (img_w, img_h))
+    return image
+
+
+def cannify(image, low_threshold=0, ratio=3, kernel_size=3):
+    # image = cannify(image, low_threshold=20, ratio=2, kernel_size=4)
+    src_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.blur(src_gray, (3, 3))
+    detected_edges = cv2.Canny(
+        img_blur, low_threshold, low_threshold * ratio, kernel_size)
+    mask = detected_edges != 0
+    image = image * (mask[:, :, None].astype(image.dtype))
     return image
 
 
