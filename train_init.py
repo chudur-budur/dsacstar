@@ -76,9 +76,9 @@ if not os.path.exists(model_root):
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 print("Preparing dataset, will take a while ...")
 trainset = JellyfishDataset(opt.scene, mode=min(
-    opt.mode, 1), sparse=opt.sparse, augment=True, multiprocessing_context='spawn')
+    opt.mode, 1), sparse=opt.sparse, augment=True)
 trainset_loader = torch.utils.data.DataLoader(
-    trainset, shuffle=True, num_workers=6)
+    trainset, shuffle=True, num_workers=6, multiprocessing_context='spawn')
 
 print("Found {0:d} training images in {1:s}.".format(
     len(trainset), opt.scene))
