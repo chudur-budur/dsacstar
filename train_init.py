@@ -23,7 +23,7 @@ parser.add_argument('--modelpath', '-mp', type=str, default='models',
 parser.add_argument('--checkpoint', '-cp', type=str, default=None,
                     help='path to saved model (*.ann file) for retraining')
 parser.add_argument('--startepoch', '-se', type=int, default=0,
-                    help='the value of starting epoch, is useful if a model is to be ' 
+                    help='the value of starting epoch, is useful if a model is to be '
                     + 'retrained from checkpoint, the new run will start from this epoch')
 parser.add_argument('--learningrate', '-lr', type=float,
                     default=0.0001, help='learning rate')
@@ -127,7 +127,8 @@ for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
         print("Computed mean scene coordinate of {0:d} frames.".format(count))
 
 mean = mean / count
-print("Done. Mean: {0:.2f}, {1:.2f}, {2:.2f}\n".format(mean[0], mean[1], mean[2]))
+print("Done. Mean: {0:.2f}, {1:.2f}, {2:.2f}\n".format(
+    mean[0], mean[1], mean[2]))
 
 if opt.checkpoint:
     # load network

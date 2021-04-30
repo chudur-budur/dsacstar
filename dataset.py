@@ -1,3 +1,12 @@
+import transforms as tr
+from network import Network
+from torchvision import transforms
+from torch.utils.data import Dataset
+import torch.nn.functional as F
+import torch
+from skimage.transform import rotate, resize
+from skimage import color
+from skimage import io
 import sys
 import os
 import random
@@ -9,18 +18,6 @@ import numpy as np
 import cv2
 cv2.setNumThreads(0)
 
-from skimage import io
-from skimage import color
-from skimage.transform import rotate, resize
-
-import torch
-import torch.nn.functional as F
-from torch.utils.data import Dataset
-from torchvision import transforms
-
-from network import Network
-
-import transforms as tr
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
@@ -156,36 +153,36 @@ class JellyfishDataset(Dataset):
         # for jellyfish coords are none
         coords = 0
 
-        
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
             # scale focal length
             focal_length *= scale_factor
-            
+
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
-        
+
             # get the intrinsics and lens distortion
             camera_intrinsics = self.calibration_data[idx][0:4]
             distortion_coeffs = self.calibration_data[idx][4:]
- 
+
             # augment input image
             pipeline = transforms.Compose([
-                transforms.Lambda(lambda img: tr.unfish(img, camera_intrinsics, distortion_coeffs)),
+                transforms.Lambda(lambda img: tr.unfish(
+                    img, camera_intrinsics, distortion_coeffs)),
                 transforms.Lambda(lambda img: tr.cambridgify(img)),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
-                    brightness=self.aug_brightness, \
-                            contrast=self.aug_contrast),
+                    brightness=self.aug_brightness,
+                    contrast=self.aug_contrast),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
 
             # rotate image
             # image = tr.rotate(image, angle, 1, 'reflect')
-            # 
+            #
             # # rotate ground truth camera pose
             # angle = angle * math.pi / 180
             # pose_rot = torch.eye(4)
@@ -206,7 +203,7 @@ class JellyfishDataset(Dataset):
                 transforms.Grayscale(),
                 # do a canny filter here?
                 cvtransforms.ToTensor()
-                ])
+            ])
             image = pipeline(image)
 
         if self.init and not self.sparse:

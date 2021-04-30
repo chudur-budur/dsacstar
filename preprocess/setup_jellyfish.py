@@ -91,9 +91,11 @@ def get_intrinsics(root):
         except:
             # Default values
             # intrinsics [fx, fy, cx, cy]
-            intrinsics = [620.8241703, 619.84599104, 1334.37801379, 952.28976021]
+            intrinsics = [620.8241703, 619.84599104,
+                          1334.37801379, 952.28976021]
             # distortion coefficients [k1, k2, k3 k4]
-            distortion_coeffs = [0.20355828, -0.0665932, -0.00950847, 0.00967984]
+            distortion_coeffs = [0.20355828, -
+                                 0.0665932, -0.00950847, 0.00967984]
             timeshift = 0.0
     return intrinsics, distortion_coeffs, timeshift
 

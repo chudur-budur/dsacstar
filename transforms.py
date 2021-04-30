@@ -6,29 +6,30 @@ from PIL import Image
 
 __all__ = ["rotate_angle"]
 
+
 def rotate(img, angle, order, mode='constant'):
     # rotate input image
     if isinstance(img, torch.Tensor):
         img_ = img.permute(1, 2, 0).numpy()
     elif isinstance(img, Image.Image):
         img_ = np.array(img)
-    
+
     img_ = transform.rotate(img_, angle, order=order, mode=mode)
-    
+
     if isinstance(img, torch.Tensor):
         img_ = torch.from_numpy(img_).permute(2, 0, 1).float()
     elif isinstance(img, Image.Image):
         img_ = Image.fromarray(img_)
     return img_
 
-def unfish(image, \
-        camera_intrinsics = np.array(\
-        [626.61271202815, 625.32362717293194, \
-        1336.0594825127226, 949.7379173445073]), \
-        distortion_coeffs = np.array(\
-        [0.20744323318046468, -0.07788465215624041, \
-        0.00530138015440915, 0.0032944874130648585])):
-    
+
+def unfish(image,
+           camera_intrinsics=np.array(
+        [626.61271202815, 625.32362717293194,
+         1336.0594825127226, 949.7379173445073]),
+        distortion_coeffs=np.array(
+        [0.20744323318046468, -0.07788465215624041,
+         0.00530138015440915, 0.0032944874130648585])):
     """Undistort an fisheye image.
 
     In Jellyfish data, the images are from a fisheye camera.
@@ -36,15 +37,16 @@ def unfish(image, \
     neural net input.
     """
     [fx, fy, cx, cy] = camera_intrinsics[0], camera_intrinsics[1], \
-            camera_intrinsics[2], camera_intrinsics[3]
+        camera_intrinsics[2], camera_intrinsics[3]
     cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
 
     # undistort
-    mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortion_coeffs, \
-           np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
-    image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR) 
+    mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortion_coeffs,
+                                                     np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
+    image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR)
 
     return image_
+
 
 def cambridgify(image):
     target_height = 480  # rescale images
@@ -68,6 +70,7 @@ def cambridgify(image):
     image_ = cv2.resize(image, (img_w, img_h))
     return image
 
+
 def compute_pose(p, q):
     # quaternion to axis-angle
     angle = 2 * np.arccos(q[3])
@@ -88,4 +91,3 @@ def compute_pose(p, q):
         pose = np.vstack((pose, [[0, 0, 0, 1]]))
         pose = np.linalg.inv(pose)
     return pose
-
