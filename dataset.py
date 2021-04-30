@@ -18,8 +18,6 @@ from torchvision import transforms
 
 from network import Network
 
-import transforms as tr
-
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
@@ -117,6 +115,28 @@ class JellyfishDataset(Dataset):
     def __len__(self):
         return len(self.rgb_files)
 
+    def __compute_pose__(self, p, q):
+        # quaternion to axis-angle
+        angle = 2 * np.arccos(q[3])
+        x = q[0] / np.sqrt(1 - q[3]**2)
+        y = q[1] / np.sqrt(1 - q[3]**2)
+        z = q[2] / np.sqrt(1 - q[3]**2)
+
+        R, _ = cv2.Rodrigues(np.array([x * angle, y * angle, z * angle]))
+        T = -np.matmul(R, p.T)[:, np.newaxis]
+
+        pose = None
+        if np.absolute(T).max() > 10000:
+            warnings.warn(
+                "A matrix with extremely large translation. Outlier?")
+            warnings.warn(T)
+        else:
+            pose = np.hstack((R, T))
+            pose = np.vstack((pose, [[0, 0, 0, 1]]))
+            pose = np.linalg.inv(pose)
+        return pose
+
+
     def __get_poses__(self, entries):
         """Get all the quarternions and translation values and return their corresponding
         pose matrices.
@@ -131,7 +151,7 @@ class JellyfishDataset(Dataset):
             # 4: x, 5: y, 6: z
             q, p = np.array(extrinsics[0:4]), np.array(extrinsics[4:])
             # compute pose with Rodrigues
-            pose = tr.compute_pose(p, q)
+            pose = self.__compute_pose__(p, q)
             if pose is not None:
                 poses.append(pose)
                 valid_indices.append(i)
@@ -154,40 +174,82 @@ class JellyfishDataset(Dataset):
 
         # for jellyfish coords are none
         coords = 0
-            
-        image = tr.cambridgify(image)
+
+        # get the intrinsics and lens distortion
+        camera_intrinsics = self.calibration_data[idx][0:4]
+        distortion_coeffs = self.calibration_data[idx][4:]
+        
+        def __unfish__(image, intrinsics, distortions):
+            """Undistort an fisheye image.
+        
+            In Jellyfish data, the images are from a fisheye camera.
+            So we need to to undistort and rescale the image for the
+            neural net input.
+            """
+            [fx, fy, cx, cy] = intrinsics[0],intrinsics[1], intrinsics[2], intrinsics[3]
+            cmat = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]])
+        
+            # undistort
+            mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortions, \
+                   np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
+            image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR) 
+        
+            return image_
+        
+        image = __unfish__(image, camera_intrinsics, distortion_coeffs)
+        
+        def __cambridgify__(image):
+            target_height = 480  # rescale images
+            # sub sampling of our CNN architecture,
+            # for size of the initalization targets
+            nn_subsampling = 8
+            img_aspect = image.shape[0] / image.shape[1]
+            if img_aspect > 1:
+                # portrait
+                img_w = target_height
+                img_h = int(np.ceil(target_height * img_aspect))
+            else:
+                # landscape
+                img_w = int(np.ceil(target_height / img_aspect))
+                img_h = target_height
+        
+            out_w = int(np.ceil(img_w / nn_subsampling))
+            out_h = int(np.ceil(img_h / nn_subsampling))
+            out_scale = out_w / image.shape[1]
+            img_scale = img_w / image.shape[1]
+            image_ = cv2.resize(image, (img_w, img_h))
+            return image
+        
+        image = __cambridgify__(image)
 
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
             angle = random.uniform(-self.aug_rotation, self.aug_rotation)
-
-            # get the intrinsics and lens distortion
-            camera_intrinsics = self.calibration_data[idx][0:4]
-            distortion_coeffs = self.calibration_data[idx][4:]
  
             # augment input image
             pipeline = transforms.Compose([
-                # transforms.Lambda(lambda img: \
-                #         tr.unfish(img, camera_intrinsics, \
-                #                 distortion_coeffs)),
-                # transforms.Lambda(tr.cambridgify),
-                # transforms.Lambda(lambda img: \
-                #         tr.rotate(img, angle, 1, 'reflect'))
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
                 transforms.ColorJitter(
                     brightness=self.aug_brightness, \
                             contrast=self.aug_contrast),
-                transforms.Lambda(lambda img: \
-                         tr.rotate(img, angle, 1, 'reflect')),
                 transforms.ToTensor()
             ])
             image = pipeline(image)
 
             # scale focal length
             focal_length *= scale_factor
+
+            def __rotate__(img, angle, order, mode='constant'):
+                # rotate input image
+                t = img.permute(1, 2, 0).numpy()
+                t = transform.rotate(img_, angle, order=order, mode=mode)
+                t = torch.from_numpy(t).permute(2, 0, 1).float()
+                return t
+
+            image = __rotate__(image, angle, 1, 'reflect') 
 
             if self.init:
                 # rotate and scale depth maps
@@ -204,10 +266,6 @@ class JellyfishDataset(Dataset):
             pose = torch.matmul(pose, pose_rot)
         else:
             pipeline = transforms.Compose([
-                transforms.Lambda(lambda img: \
-                    tr.unfish(img, camera_intrinsics, \
-                                distortion_coeffs)),
-                transforms.Lambda(tr.cambridgify),
                 transforms.ToPILImage(),
                 transforms.Resize(self.image_height),
                 transforms.Grayscale(),
