@@ -12,8 +12,8 @@ from torchvision import utils
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
-import cv2
-cv2.setNumThreads(0)
+# import cv2
+# cv2.setNumThreads(0)
 
 parser = argparse.ArgumentParser(
     description='Initialize a scene coordinate regression network.',
@@ -76,7 +76,7 @@ if not os.path.exists(model_root):
 # trainset = CamLocDatasetLite(opt.scene, mode=min(opt.mode, 1), sparse=opt.sparse, augment=True)
 print("Preparing dataset, will take a while ...")
 trainset = JellyfishDataset(opt.scene, mode=min(
-    opt.mode, 1), sparse=opt.sparse, augment=True)
+    opt.mode, 1), sparse=opt.sparse, augment=True, multiprocessing_context='spawn')
 trainset_loader = torch.utils.data.DataLoader(
     trainset, shuffle=True, num_workers=6)
 
