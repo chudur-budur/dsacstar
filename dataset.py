@@ -252,7 +252,6 @@ class JellyfishDataset(Dataset):
             #     transforms.ToTensor()
             # ])
             pipeline = cvtransforms.Compose([
-                cvtransforms.ToPILImage(),
                 cvtransforms.Resize(int(self.image_height * scale_factor)),
                 cvtransforms.Grayscale(),
                 cvtransforms.ColorJitter(
