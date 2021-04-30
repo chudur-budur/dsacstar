@@ -205,6 +205,7 @@ class JellyfishDataset(Dataset):
         
         def __cambridgify__(t):
             t = t.permute(1, 2, 0).numpy()
+            
             target_height = 480  # rescale images
             # sub sampling of our CNN architecture,
             # for size of the initalization targets
@@ -227,7 +228,7 @@ class JellyfishDataset(Dataset):
             t = torch.from_numpy(t).permute(2, 0, 1).float()
             return t
         
-        image = __cambridgify__(torch.from_numpy(image).permute(2, 0, 1).float())
+        image = __cambridgify__(t)
 
         if self.augment:
             scale_factor = random.uniform(
