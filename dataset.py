@@ -152,6 +152,9 @@ class JellyfishDataset(Dataset):
         # pose = np.loadtxt(self.pose_files[idx])
         pose = torch.from_numpy(self.pose_data[idx]).float()
 
+        # for jellyfish coords are none
+        coord = 0
+
         if self.augment:
             scale_factor = random.uniform(
                 self.aug_scale_min, self.aug_scale_max)
