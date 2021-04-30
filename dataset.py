@@ -245,7 +245,7 @@ class JellyfishDataset(Dataset):
             def __rotate__(img, angle, order, mode='constant'):
                 # rotate input image
                 t = img.permute(1, 2, 0).numpy()
-                t = transform.rotate(img_, angle, order=order, mode=mode)
+                t = transforms.rotate(img_, angle, order=order, mode=mode)
                 t = torch.from_numpy(t).permute(2, 0, 1).float()
                 return t
 
