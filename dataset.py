@@ -251,6 +251,7 @@ class JellyfishDataset(Dataset):
                             contrast=self.aug_contrast),
                 transforms.ToTensor()
             ])
+            print(type(pipeline))
             for t in pipeline:
                 image = t(image)
 
