@@ -24,6 +24,7 @@ from network import Network
 # sys.path.append('/home/khaled/dsacstar/opecv_transforms_torchvision/cvtorchvision')
 # print(sys.path)
 from cvtorchvision import cvtransforms
+import trasnforms as tr
 
 class JellyfishDataset(Dataset):
     """Camera localization dataset for Jellyfish SLAM.
@@ -243,6 +244,7 @@ class JellyfishDataset(Dataset):
  
             # augment input image
             pipeline = transforms.Compose([
+                transforms.Lambda(lambda img: tr.unfish(img, camera_intrinsics, distortion_coeffs)),
                 transforms.ToPILImage(),
                 transforms.Resize(int(self.image_height * scale_factor)),
                 transforms.Grayscale(),
@@ -251,7 +253,6 @@ class JellyfishDataset(Dataset):
                             contrast=self.aug_contrast),
                 transforms.ToTensor()
             ])
-            print(type(pipeline))
             for t in pipeline.transforms:
                 image = t(image)
 
