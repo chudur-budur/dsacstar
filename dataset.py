@@ -16,6 +16,11 @@ import time
 
 import numpy as np
 import cv2
+# This cv2 setting is needed since the transforms.Compose in torchvision
+# doesn't work in multi-threaded mode when the cv2 is used. See here:
+# https://github.com/pytorch/pytorch/issues/45198
+# https://github.com/pytorch/pytorch/issues/15808
+# https://github.com/pytorch/vision/issues/3756
 cv2.setNumThreads(0)
 
 
