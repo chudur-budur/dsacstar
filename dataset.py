@@ -179,7 +179,7 @@ class JellyfishDataset(Dataset):
         camera_intrinsics = self.calibration_data[idx][0:4]
         distortion_coeffs = self.calibration_data[idx][4:]
         
-        def __unfish__(image, intrinsics, distortions):
+        def __unfish__(img, intrinsics, distortions):
             """Undistort an fisheye image.
         
             In Jellyfish data, the images are from a fisheye camera.
@@ -191,19 +191,19 @@ class JellyfishDataset(Dataset):
         
             # undistort
             mapx, mapy = cv2.fisheye.initUndistortRectifyMap(cmat, distortions, \
-                   np.eye(3), cmat, (image.shape[1], image.shape[0]), cv2.CV_16SC2)
-            image_ = cv2.remap(image, mapx, mapy, cv2.INTER_LINEAR) 
+                   np.eye(3), cmat, (img.shape[1], img.shape[0]), cv2.CV_16SC2)
+            img = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR) 
         
-            return image_
+            return img
         
         image = __unfish__(image, camera_intrinsics, distortion_coeffs)
         
-        def __cambridgify__(image):
+        def __cambridgify__(img):
             target_height = 480  # rescale images
             # sub sampling of our CNN architecture,
             # for size of the initalization targets
             nn_subsampling = 8
-            img_aspect = image.shape[0] / image.shape[1]
+            img_aspect = img.shape[0] / img.shape[1]
             if img_aspect > 1:
                 # portrait
                 img_w = target_height
@@ -215,10 +215,10 @@ class JellyfishDataset(Dataset):
         
             out_w = int(np.ceil(img_w / nn_subsampling))
             out_h = int(np.ceil(img_h / nn_subsampling))
-            out_scale = out_w / image.shape[1]
-            img_scale = img_w / image.shape[1]
-            image_ = cv2.resize(image, (img_w, img_h))
-            return image
+            out_scale = out_w / img.shape[1]
+            img_scale = img_w / img.shape[1]
+            img = cv2.resize(img, (img_w, img_h))
+            return img
         
         image = __cambridgify__(image)
 
@@ -242,14 +242,15 @@ class JellyfishDataset(Dataset):
             # scale focal length
             focal_length *= scale_factor
 
-            def __rotate__(img, angle, order, mode='constant'):
+            # rotate input image
+            def __rotate__(t, angle, order, mode='constant'):
                 # rotate input image
-                t = img.permute(1, 2, 0).numpy()
-                t = transforms.rotate(img_, angle, order=order, mode=mode)
+                t = t.permute(1, 2, 0).numpy()
+                t = rotate(t, angle, order=order, mode=mode)
                 t = torch.from_numpy(t).permute(2, 0, 1).float()
                 return t
 
-            image = __rotate__(image, angle, 1, 'reflect') 
+            image = __rotate__(image, angle, 1, 'reflect')
 
             if self.init:
                 # rotate and scale depth maps
