@@ -5,6 +5,10 @@ import math
 import warnings
 import time
 
+import numpy as np
+import cv2
+cv2.setNumThreads(0)
+
 from skimage import io
 from skimage import color
 from skimage.transform import rotate, resize
@@ -16,8 +20,6 @@ from torchvision import transforms
 
 from network import Network
 
-import numpy as np
-import cv2
 import transforms as tr
 
 class JellyfishDataset(Dataset):
