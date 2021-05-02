@@ -168,7 +168,7 @@ for x in range(0, pixel_grid.size(2)):
 
 pixel_grid = pixel_grid.cuda()
 
-start_epoch = opt.start_epoch
+start_epoch = opt.startepoch
 iteration = 0
 sanity_check = True
 for epoch in range(start_epoch+1, start_epoch + epochs + 1):
