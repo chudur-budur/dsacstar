@@ -168,10 +168,10 @@ for x in range(0, pixel_grid.size(2)):
 
 pixel_grid = pixel_grid.cuda()
 
-start_epoch = opt.startepoch
 iteration = 0
 sanity_check = True
-for epoch in range(start_epoch+1, start_epoch + epochs + 1):
+min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
+for epoch in range(min_epoch, max_epoch):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
@@ -339,7 +339,7 @@ for epoch in range(start_epoch+1, start_epoch + epochs + 1):
         optimizer.zero_grad()
 
         print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},\tValid: {4:.1f}%,\tTime: {5:.2f}s'
-              .format(epoch, epochs, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
+              .format(epoch, max_epoch, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
         train_iter_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
 
@@ -356,7 +356,7 @@ for epoch in range(start_epoch+1, start_epoch + epochs + 1):
     train_epoch_log.write('{0:d} {1:f} {2:f}\n'.format(
         epoch, mean_loss, mean_num_valid_sc))
 
-    if epoch % 25 == 0 or epoch == 1 or epoch == epochs:
+    if epoch % 25 == 0 or epoch == min_epoch or epoch == max_epoch:
         model_path = os.path.join(
             model_root, "{0:s}-e{1:d}-init.ann".format(opt.network, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
