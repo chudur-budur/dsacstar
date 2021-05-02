@@ -339,7 +339,7 @@ for epoch in range(min_epoch, max_epoch):
         optimizer.zero_grad()
 
         print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},\tValid: {4:.1f}%,\tTime: {5:.2f}s'
-              .format(epoch, max_epoch, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
+              .format(epoch, max_epoch-1, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
         train_iter_log.write('{0:d} {1:f} {2:f}\n'.format(
             iteration, loss, num_valid_sc))
 
