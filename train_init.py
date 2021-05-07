@@ -180,7 +180,7 @@ for epoch in range(min_epoch, max_epoch):
     count = 0
     mean_loss = 0.0
     mean_num_valid_sc = 0.0
-    for image, gt_pose, gt_coords, focal_length, _, _ in trainset_loader:
+    for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
         if sanity_check and count < 10 and epoch < 2:
             home = os.environ['HOME']
             path = os.path.join(home, 'tmp/{0:d}-unfished.png'.format(count))
@@ -338,10 +338,12 @@ for epoch in range(min_epoch, max_epoch):
         optimizer.step()		# update all model parameters
         optimizer.zero_grad()
 
-        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},\tValid: {4:.1f}%,\tTime: {5:.2f}s'
-              .format(epoch, max_epoch-1, iteration, loss, num_valid_sc*100, time.time()-start_time), flush=True)
-        train_iter_log.write('{0:d} {1:f} {2:f}\n'.format(
-            iteration, loss, num_valid_sc))
+        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},'\
+                .format(epoch, max_epoch-1, iteration, loss)
+                + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tFile: {2:s}'\
+                        .format(num_valid_sc*100, time.time()-start_time, file_path), flush=True)
+        train_iter_log.write('{0:d} {1:f} {2:f} {3:s}\n'.format(
+            iteration, loss, num_valid_sc, time_stamp))
 
         mean_loss = mean_loss + loss
         mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
