@@ -12,6 +12,8 @@ from torchvision import utils
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
+:now = datetime.now()
+
 parser = argparse.ArgumentParser(
     description='Initialize a scene coordinate regression network.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -60,7 +62,6 @@ parser.add_argument('--sparse', '-sparse', action='store_true',
                     + 'rendered depth maps (eg. for 7scenes and 12scenes).')
 parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
-now = datetime.now()
 parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
                     help='custom session name appended to output files, useful to '
                     + 'separate different runs of a script')
