@@ -12,7 +12,7 @@ from torchvision import utils
 from dataset import CamLocDataset, CamLocDatasetLite, JellyfishDataset
 from network import Network
 
-:now = datetime.now()
+now = datetime.now()
 
 parser = argparse.ArgumentParser(
     description='Initialize a scene coordinate regression network.',
