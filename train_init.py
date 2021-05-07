@@ -340,8 +340,8 @@ for epoch in range(min_epoch, max_epoch):
 
         print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},'\
                 .format(epoch, max_epoch-1, iteration, loss)
-                + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tFile: {2:s}'\
-                        .format(num_valid_sc*100, time.time()-start_time, file_path), flush=True)
+                + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tTs: {2:s}'\
+                        .format(num_valid_sc*100, time.time()-start_time, time_stamp), flush=True)
         train_iter_log.write('{0:d} {1:f} {2:f} {3:s}\n'.format(
             iteration, loss, num_valid_sc, time_stamp))
 
@@ -355,8 +355,8 @@ for epoch in range(min_epoch, max_epoch):
 
     mean_loss = mean_loss / count
     mean_num_valid_sc = mean_num_valid_sc / count
-    train_epoch_log.write('{0:d} {1:f} {2:f}\n'.format(
-        epoch, mean_loss, mean_num_valid_sc))
+    train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\t{3:s}\t{4:s}\n'.format(
+        epoch, mean_loss, mean_num_valid_sc, time_stamp, file_path))
 
     if epoch % 25 == 0 or epoch == min_epoch or epoch == max_epoch:
         model_path = os.path.join(
