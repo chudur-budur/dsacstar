@@ -155,8 +155,6 @@ train_iter_log = open('log_init_iter_{0:s}_{1:s}.txt'.format(
     opt.network, opt.session), 'w', 1)
 train_epoch_log = open('log_init_epoch_{0:s}_{1:s}.txt'.format(
     opt.network, opt.session), 'w', 1)
-bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
-    opt.network, opt.session), 'w', 1)
 
 # generate grid of target reprojection pixel positions
 pixel_grid = torch.zeros((2,
@@ -385,13 +383,16 @@ for epoch in range(min_epoch, max_epoch):
             model_root, "{0:s}-e{1:d}-init.ann".format(opt.network, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
+    
+    if len(bad_images) > 0:
+        print('Saving bad images.')
+        bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
+            opt.network, opt.session), 'w', 1)
+        for ts in bad_images.keys():
+            bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:s}\n"\
+                    .format(bad_images[ts][0], bad_images[ts][1], bad_images[ts][2]))
+            bad_images_log.close()
 
-if len(bad_images) > 0:
-    print('Saving bad images.')
-    for ts in bad_images.keys():
-        bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:s}\n"\
-                .format(bad_images[ts][0], bad_images[ts][1], bad_images[ts][2]))
-        bad_images_log.close()
 print('Done without errors.')
 train_iter_log.close()
 train_epoch_log.close()
