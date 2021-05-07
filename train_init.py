@@ -31,6 +31,8 @@ parser.add_argument('--iterations', '-iter', type=int,
                     help='number of training iterations, i.e. numer of model updates')
 parser.add_argument('--epochs', '-e', type=int,
                     help='number of training epochs, i.e. |iterations / no. training images|')
+parser.add_argument('--ignorebadat', '-ibe', type=int, default=float('inf'),
+                    help='the epoch at wich we start ignoring the bad images')
 parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
                     help='switch to reprojection error optimization when '
                     + 'predicted scene coordinate is within this tolerance '
@@ -152,6 +154,8 @@ train_iter_log = open('log_init_iter_{0:s}_{1:s}.txt'.format(
     opt.network, opt.session), 'w', 1)
 train_epoch_log = open('log_init_epoch_{0:s}_{1:s}.txt'.format(
     opt.network, opt.session), 'w', 1)
+bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
+    opt.network, opt.session), 'w', 1)
 
 # generate grid of target reprojection pixel positions
 pixel_grid = torch.zeros((2,
@@ -171,6 +175,7 @@ pixel_grid = pixel_grid.cuda()
 iteration = 0
 sanity_check = True
 min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
+ignore_bad_at = opt.ignorebadat
 for epoch in range(min_epoch, max_epoch):
 
     now = datetime.now()
@@ -181,177 +186,192 @@ for epoch in range(min_epoch, max_epoch):
     mean_loss = 0.0
     mean_num_valid_sc = 0.0
     for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
-        if sanity_check and count < 10 and epoch < 2:
-            home = os.environ['HOME']
-            path = os.path.join(home, 'tmp/{0:d}-unfished.png'.format(count))
-            print("Saving", path)
-            utils.save_image(image, path)
+        if len(bad_images) == 0 or time_stamp[0] not in bad_images:
+            if sanity_check and count < 10 and epoch < 2:
+                home = os.environ['HOME']
+                path = os.path.join(home, 'tmp/{0:d}-unfished.png'.format(count))
+                print("Saving", path)
+                utils.save_image(image, path)
 
-        start_time = time.time()
+            start_time = time.time()
 
-        # create camera calibartion matrix
-        focal_length = float(focal_length[0])
-        cam_mat = torch.eye(3)
-        cam_mat[0, 0] = focal_length
-        cam_mat[1, 1] = focal_length
-        cam_mat[0, 2] = image.size(3) / 2
-        cam_mat[1, 2] = image.size(2) / 2
-        cam_mat = cam_mat.cuda()
+            # create camera calibartion matrix
+            focal_length = float(focal_length[0])
+            cam_mat = torch.eye(3)
+            cam_mat[0, 0] = focal_length
+            cam_mat[1, 1] = focal_length
+            cam_mat[0, 2] = image.size(3) / 2
+            cam_mat[1, 2] = image.size(2) / 2
+            cam_mat = cam_mat.cuda()
 
-        scene_coords = network(image.cuda())
+            scene_coords = network(image.cuda())
 
-        # calculate loss dependant on the mode
+            # calculate loss dependant on the mode
 
-        if opt.mode == 2:
-            # === RGB-D mode, optimize 3D distance to ground truth scene coordinates ======
+            if opt.mode == 2:
+                # === RGB-D mode, optimize 3D distance to ground truth scene coordinates ======
 
-            scene_coords = scene_coords[0].view(3, -1)
-            gt_coords = gt_coords[0].view(3, -1).cuda()
+                scene_coords = scene_coords[0].view(3, -1)
+                gt_coords = gt_coords[0].view(3, -1).cuda()
 
-            # check for invalid ground truth scene coordinates
-            gt_coords_mask = gt_coords.abs().sum(0) > 0
+                # check for invalid ground truth scene coordinates
+                gt_coords_mask = gt_coords.abs().sum(0) > 0
 
-            loss = torch.norm(scene_coords - gt_coords,
-                              dim=0, p=2)[gt_coords_mask]
-            loss = loss.mean()
-            num_valid_sc = gt_coords_mask.float().mean()
-
-        else:
-            # === RGB mode, optmize a variant of the reprojection error ===================
-
-            # crop ground truth pixel positions to prediction size
-            pixel_grid_crop = pixel_grid[:, 0:scene_coords.size(
-                2), 0:scene_coords.size(3)].clone()
-            pixel_grid_crop = pixel_grid_crop.view(2, -1)
-
-            # make 3D points homogeneous
-            ones = torch.ones(
-                (scene_coords.size(0), 1, scene_coords.size(2), scene_coords.size(3)))
-            ones = ones.cuda()
-
-            scene_coords = torch.cat((scene_coords, ones), 1)
-            scene_coords = scene_coords.squeeze().view(4, -1)
-
-            # prepare pose for projection operation
-            gt_pose = gt_pose[0].inverse()[0:3, :]
-            gt_pose = gt_pose.cuda()
-
-            # scene coordinates to camera coordinate
-            camera_coords = torch.mm(gt_pose, scene_coords)
-
-            # re-project predicted scene coordinates
-            reprojection_error = torch.mm(cam_mat, camera_coords)
-            reprojection_error[2].clamp_(
-                min=opt.mindepth)  # avoid division by zero
-            reprojection_error = reprojection_error[0:2] / \
-                reprojection_error[2]
-
-            reprojection_error = reprojection_error - pixel_grid_crop
-            reprojection_error = reprojection_error.norm(2, 0)
-
-            # check predicted scene coordinate for various constraints
-            # behind or too close to camera plane
-            invalid_min_depth = camera_coords[2] < opt.mindepth
-            # check for very large reprojection errors
-            invalid_repro = reprojection_error > opt.hardclamp
-
-            if use_init:
-                # ground truth scene coordinates available, transform to uniform
-                gt_coords = torch.cat((gt_coords.cuda(), ones), 1)
-                gt_coords = gt_coords.squeeze().view(4, -1)
-
-                # check for invalid/unknown ground truth scene coordinates (all zeros)
-                gt_coords_mask = torch.abs(gt_coords[0:3]).sum(0) == 0
-
-                # scene coordinates to camera coordinate
-                target_camera_coords = torch.mm(gt_pose, gt_coords)
-
-                # distance between predicted and ground truth coordinates
-                gt_coord_dist = torch.norm(
-                    camera_coords - target_camera_coords, dim=0, p=2)
-
-                # check for additional constraints regarding ground truth scene coordinates
-                # too far from ground truth scene coordinates
-                invalid_gt_distance = gt_coord_dist > opt.inittolerance
-                # filter unknown ground truth scene coordinates
-                invalid_gt_distance[gt_coords_mask] = 0
-
-                # combine all constraints
-                valid_scene_coordinates = (
-                    invalid_min_depth + invalid_gt_distance + invalid_repro) == 0
+                loss = torch.norm(scene_coords - gt_coords,
+                                  dim=0, p=2)[gt_coords_mask]
+                loss = loss.mean()
+                num_valid_sc = gt_coords_mask.float().mean()
 
             else:
-                # no ground truth scene coordinates available, enforce max distance of predicted coordinates
-                invalid_max_depth = camera_coords[2] > opt.maxdepth
+                # === RGB mode, optmize a variant of the reprojection error ===================
 
-                # combine all constraints
-                valid_scene_coordinates = (
-                    invalid_min_depth + invalid_max_depth + invalid_repro) == 0
+                # crop ground truth pixel positions to prediction size
+                pixel_grid_crop = pixel_grid[:, 0:scene_coords.size(
+                    2), 0:scene_coords.size(3)].clone()
+                pixel_grid_crop = pixel_grid_crop.view(2, -1)
 
-            num_valid_sc = int(valid_scene_coordinates.sum())
+                # make 3D points homogeneous
+                ones = torch.ones(
+                    (scene_coords.size(0), 1, scene_coords.size(2), scene_coords.size(3)))
+                ones = ones.cuda()
 
-            # assemble loss
-            loss = 0
+                scene_coords = torch.cat((scene_coords, ones), 1)
+                scene_coords = scene_coords.squeeze().view(4, -1)
 
-            if num_valid_sc > 0:
+                # prepare pose for projection operation
+                gt_pose = gt_pose[0].inverse()[0:3, :]
+                gt_pose = gt_pose.cuda()
 
-                # reprojection error for all valid scene coordinates
-                reprojection_error = reprojection_error[valid_scene_coordinates]
+                # scene coordinates to camera coordinate
+                camera_coords = torch.mm(gt_pose, scene_coords)
 
-                # calculate soft clamped l1 loss of reprojection error
-                loss_l1 = reprojection_error[reprojection_error <=
-                                             opt.softclamp]
-                loss_sqrt = reprojection_error[reprojection_error >
-                                               opt.softclamp]
-                loss_sqrt = torch.sqrt(opt.softclamp*loss_sqrt)
+                # re-project predicted scene coordinates
+                reprojection_error = torch.mm(cam_mat, camera_coords)
+                reprojection_error[2].clamp_(
+                    min=opt.mindepth)  # avoid division by zero
+                reprojection_error = reprojection_error[0:2] / \
+                    reprojection_error[2]
 
-                loss += (loss_l1.sum() + loss_sqrt.sum())
+                reprojection_error = reprojection_error - pixel_grid_crop
+                reprojection_error = reprojection_error.norm(2, 0)
 
-            if num_valid_sc < scene_coords.size(1):
-
-                invalid_scene_coordinates = (valid_scene_coordinates == 0)
+                # check predicted scene coordinate for various constraints
+                # behind or too close to camera plane
+                invalid_min_depth = camera_coords[2] < opt.mindepth
+                # check for very large reprojection errors
+                invalid_repro = reprojection_error > opt.hardclamp
 
                 if use_init:
-                    # 3D distance loss for all invalid scene coordinates where the ground truth is known
-                    invalid_scene_coordinates[gt_coords_mask] = 0
+                    # ground truth scene coordinates available, transform to uniform
+                    gt_coords = torch.cat((gt_coords.cuda(), ones), 1)
+                    gt_coords = gt_coords.squeeze().view(4, -1)
 
-                    loss += gt_coord_dist[invalid_scene_coordinates].sum()
+                    # check for invalid/unknown ground truth scene coordinates (all zeros)
+                    gt_coords_mask = torch.abs(gt_coords[0:3]).sum(0) == 0
+
+                    # scene coordinates to camera coordinate
+                    target_camera_coords = torch.mm(gt_pose, gt_coords)
+
+                    # distance between predicted and ground truth coordinates
+                    gt_coord_dist = torch.norm(
+                        camera_coords - target_camera_coords, dim=0, p=2)
+
+                    # check for additional constraints regarding ground truth scene coordinates
+                    # too far from ground truth scene coordinates
+                    invalid_gt_distance = gt_coord_dist > opt.inittolerance
+                    # filter unknown ground truth scene coordinates
+                    invalid_gt_distance[gt_coords_mask] = 0
+
+                    # combine all constraints
+                    valid_scene_coordinates = (
+                        invalid_min_depth + invalid_gt_distance + invalid_repro) == 0
+
                 else:
-                    # generate proxy coordinate targets with constant depth assumption
-                    target_camera_coords = pixel_grid_crop
-                    target_camera_coords[0] -= image.size(3) / 2
-                    target_camera_coords[1] -= image.size(2) / 2
-                    target_camera_coords *= opt.targetdepth
-                    target_camera_coords /= focal_length
-                    # make homogeneous
-                    target_camera_coords = torch.cat(
-                        (target_camera_coords, torch.ones((1, target_camera_coords.size(1))).cuda()), 0)
+                    # no ground truth scene coordinates available, 
+                    # enforce max distance of predicted coordinates
+                    invalid_max_depth = camera_coords[2] > opt.maxdepth
 
-                    # distance
-                    loss += torch.abs(camera_coords[:, invalid_scene_coordinates] -
-                                      target_camera_coords[:, invalid_scene_coordinates]).sum()
+                    # combine all constraints
+                    valid_scene_coordinates = (
+                        invalid_min_depth + invalid_max_depth + invalid_repro) == 0
 
-            loss /= scene_coords.size(1)
-            num_valid_sc /= scene_coords.size(1)
+                num_valid_sc = int(valid_scene_coordinates.sum())
 
-        loss.backward()			# calculate gradients (pytorch autograd)
-        optimizer.step()		# update all model parameters
-        optimizer.zero_grad()
+                # assemble loss
+                loss = 0
 
-        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},'\
-                .format(epoch, max_epoch-1, iteration, loss)
-                + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tTs: {2:s}'\
-                        .format(num_valid_sc*100, time.time()-start_time, time_stamp[0]), flush=True)
-        train_iter_log.write('{0:d}\t{1:f}\t{2:f}\t{3:s}\t{4:s}\n'.format(
-            iteration, loss, num_valid_sc, time_stamp[0], file_path[0]))
+                if num_valid_sc > 0:
 
-        mean_loss = mean_loss + loss
-        mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
+                    # reprojection error for all valid scene coordinates
+                    reprojection_error = reprojection_error[valid_scene_coordinates]
 
-        iteration = iteration + 1
-        count = count + 1
+                    # calculate soft clamped l1 loss of reprojection error
+                    loss_l1 = reprojection_error[reprojection_error <=
+                                                 opt.softclamp]
+                    loss_sqrt = reprojection_error[reprojection_error >
+                                                   opt.softclamp]
+                    loss_sqrt = torch.sqrt(opt.softclamp*loss_sqrt)
 
-        del loss
+                    loss += (loss_l1.sum() + loss_sqrt.sum())
+
+                if num_valid_sc < scene_coords.size(1):
+
+                    invalid_scene_coordinates = (valid_scene_coordinates == 0)
+
+                    if use_init:
+                        # 3D distance loss for all invalid scene coordinates 
+                        # where the ground truth is known
+                        invalid_scene_coordinates[gt_coords_mask] = 0
+
+                        loss += gt_coord_dist[invalid_scene_coordinates].sum()
+                    else:
+                        # generate proxy coordinate targets with constant depth assumption
+                        target_camera_coords = pixel_grid_crop
+                        target_camera_coords[0] -= image.size(3) / 2
+                        target_camera_coords[1] -= image.size(2) / 2
+                        target_camera_coords *= opt.targetdepth
+                        target_camera_coords /= focal_length
+                        # make homogeneous
+                        target_camera_coords = torch.cat(
+                            (target_camera_coords, torch.ones(
+                                (1, target_camera_coords.size(1))).cuda()), 0)
+
+                        # distance
+                        loss += torch.abs(camera_coords[:, invalid_scene_coordinates] -
+                                          target_camera_coords[:, invalid_scene_coordinates]).sum()
+
+                loss /= scene_coords.size(1)
+                num_valid_sc /= scene_coords.size(1)
+
+            if epoch > ignore_bad_at and num_valid_sc * 100 < 90.0:
+                bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, file_path[0]]
+
+
+            loss.backward()		# calculate gradients (pytorch autograd)
+            optimizer.step()		# update all model parameters
+            optimizer.zero_grad()
+
+            print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.1f},'\
+                    .format(epoch, max_epoch-1, iteration, loss)
+                    + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tTs: {2:s}'\
+                            .format(num_valid_sc*100, time.time()-start_time, time_stamp[0]), flush=True)
+            train_iter_log.write('{0:d}\t{1:f}\t{2:f}\t{3:s}\t{4:s}\n'.format(
+                iteration, loss, num_valid_sc, time_stamp[0], file_path[0]))
+
+            if epoch > ignore_bad_at and num_valid_sc * 100 < 90.0:
+                if time_stamp[0] not in bad_images:
+                    bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, file_path[0]]
+
+            mean_loss = mean_loss + loss
+            mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
+
+            iteration = iteration + 1
+            count = count + 1
+
+            del loss
+        
+        else:
+            print("{0:s}: bad image, skipping.".format(time_stamp[0]))
 
     mean_loss = mean_loss / count
     mean_num_valid_sc = mean_num_valid_sc / count
@@ -364,6 +384,12 @@ for epoch in range(min_epoch, max_epoch):
         print('Saving snapshot of the network to {:s}.'.format(model_path))
         torch.save(network.state_dict(), model_path)
 
+if len(bad_images) > 0:
+    print('Saving bad images.')
+    for ts in bad_images.keys():
+        bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:s}\n"\
+                .format(bad_images[ts][0], bad_images[ts][1], bad_images[ts][2]))
+        bad_images_log.close()
 print('Done without errors.')
 train_iter_log.close()
 train_epoch_log.close()
