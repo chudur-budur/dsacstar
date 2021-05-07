@@ -177,6 +177,7 @@ iteration = 0
 sanity_check = True
 min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
 ignore_bad_at = opt.ignorebadat
+bad_images = {}
 for epoch in range(min_epoch, max_epoch):
 
     now = datetime.now()
@@ -372,7 +373,7 @@ for epoch in range(min_epoch, max_epoch):
             del loss
         
         else:
-            print("{0:s}: bad image, skipping.".format(time_stamp[0]))
+            print("== {0:s}: bad image, skipping.".format(time_stamp[0]))
 
     mean_loss = mean_loss / count
     mean_num_valid_sc = mean_num_valid_sc / count
