@@ -391,7 +391,7 @@ for epoch in range(min_epoch, max_epoch):
         for ts in bad_images.keys():
             bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:s}\n"\
                     .format(bad_images[ts][0], bad_images[ts][1], bad_images[ts][2]))
-            bad_images_log.close()
+        bad_images_log.close()
 
 print('Done without errors.')
 train_iter_log.close()
