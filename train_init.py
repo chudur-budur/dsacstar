@@ -152,8 +152,11 @@ def generate_target_reprojection_pixel_positions(network):
     return pixel_grid
 
 
-def save_sanitycheck_images(image, count):
-    path = 'image-sanitycheck/{0:d}-unfished.png'.format(count)
+def save_sanitycheck_images(image, time_stamp, count):
+    folder = 'image-sanitycheck'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    path = os.path.join(folder, '{0:d}-{1:s}-unfished.png'.format(count, time_stamp))
     print("Saving", path)
     utils.save_image(image, path)
 
@@ -382,7 +385,7 @@ if __name__ == "__main__":
             if len(bad_images) == 0 or time_stamp[0] not in bad_images:
                 
                 if sanity_check and count < 10 and epoch < 2:
-                    save_sanitycheck_images(image, count)
+                    save_sanitycheck_images(image, time_stamp[0], count)
 
                 start_time = time.time()
 
