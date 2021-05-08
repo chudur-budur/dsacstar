@@ -188,7 +188,7 @@ def compute_loss_rgbd(scene_coords, gt_coords):
     return loss, num_valid_sc
 
 
-def compute_loss_rbg(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat, use_init):
+def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat, use_init):
     # crop ground truth pixel positions to prediction size
     pixel_grid_crop = pixel_grid[:, 0:scene_coords.size(
         2), 0:scene_coords.size(3)].clone()
@@ -260,8 +260,8 @@ def compute_loss_rbg(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
             invalid_min_depth + invalid_max_depth + invalid_repro) == 0
 
     num_valid_sc = int(valid_scene_coordinates.sum())
-    return num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-            pixel_grid_crop, camera_coords, gt_coord_dist
+    return (num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
+            pixel_grid_crop, camera_coords, gt_coord_dist)
 
 
 def assemble_loss(opt, num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
@@ -400,10 +400,10 @@ if __name__ == "__main__":
                     loss, num_valid_sc = compute_loss_rgbd(scene_coords, gt_coords)
                 else:
                     # === RGB mode, optmize a variant of the reprojection error ===================
-                    num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-                            pixel_grid_crop, camera_coords, gt_coord_dist \
-                                = compute_loss_rbg(opt, pixel_grid, scene_coords, \
-                                    gt_pose, gt_coords, cam_mat, use_init)
+                    (num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
+                            pixel_grid_crop, camera_coords, gt_coord_dist) \
+                            = compute_loss_rgb(opt, pixel_grid, scene_coords, \
+                            gt_pose, gt_coords, cam_mat, use_init)
                     # assemble loss
                     loss = assemble_loss(opt, num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
                             focal_lengh, camera_coords, gt_coord_dist, pixel_grid_crop, image, \
