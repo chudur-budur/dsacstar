@@ -447,7 +447,7 @@ if __name__ == "__main__":
             torch.save(network.state_dict(), model_path)
         
         if len(bad_images) > 0:
-            save_bad_images(opt, bad_images):
+            save_bad_images(opt, bad_images)
 
     print('Done without errors.')
     train_iter_log.close()
