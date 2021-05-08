@@ -362,7 +362,7 @@ if __name__ == "__main__":
     train_epoch_log = open('log_init_epoch_{0:s}_{1:s}.txt'.format(
         opt.network, opt.session), 'w', 1)
 
-    pixel_grid = generate_traget_reprojection_pixel_positions(network)
+    pixel_grid = generate_target_reprojection_pixel_positions(network)
 
     iteration = 0
     sanity_check = True
