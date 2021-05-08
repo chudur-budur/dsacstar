@@ -244,8 +244,15 @@ def downsample(data, n):
         n = len(data)
     data_ = []
     delta = int(np.ceil(len(data)/n))
+    Is = np.zeros(len(data)).astype(np.bool)
     for i in range(0, len(data), delta):
         data_.append(data[i])
+        Is[i] = True
+    # if interval sampling doesn't give n data points
+    if len(data_) < n:
+        Iu = np.arange(0,len(data),1).astype(np.int)[np.invert(Is)]
+        for i in np.random.choice(Iu, n - len(data_)):
+            data_.append(data[i])
     return data_
 
 
@@ -317,16 +324,19 @@ def prepare_recordvi(data_home, train_perc):
     return train, test
 
 
-def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
+def prepare_jellyfish_consolidated(data_home, train_perc, n_samples=float('inf')):
     r"""Prepare the latest Jellyfish SLAM data.
 
     This scheme will prepare and load Jellyfish SLAM data collected
-    on 04/21/21. Most likely these data points are accurate sensor readings.
+    on 05/04/21. Most likely these data points are accurate sensor readings.
+
+    Here 'consolidated' means it will take all data from all the takes, merge
+    and shuffle them. Then it will take a subset of `n_samples` from it.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23")
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-5-4")
     takes = [
-        "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
-        "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
+            "1/vlc-record-2021-05-04-15h03m33s-rtsp___192.168.2.1_stream1-", 
+            "1/vlc-record-2021-05-04-15h08m44s-rtsp___192.168.2.1_stream1-"]
     data = []
     # for i in range(len(takes)):
     path = os.path.join(root, takes[0])
@@ -361,16 +371,21 @@ def prepare_jellyfish(data_home, train_perc, n_samples=float('inf')):
     return train, test
 
 
-def prepare_jellyfish_separated(data_home):
+def prepare_jellyfish_separated(data_home, n_train=float('inf'), n_test=float('inf')):
     r"""Prepare the latest Jellyfish SLAM data.
 
     This scheme will prepare and load Jellyfish SLAM data collected
-    on 04/21/21. Most likely these data points are accurate sensor readings.
+    on 05/04/21. Most likely these data points are accurate sensor readings.
+
+    Here 'sperated' means it will treat two takes separately as train and test
+    datasets. All the training data will come from the first take and all the
+    testing data will come from the second take. `n_train` and `n_test` values
+    are decided in `__main__`.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-4-23")
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-5-4")
     takes = [
-        "1/vlc-record-2021-04-23-17h13m50s-rtsp___192.168.2.1_stream1-",
-        "1/vlc-record-2021-04-23-17h21m47s-rtsp___192.168.2.1_stream1-"]
+            "1/vlc-record-2021-05-04-15h03m33s-rtsp___192.168.2.1_stream1-", 
+            "1/vlc-record-2021-05-04-15h08m44s-rtsp___192.168.2.1_stream1-"]
     train, test = [], []
 
     path = os.path.join(root, takes[0])
@@ -383,7 +398,9 @@ def prepare_jellyfish_separated(data_home):
     # Approximate poses from the images, if there are matching timestamps,
     # no need to approximate.
     poses_ = approximate(images, poses)
-    for k in poses_.keys():
+    keys = random.sample(list(poses_.keys()), n_train) if n_train < float('inf') \
+            else list(poses_.keys())
+    for k in keys:
         train.append([images[k], poses_[k]])
 
     path = os.path.join(root, takes[1])
@@ -396,7 +413,9 @@ def prepare_jellyfish_separated(data_home):
     # Approximate poses from the images, if there are matching timestamps,
     # no need to approximate.
     poses_ = approximate(images, poses)
-    for k in poses_.keys():
+    keys = random.sample(list(poses_.keys()), n_test) if n_train < float('inf') \
+            else list(poses_.keys())
+    for k in keys():
         test.append([images[k], poses_[k]])
 
     # Shuffle the consolidated data.
@@ -441,12 +460,12 @@ if __name__ == "__main__":
                 ...
                 - takeN/
                     - nodvi ...""")
-    parser.add_argument('--recordvi', '-rv', action='store_true',
-                        help="If set, data loading will be performed with recordvi scheme.")
-    parser.add_argument('--jellyfish', '-jf', action='store_true',
-                        help="If set, data loading will be performed for jellyfish scheme.")
+    parser.add_argument('--jellyfishconsolidated', '-jfc', action='store_true',
+                        help="If set, data loading will be performed for jellyfish (consolidated) scheme.")
     parser.add_argument('--jellyfishseparated', '-jfs', action='store_true',
                         help="If set, data loading will be performed for jellyfish (separated) scheme.")
+    parser.add_argument('--recordvi', '-rv', action='store_true',
+                        help="If set, data loading will be performed with recordvi scheme.")
     parser.add_argument('--nsamples', '-ns', type=int, default=float('inf'),
                         help="Total number of subsamples to be prepared.")
     parser.add_argument('--trainperc', '-p', type=float, default=0.75,
@@ -461,11 +480,15 @@ if __name__ == "__main__":
     train, test = None, None
     if opt.recordvi:
         train, test = prepare_recordvi(opt.home, train_perc)
-    elif opt.jellyfish:
+    elif opt.jellyfishconsolidated:
         train, test = prepare_jellyfish(
             opt.home, train_perc, n_samples=n_samples)
     elif opt.jellyfishseparated:
-        train, test = prepare_jellyfish_separated(opt.home)
+        n_train, n_test = float('inf'), float('inf')
+        if opt.nsamples < float('inf'):
+            n_train = int(np.ceil(opt.nsamples * opt.trainperc))
+            n_test = int(np.floor(opt.nsamples * (1.0 - opt.trainperc)))
+        train, test = prepare_jellyfish_separated(opt.home, n_train=n_train, n_test=n_test)
     else:
         train, test = prepare_root(opt.home, train_perc)
 
