@@ -413,7 +413,7 @@ def prepare_jellyfish_separated(data_home, n_train=float('inf'), n_test=float('i
     # Approximate poses from the images, if there are matching timestamps,
     # no need to approximate.
     poses_ = approximate(images, poses)
-    keys = random.sample(list(poses_.keys()), n_test) if n_train < float('inf') \
+    keys = random.sample(list(poses_.keys()), n_test) if n_test < float('inf') \
             else list(poses_.keys())
     for k in keys:
         test.append([images[k], poses_[k]])
