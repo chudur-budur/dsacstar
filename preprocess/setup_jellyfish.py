@@ -481,7 +481,7 @@ if __name__ == "__main__":
     if opt.recordvi:
         train, test = prepare_recordvi(opt.home, train_perc)
     elif opt.jellyfishconsolidated:
-        train, test = prepare_jellyfish(
+        train, test = prepare_jellyfish_consolidated(
             opt.home, train_perc, n_samples=n_samples)
     elif opt.jellyfishseparated:
         n_train, n_test = float('inf'), float('inf')
