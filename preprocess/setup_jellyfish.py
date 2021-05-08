@@ -250,7 +250,7 @@ def downsample(data, n):
         Is[i] = True
     # if interval sampling doesn't give n data points
     if len(data_) < n:
-        Iu = np.arange(0,len(data),1).astype(np.int)[np.invert(Is)]
+        Iu = np.arange(0,len(data),1).astype(int)[np.invert(Is)]
         for i in np.random.choice(Iu, n - len(data_)):
             data_.append(data[i])
     return data_
