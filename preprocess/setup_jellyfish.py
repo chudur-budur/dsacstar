@@ -415,7 +415,7 @@ def prepare_jellyfish_separated(data_home, n_train=float('inf'), n_test=float('i
     poses_ = approximate(images, poses)
     keys = random.sample(list(poses_.keys()), n_test) if n_train < float('inf') \
             else list(poses_.keys())
-    for k in keys():
+    for k in keys:
         test.append([images[k], poses_[k]])
 
     # Shuffle the consolidated data.
