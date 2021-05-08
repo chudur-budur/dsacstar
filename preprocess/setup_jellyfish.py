@@ -425,11 +425,7 @@ def prepare_jellyfish_separated(data_home, n_train=float('inf'), n_test=float('i
     return train, test
 
 
-# entry point
-if __name__ == "__main__":
-    # seed random
-    random.seed(123456)
-
+def parse_args():
     # Setup argparse
     parser = argparse.ArgumentParser(
         description="Preprocess Jellyfish data to train with DSAC*.",
@@ -472,6 +468,17 @@ if __name__ == "__main__":
                         help=r'Total percentage of training data.')
     # parse now
     opt = parser.parse_args()
+
+    return opt
+
+
+# entry point
+if __name__ == "__main__":
+    # seed random
+    random.seed(123456)
+
+    # parse cmd arguments
+    opt = parse_args()
 
     n_samples = opt.nsamples
     train_perc = opt.trainperc
