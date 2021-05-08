@@ -244,7 +244,7 @@ def downsample(data, n):
         n = len(data)
     data_ = []
     delta = int(np.ceil(len(data)/n))
-    Is = np.zeros(len(data)).astype(np.bool)
+    Is = np.zeros(len(data)).astype(bool)
     for i in range(0, len(data), delta):
         data_.append(data[i])
         Is[i] = True
