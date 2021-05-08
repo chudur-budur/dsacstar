@@ -153,7 +153,7 @@ def generate_target_reprojection_pixel_positions(network):
 
 
 def save_sanitycheck_images(image, count):
-    path = os.path.join(home, './image-sanitycheck/{0:d}-unfished.png'.format(count))
+    path = './image-sanitycheck/{0:d}-unfished.png'.format(count)
     print("Saving", path)
     utils.save_image(image, path)
 
