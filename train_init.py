@@ -263,7 +263,7 @@ def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
             gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, valid_scene_coordinates)
 
 
-def assemble_loss(opt, use_init, pixel_grid_crop, scene_coords, gt_pose, camera_coords, \
+def assemble_loss(opt, focal_length, use_init, pixel_grid_crop, scene_coords, gt_pose, camera_coords, \
         reprojection_error, gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
         valid_scene_coordinates): 
     loss = 0
@@ -407,9 +407,9 @@ if __name__ == "__main__":
                     num_valid_sc = int(valid_scene_coordinates.sum())
                     
                     # assemble loss
-                    loss = assemble_loss(opt, use_init, pixel_grid_crop, scene_coords, gt_pose, \
-                            camera_coords, reprojection_error, gt_coords, gt_coords_mask, \
-                            target_camera_coords, gt_coord_dist, valid_scene_coordinates) 
+                    loss = assemble_loss(opt, focal_length, use_init, pixel_grid_crop, \
+                            scene_coords, gt_pose, camera_coords, reprojection_error, gt_coords, \
+                            gt_coords_mask, target_camera_coords, gt_coord_dist, valid_scene_coordinates) 
 
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
