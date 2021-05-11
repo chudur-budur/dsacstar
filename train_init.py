@@ -249,7 +249,6 @@ def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
         # combine all constraints
         valid_scene_coordinates = (
             invalid_min_depth + invalid_gt_distance + invalid_repro) == 0
-
     else:
         # no ground truth scene coordinates available, 
         # enforce max distance of predicted coordinates
@@ -259,39 +258,38 @@ def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
         valid_scene_coordinates = (
             invalid_min_depth + invalid_max_depth + invalid_repro) == 0
 
-    num_valid_sc = int(valid_scene_coordinates.sum())
-    return (num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-            pixel_grid_crop, camera_coords, gt_coord_dist)
+    return (pixel_grid_crop, scene_coords, gt_pose, camera_coords, reprojection_error, \
+            gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, valid_scene_coordinates)
 
 
-def assemble_loss(opt, num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-        focal_lengh, camera_coords, gt_coord_dist, pixel_grid_crop, image, \
-        use_init):
+def assemble_loss(opt, use_init, pixel_grid_crop, scene_coords, gt_pose, camera_coords, \
+        reprojection_error, gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
+        valid_scene_coordinates): 
     loss = 0
-
+    
     if num_valid_sc > 0:
-
+    
         # reprojection error for all valid scene coordinates
         reprojection_error = reprojection_error[valid_scene_coordinates]
-
+    
         # calculate soft clamped l1 loss of reprojection error
         loss_l1 = reprojection_error[reprojection_error <=
                                      opt.softclamp]
         loss_sqrt = reprojection_error[reprojection_error >
                                        opt.softclamp]
         loss_sqrt = torch.sqrt(opt.softclamp*loss_sqrt)
-
+    
         loss += (loss_l1.sum() + loss_sqrt.sum())
-
+    
     if num_valid_sc < scene_coords.size(1):
-
+    
         invalid_scene_coordinates = (valid_scene_coordinates == 0)
-
+    
         if use_init:
             # 3D distance loss for all invalid scene coordinates 
             # where the ground truth is known
             invalid_scene_coordinates[gt_coords_mask] = 0
-
+    
             loss += gt_coord_dist[invalid_scene_coordinates].sum()
         else:
             # generate proxy coordinate targets with constant depth assumption
@@ -304,7 +302,7 @@ def assemble_loss(opt, num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
             target_camera_coords = torch.cat(
                 (target_camera_coords, torch.ones(
                     (1, target_camera_coords.size(1))).cuda()), 0)
-
+    
             # distance
             loss += torch.abs(camera_coords[:, invalid_scene_coordinates] -
                               target_camera_coords[:, invalid_scene_coordinates]).sum()
@@ -400,14 +398,18 @@ if __name__ == "__main__":
                     loss, num_valid_sc = compute_loss_rgbd(scene_coords, gt_coords)
                 else:
                     # === RGB mode, optmize a variant of the reprojection error ===================
-                    (num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-                            pixel_grid_crop, camera_coords, gt_coord_dist) \
-                            = compute_loss_rgb(opt, pixel_grid, scene_coords, \
-                            gt_pose, gt_coords, cam_mat, use_init)
+                    (pixel_grid_crop, scene_coords, gt_pose, camera_coords, reprojection_error, \
+                            gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
+                            valid_scene_coordinates)
+                            = compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, \
+                                    cam_mat, use_init)
+                    
+                    num_valid_sc = int(valid_scene_coordinates.sum())
+                    
                     # assemble loss
-                    loss = assemble_loss(opt, num_valid_sc, valid_scene_coordinates, gt_coords_mask, \
-                            focal_lengh, camera_coords, gt_coord_dist, pixel_grid_crop, image, \
-                            use_init)
+                    loss = assemble_loss(opt, use_init, pixel_grid_crop, scene_coords, gt_pose, \
+                            camera_coords, reprojection_error, gt_coords, gt_coords_mask, \
+                            target_camera_coords, gt_coord_dist, valid_scene_coordinates) 
 
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
