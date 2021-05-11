@@ -225,6 +225,7 @@ def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
     # check for very large reprojection errors
     invalid_repro = reprojection_error > opt.hardclamp
 
+    gt_coords_mask = None
     if use_init:
         # ground truth scene coordinates available, transform to uniform
         gt_coords = torch.cat((gt_coords.cuda(), ones), 1)
