@@ -427,8 +427,8 @@ if __name__ == "__main__":
                         + '\tValid: {0:.1f}%,\tTime: {1:.2f}s\tTs: {2:s}'\
                                 .format(num_valid_sc*100, time.time()-start_time, time_stamp[0]), \
                                 flush=True)
-                train_iter_log.write('{0:d}\t{1:f}\t{2:f}\t{3:s}\t{4:s}\n'.format(
-                    iteration, loss, num_valid_sc, time_stamp[0], file_path[0]))
+                train_iter_log.write('{0:d}\t{1:d}\t{2:f}\t{3:f}\t{4:s}\t{5:s}\n'.format(
+                    epoch, iteration, loss, num_valid_sc, time_stamp[0], file_path[0]))
 
                 mean_loss = mean_loss + loss
                 mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
