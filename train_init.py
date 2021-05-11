@@ -262,7 +262,54 @@ def compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, cam_mat,
     return (pixel_grid_crop, scene_coords, gt_pose, camera_coords, reprojection_error, \
             gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, valid_scene_coordinates)
 
+
+def assemble_loss(opt, focal_length, use_init, pixel_grid_crop, scene_coords, gt_pose, camera_coords, \
+        reprojection_error, gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
+        valid_scene_coordinates): 
+    loss = 0
     
+    if num_valid_sc > 0:
+    
+        # reprojection error for all valid scene coordinates
+        reprojection_error = reprojection_error[valid_scene_coordinates]
+    
+        # calculate soft clamped l1 loss of reprojection error
+        loss_l1 = reprojection_error[reprojection_error <=
+                                     opt.softclamp]
+        loss_sqrt = reprojection_error[reprojection_error >
+                                       opt.softclamp]
+        loss_sqrt = torch.sqrt(opt.softclamp*loss_sqrt)
+    
+        loss += (loss_l1.sum() + loss_sqrt.sum())
+    
+    if num_valid_sc < scene_coords.size(1):
+    
+        invalid_scene_coordinates = (valid_scene_coordinates == 0)
+    
+        if use_init:
+            # 3D distance loss for all invalid scene coordinates 
+            # where the ground truth is known
+            invalid_scene_coordinates[gt_coords_mask] = 0
+    
+            loss += gt_coord_dist[invalid_scene_coordinates].sum()
+        else:
+            # generate proxy coordinate targets with constant depth assumption
+            target_camera_coords = pixel_grid_crop
+            target_camera_coords[0] -= image.size(3) / 2
+            target_camera_coords[1] -= image.size(2) / 2
+            target_camera_coords *= opt.targetdepth
+            target_camera_coords /= focal_length[0]
+            # make homogeneous
+            target_camera_coords = torch.cat(
+                (target_camera_coords, torch.ones(
+                    (1, target_camera_coords.size(1))).cuda()), 0)
+    
+            # distance
+            loss += torch.abs(camera_coords[:, invalid_scene_coordinates] -
+                              target_camera_coords[:, invalid_scene_coordinates]).sum()
+    return loss
+
+
 def save_bad_images(opt, bad_images):
     print('Saving bad images.')
     bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
@@ -360,48 +407,10 @@ if __name__ == "__main__":
                     num_valid_sc = int(valid_scene_coordinates.sum())
                     
                     # assemble loss
-                    loss = 0
-                    
-                    if num_valid_sc > 0:
-                    
-                        # reprojection error for all valid scene coordinates
-                        reprojection_error = reprojection_error[valid_scene_coordinates]
-                    
-                        # calculate soft clamped l1 loss of reprojection error
-                        loss_l1 = reprojection_error[reprojection_error <=
-                                                     opt.softclamp]
-                        loss_sqrt = reprojection_error[reprojection_error >
-                                                       opt.softclamp]
-                        loss_sqrt = torch.sqrt(opt.softclamp*loss_sqrt)
-                    
-                        loss += (loss_l1.sum() + loss_sqrt.sum())
-                    
-                    if num_valid_sc < scene_coords.size(1):
-                    
-                        invalid_scene_coordinates = (valid_scene_coordinates == 0)
-                    
-                        if use_init:
-                            # 3D distance loss for all invalid scene coordinates 
-                            # where the ground truth is known
-                            invalid_scene_coordinates[gt_coords_mask] = 0
-                    
-                            loss += gt_coord_dist[invalid_scene_coordinates].sum()
-                        else:
-                            # generate proxy coordinate targets with constant depth assumption
-                            print(type(target_camera_coords), type(focal_length), focal_length)
-                            target_camera_coords = pixel_grid_crop
-                            target_camera_coords[0] -= image.size(3) / 2
-                            target_camera_coords[1] -= image.size(2) / 2
-                            target_camera_coords = target_camera_coords * opt.targetdepth
-                            target_camera_coords = target_camera_coords / focal_length[0]
-                            # make homogeneous
-                            target_camera_coords = torch.cat(
-                                (target_camera_coords, torch.ones(
-                                    (1, target_camera_coords.size(1))).cuda()), 0)
-                    
-                            # distance
-                            loss += torch.abs(camera_coords[:, invalid_scene_coordinates] -
-                                              target_camera_coords[:, invalid_scene_coordinates]).sum()
+                    loss = assemble_loss(opt, focal_length, use_init, pixel_grid_crop, \
+                            scene_coords, gt_pose, camera_coords, reprojection_error, \
+                            gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
+                            valid_scene_coordinates) 
 
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
