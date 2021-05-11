@@ -388,11 +388,12 @@ if __name__ == "__main__":
                             loss += gt_coord_dist[invalid_scene_coordinates].sum()
                         else:
                             # generate proxy coordinate targets with constant depth assumption
+                            print(type(target_camera_coords), type(focal_length))
                             target_camera_coords = pixel_grid_crop
                             target_camera_coords[0] -= image.size(3) / 2
                             target_camera_coords[1] -= image.size(2) / 2
-                            target_camera_coords *= opt.targetdepth
-                            target_camera_coords /= focal_length
+                            target_camera_coords = target_camera_coords * opt.targetdepth
+                            target_camera_coords = target_camera_coords / focal_length
                             # make homogeneous
                             target_camera_coords = torch.cat(
                                 (target_camera_coords, torch.ones(
