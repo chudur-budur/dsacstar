@@ -399,10 +399,9 @@ if __name__ == "__main__":
                 else:
                     # === RGB mode, optmize a variant of the reprojection error ===================
                     (pixel_grid_crop, scene_coords, gt_pose, camera_coords, reprojection_error, \
-                            gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, \
-                            valid_scene_coordinates) 
-                    = compute_loss_rgb(opt, pixel_grid, scene_coords, gt_pose, gt_coords, \
-                                    cam_mat, use_init)
+                            gt_coords, gt_coords_mask, target_camera_coords, gt_coord_dist, 
+                            valid_scene_coordinates) = compute_loss_rgb(opt, pixel_grid, \
+                                    scene_coords, gt_pose, gt_coords, cam_mat, use_init)
                     
                     num_valid_sc = int(valid_scene_coordinates.sum())
                     
