@@ -83,20 +83,30 @@ def get_intrinsics(root):
 
     This function only handles focal length and shift.
     """
-    config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
-    if os.path.exists(config_path):
-        try:
-            intrinsics, distortion_coeffs, timeshift = parse_nodconfig(
-                config_path)
-        except:
-            # Default values
-            # intrinsics [fx, fy, cx, cy]
-            intrinsics = [620.8241703, 619.84599104,
-                          1334.37801379, 952.28976021]
-            # distortion coefficients [k1, k2, k3 k4]
-            distortion_coeffs = [0.20355828, -
-                                 0.0665932, -0.00950847, 0.00967984]
-            timeshift = 0.0
+    # config_path = os.path.join(root, 'nodvi/device/nodconfig.yaml')
+    # if os.path.exists(config_path):
+    #     try:
+    #         intrinsics, distortion_coeffs, timeshift = parse_nodconfig(
+    #             config_path)
+    #     except:
+    #         # Default values
+    #         # intrinsics [fx, fy, cx, cy]
+    #         # intrinsics = [620.8241703, 619.84599104, 1334.37801379, 952.28976021]
+    #         intrinsics = [625.821810594532, 624.3682339253303, 951.6944626306042, 517.9645999209336]
+    #         # distortion coefficients [k1, k2, k3 k4]
+    #         # distortion_coeffs = [0.20355828, -0.0665932, -0.00950847, 0.00967984]
+    #         distortion_coeffs = [0.20655095918321006, -0.07658293552108174, \
+    #                 0.0031885372114809985, 0.003990284422752651]
+    #         timeshift = 0.0
+    # Default values
+    # intrinsics [fx, fy, cx, cy]
+    # intrinsics = [620.8241703, 619.84599104, 1334.37801379, 952.28976021]
+    intrinsics = [625.821810594532, 624.3682339253303, 951.6944626306042, 517.9645999209336]
+    # distortion coefficients [k1, k2, k3 k4]
+    # distortion_coeffs = [0.20355828, -0.0665932, -0.00950847, 0.00967984]
+    distortion_coeffs = [0.20655095918321006, -0.07658293552108174, \
+            0.0031885372114809985, 0.003990284422752651]
+    timeshift = 0.0
     return intrinsics, distortion_coeffs, timeshift
 
 
