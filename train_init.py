@@ -424,7 +424,7 @@ if __name__ == "__main__":
 
                 print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:4.2f},'\
                         .format(epoch, max_epoch-1, iteration, loss)
-                        + '\tValid: {0:.2f}%,\tTime: {1:.2f}s\tTs: {2:s}'\
+                        + '\tValid: {0:.2f}%,\tTime: {1:.2f}s,\tTs: {2:s}'\
                                 .format(num_valid_sc*100, time.time()-start_time, time_stamp[0]), \
                                 flush=True)
                 train_iter_log.write('{0:d}\t{1:d}\t{2:f}\t{3:f}\t{4:s}\t{5:s}\n'.format(
