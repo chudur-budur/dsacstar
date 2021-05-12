@@ -8,7 +8,7 @@ if [[ ! -z $lastinit ]]; then
         set xlabel "Iterations"
         set ylabel "Loss"
         unset key
-        plot "$lastinit" using 1:2 with lines
+        plot "$lastinit" using 2:3 with lines
         set term wxt
 EOF
     gnuplot <<- EOF
@@ -17,7 +17,7 @@ EOF
         set xlabel "Iterations"
         set ylabel "% of Valid Scene Cooridnates"
         unset key
-        plot "$lastinit" using 1:3
+        plot "$lastinit" using 2:4
         set term wxt
 EOF
 fi
@@ -52,7 +52,7 @@ if [[ ! -z $laste2e ]]; then
         set xlabel "Iterations"
         set ylabel "Loss"
         unset key
-        plot "$laste2e" using 1:2 with lines
+        plot "$laste2e" using 2:3 with lines
         set term wxt
 EOF
 fi
