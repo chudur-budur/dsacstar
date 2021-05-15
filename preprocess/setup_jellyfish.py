@@ -343,10 +343,8 @@ def prepare_jellyfish_consolidated(data_home, train_perc, n_samples=float('inf')
     Here 'consolidated' means it will take all data from all the takes, merge
     and shuffle them. Then it will take a subset of `n_samples` from it.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-5-4")
-    takes = [
-            "1/vlc-record-2021-05-04-15h03m33s-rtsp___192.168.2.1_stream1-", 
-            "1/vlc-record-2021-05-04-15h08m44s-rtsp___192.168.2.1_stream1-"]
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-05-07")
+    takes = ["1a_2021-05-07-18h22m57s", "1b_2021-05-07-18h28m15s"]
     data = []
     # for i in range(len(takes)):
     path = os.path.join(root, takes[0])
