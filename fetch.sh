@@ -5,9 +5,9 @@
 probe=$(command -v gcloud)
 if [ -n $probe ]; then
     echo "Generating plots ..."
-    gcloud compute ssh n1s8-2nvtk80 --command "cd dsacstar && ./plot.sh"
+    gcloud compute ssh dsacstar-jen7 --command "cd dsacstar && ./plot.sh"
     echo "Downloading ..."
-    gcloud compute scp n1s8-2nvtk80:~/dsacstar/*.png .
+    gcloud compute scp dsacstar-jen7:~/dsacstar/*.png .
 fi
 
 probe=$(command -v xdg-open)
