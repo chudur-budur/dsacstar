@@ -370,13 +370,13 @@ if __name__ == "__main__":
     sanity_check = True
     min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
     ignore_bad_at = opt.ignorebadat
-    bad_images = {}
+    run_logs, bad_images = {}, {}
     for epoch in range(min_epoch, max_epoch):
 
         now = datetime.now()
         print("========== Stamp: {0:s} / Epoch: {1:d} =========="
               .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
-
+        
         count = 0
         mean_loss = 0.0
         mean_num_valid_sc = 0.0

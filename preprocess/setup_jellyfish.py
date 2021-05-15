@@ -392,10 +392,8 @@ def prepare_jellyfish_separated(data_home, n_train=float('inf'), n_test=float('i
     testing data will come from the second take. `n_train` and `n_test` values
     are decided in `__main__`.
     """
-    root = os.path.join(data_home, "jellyfishdata/converted/2021-5-4")
-    takes = [
-            "1/vlc-record-2021-05-04-15h03m33s-rtsp___192.168.2.1_stream1-", 
-            "1/vlc-record-2021-05-04-15h08m44s-rtsp___192.168.2.1_stream1-"]
+    root = os.path.join(data_home, "jellyfishdata/converted/2021-05-07")
+    takes = ["1a_2021-05-07-18h22m57s", "1b_2021-05-07-18h28m15s"]
     train, test = [], []
 
     path = os.path.join(root, takes[0])
