@@ -416,7 +416,8 @@ if __name__ == "__main__":
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
 
-                if (epoch > start_holding_samples_at) and (loss > mean_loss + (3 * std_loss)) \
+                if (epoch > start_holding_samples_at) and (mean_loss > 1.0) \
+                        and (loss > mean_loss + (3 * std_loss)) \
                         and (num_valid_sc * 100 < 95.0):
                     bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, epoch, file_path[0]]
 
