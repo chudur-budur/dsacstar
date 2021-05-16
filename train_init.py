@@ -445,8 +445,8 @@ if __name__ == "__main__":
             else:
                 print("== {0:s}: bad image, skipping.".format(time_stamp[0]))
 
-        mean_loss, std_loss = np.mean(np.array(losses)), np.std(np.array(losses))
-        mean_num_valid_sc = np.mean(np.array(num_valid_scs))
+        mean_loss, std_loss = np.mean(np.array(losses.cpu())), np.std(np.array(losses.cpu()))
+        mean_num_valid_sc = np.mean(np.array(num_valid_scs.cpu()))
         train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\n'.format(
             epoch, mean_loss, mean_num_valid_sc))
 
