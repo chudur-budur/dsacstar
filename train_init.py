@@ -437,14 +437,16 @@ if __name__ == "__main__":
 
                 iteration = iteration + 1
                 count = count + 1
+                if count > 10:
+                    break
 
                 del loss
             
             else:
                 print("== {0:s}: bad image, skipping.".format(time_stamp[0]))
 
-        mean_loss, std_loss = torch.mean(losses), torch.std(losses)
-        mean_num_valid_sc = torch.mean(num_valid_scs)
+        mean_loss, std_loss = torch.mean(torch.tensor(losses)), torch.std(torch.tensor(losses))
+        mean_num_valid_sc = torch.mean(torch.tensor(num_valid_scs))
         train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\n'.format(
             epoch, mean_loss, mean_num_valid_sc))
 
