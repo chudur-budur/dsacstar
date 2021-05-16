@@ -5,6 +5,8 @@ import argparse
 import math
 from datetime import datetime
 
+import numpy as np
+
 import torch
 import torch.optim as optim
 from torchvision import utils
@@ -34,7 +36,7 @@ def parse_args():
                         help='number of training iterations, i.e. numer of model updates')
     parser.add_argument('--epochs', '-e', type=int,
                         help='number of training epochs, i.e. |iterations / no. training images|')
-    parser.add_argument('--ignorebadat', '-ibe', type=int, default=float('inf'),
+    parser.add_argument('--startholdingsamplesat', '-shsa', type=int, default=float('inf'),
                         help='the epoch at wich we start ignoring the bad images')
     parser.add_argument('--inittolerance', '-itol', type=float, default=0.1,
                         help='switch to reprojection error optimization when '
@@ -369,7 +371,7 @@ if __name__ == "__main__":
     iteration = 0
     sanity_check = True
     min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
-    ignore_bad_at = opt.ignorebadat
+    start_holding_samples_at = opt.startholdingsamplesat
     bad_images = {}
     for epoch in range(min_epoch, max_epoch):
 
@@ -377,11 +379,11 @@ if __name__ == "__main__":
         print("========== Stamp: {0:s} / Epoch: {1:d} =========="
               .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
-        count = 0
-        mean_loss = 0.0
-        mean_num_valid_sc = 0.0
+        losses, num_valid_scs = [], []
+        mean_loss, std_loss = float('inf'), float('inf')
         for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
-            if len(bad_images) == 0 or time_stamp[0] not in bad_images:
+            if (time_stamp[0] not in bad_images) \
+                    or (time_stamp[0] in bad_images and np.random.uniform() < 0.5):
                 
                 if sanity_check and count < 10 and epoch < 2:
                     save_sanitycheck_images(image, time_stamp[0], count)
@@ -415,7 +417,8 @@ if __name__ == "__main__":
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
 
-                if epoch > ignore_bad_at and num_valid_sc * 100 < 90.0:
+                if epoch > start_holding_samples_at and (loss > mean_loss + 2.5 * std_loss) \
+                        and num_valid_sc * 100 < 90.0:
                     bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, epoch, file_path[0]]
 
                 loss.backward()		# calculate gradients (pytorch autograd)
@@ -430,19 +433,18 @@ if __name__ == "__main__":
                 train_iter_log.write('{0:d}\t{1:d}\t{2:f}\t{3:f}\t{4:s}\t{5:s}\n'.format(
                     epoch, iteration, loss, num_valid_sc, time_stamp[0], file_path[0]))
 
-                mean_loss = mean_loss + loss
-                mean_num_valid_sc = mean_num_valid_sc + (num_valid_sc * 100)
+                losses.append(loss)
+                num_valid_scs.append(num_valid_sc * 100.0)
 
                 iteration = iteration + 1
-                count = count + 1
 
                 del loss
             
             else:
                 print("== {0:s}: bad image, skipping.".format(time_stamp[0]))
 
-        mean_loss = mean_loss / count
-        mean_num_valid_sc = mean_num_valid_sc / count
+        mean_loss, std_loss = np.mean(np.array(losses)), np.std(np.array(losses))
+        mean_num_valid_sc = np.mean(np.array(num_valid_scs))
         train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\n'.format(
             epoch, mean_loss, mean_num_valid_sc))
 
