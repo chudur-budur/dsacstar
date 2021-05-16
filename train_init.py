@@ -371,6 +371,7 @@ if __name__ == "__main__":
     min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
     start_holding_samples_at = opt.startholdingsamplesat
     bad_images = {}
+    mean_loss, std_loss = float('inf'), float('inf')
     for epoch in range(min_epoch, max_epoch):
 
         now = datetime.now()
@@ -379,7 +380,6 @@ if __name__ == "__main__":
 
         count = 0
         losses, num_valid_scs = [], []
-        mean_loss, std_loss = float('inf'), float('inf')
         for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
             if (time_stamp[0] not in bad_images) \
                     or (time_stamp[0] in bad_images and np.random.uniform() < 0.5):
@@ -416,8 +416,8 @@ if __name__ == "__main__":
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
 
-                if (epoch > start_holding_samples_at) and (loss > mean_loss + (2.5 * std_loss)) \
-                        and (num_valid_sc * 100 < 99.0):
+                if (epoch > start_holding_samples_at) and (loss > mean_loss + (3 * std_loss)) \
+                        and (num_valid_sc * 100 < 95.0):
                     bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, epoch, file_path[0]]
 
                 loss.backward()		# calculate gradients (pytorch autograd)
