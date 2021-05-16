@@ -5,8 +5,6 @@ import argparse
 import math
 from datetime import datetime
 
-import numpy as np
-
 import torch
 import torch.optim as optim
 from torchvision import utils
@@ -445,8 +443,8 @@ if __name__ == "__main__":
             else:
                 print("== {0:s}: bad image, skipping.".format(time_stamp[0]))
 
-        mean_loss, std_loss = np.mean(np.array(losses.cpu())), np.std(np.array(losses.cpu()))
-        mean_num_valid_sc = np.mean(np.array(num_valid_scs.cpu()))
+        mean_loss, std_loss = torch.mean(losses), torch.std(losses)
+        mean_num_valid_sc = torch.mean(num_valid_scs)
         train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\n'.format(
             epoch, mean_loss, mean_num_valid_sc))
 
