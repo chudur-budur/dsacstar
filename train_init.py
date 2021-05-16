@@ -416,8 +416,8 @@ if __name__ == "__main__":
                     loss /= scene_coords.size(1)
                     num_valid_sc /= scene_coords.size(1)
 
-                if epoch > start_holding_samples_at and (loss > mean_loss + 2.5 * std_loss) \
-                        and num_valid_sc * 100 < 90.0:
+                if (epoch > start_holding_samples_at) and (loss > mean_loss + (2.5 * std_loss)) \
+                        and (num_valid_sc * 100 < 90.0):
                     bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, epoch, file_path[0]]
 
                 loss.backward()		# calculate gradients (pytorch autograd)
@@ -445,8 +445,8 @@ if __name__ == "__main__":
 
         mean_loss, std_loss = torch.mean(torch.tensor(losses)), torch.std(torch.tensor(losses))
         mean_num_valid_sc = torch.mean(torch.tensor(num_valid_scs))
-        train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\n'.format(
-            epoch, mean_loss, mean_num_valid_sc))
+        train_epoch_log.write('{0:d}\t{1:f}\t{2:f}\t{3:f}\n'.format(
+            epoch, mean_loss, mean_num_valid_sc, std_loss))
 
         if epoch % 25 == 0 or epoch == min_epoch or epoch == max_epoch:
             model_path = os.path.join(
