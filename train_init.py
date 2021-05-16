@@ -379,6 +379,7 @@ if __name__ == "__main__":
         print("========== Stamp: {0:s} / Epoch: {1:d} =========="
               .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
 
+        count = 0
         losses, num_valid_scs = [], []
         mean_loss, std_loss = float('inf'), float('inf')
         for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
@@ -437,6 +438,7 @@ if __name__ == "__main__":
                 num_valid_scs.append(num_valid_sc * 100.0)
 
                 iteration = iteration + 1
+                count = count + 1
 
                 del loss
             
