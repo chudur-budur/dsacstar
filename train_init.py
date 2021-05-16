@@ -437,8 +437,6 @@ if __name__ == "__main__":
 
                 iteration = iteration + 1
                 count = count + 1
-                if count > 10:
-                    break
 
                 del loss
             
