@@ -385,7 +385,7 @@ if __name__ == "__main__":
         losses, num_valid_scs = [], []
         for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
             if (time_stamp[0] not in bad_images) \
-                    or (time_stamp[0] in bad_images and np.random.uniform() < 0.5):
+                    or (time_stamp[0] in bad_images and torch.rand(1) < 0.5):
                 
                 if sanity_check and count < 10 and epoch < 2:
                     save_sanitycheck_images(image, time_stamp[0], count)
