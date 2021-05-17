@@ -315,10 +315,11 @@ def save_bad_images(opt, bad_images):
     bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
         opt.network, opt.session), 'w', 1)
     for ts in bad_images.keys():
+        # [loss, num_valid_sc * 100.0, mean_loss, std_loss, epoch, file_path[0]]
         bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:.2f}\t{3:.2f}\t{4:d}\t{5:s}\n"\
                 .format(bad_images[ts][0], bad_images[ts][1], \
                         bad_images[ts][2], bad_images[ts][3], 
-                        bad_images[ts][3], bad_images[ts][4]))
+                        bad_images[ts][4], bad_images[ts][5]))
     bad_images_log.close()
 
 
