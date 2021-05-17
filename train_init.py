@@ -315,8 +315,10 @@ def save_bad_images(opt, bad_images):
     bad_images_log = open('log_init_bad_{0:s}_{1:s}.txt'.format(
         opt.network, opt.session), 'w', 1)
     for ts in bad_images.keys():
-        bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:s}\n"\
-                .format(bad_images[ts][0], bad_images[ts][1], bad_images[ts][2]))
+        bad_images_log.write("{0:.2f}\t{1:.2f}\t{2:.2f}\t{3:.2f}\t{4:d}\t{5:s}\n"\
+                .format(bad_images[ts][0], bad_images[ts][1], \
+                        bad_images[ts][2], bad_images[ts][3], 
+                        bad_images[ts][3], bad_images[ts][4]))
     bad_images_log.close()
 
 
@@ -419,7 +421,8 @@ if __name__ == "__main__":
                 if (epoch > start_holding_samples_at) and (mean_loss > 1.0) \
                         and (loss > mean_loss + (3 * std_loss)) \
                         and (num_valid_sc * 100 < 95.0):
-                    bad_images[time_stamp[0]] = [loss, num_valid_sc * 100, epoch, file_path[0]]
+                    bad_images[time_stamp[0]] = \
+                            [loss, num_valid_sc * 100.0, mean_loss, std_loss, epoch, file_path[0]]
 
                 loss.backward()		# calculate gradients (pytorch autograd)
                 optimizer.step()	# update all model parameters
