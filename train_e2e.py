@@ -36,7 +36,8 @@ parser.add_argument('--iterations', '-it', type=int,
 parser.add_argument('--epochs', '-e', type=int,
                     help='number of training epochs, i.e. |iterations / no. training images|')
 parser.add_argument('--startepoch', '-se', type=int, default=0,
-                        help='the value of starting epoch, is useful if a model is to be '
+                    help='the value of starting epoch, is useful if a model is to be ' 
+                    + 'retrained from checkpoint, the new run will start from this epoch')
 parser.add_argument('--weightrot', '-wr', type=float, default=1.0,
                     help='weight of rotation part of pose loss')
 parser.add_argument('--weighttrans', '-wt', type=float, default=100.0,
@@ -52,7 +53,7 @@ parser.add_argument('--mode', '-m', type=int, default=1, choices=[1, 2],
 parser.add_argument('--tiny', '-tiny', action='store_true',
                     help='Train a model with massively reduced capacity for a low memory footprint.')
 now = datetime.now()
-parser.add_argument('--session', '-sid', default=now.strftime("%d-%m-%y-%H-%M-%S"),
+parser.add_argument('--session', '-sid', default=now.strftime("%m-%d-%y-%H-%M-%S"),
                     help='custom session name appended to output files. '
                     + 'Useful to separate different runs of the program')
 
