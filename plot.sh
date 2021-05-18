@@ -52,7 +52,7 @@ if [[ ! -z $laste2e ]]; then
         set xlabel "Iterations"
         set ylabel "Loss"
         unset key
-        plot "$laste2e" using 2:3 with lines
+        plot "$laste2e" using 1:2 with lines
         set term wxt
 EOF
 fi
