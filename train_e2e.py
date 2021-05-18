@@ -35,6 +35,8 @@ parser.add_argument('--iterations', '-it', type=int,
                     help='number of training iterations, i.e. network parameter updates')
 parser.add_argument('--epochs', '-e', type=int,
                     help='number of training epochs, i.e. |iterations / no. training images|')
+parser.add_argument('--startepoch', '-se', type=int, default=0,
+                        help='the value of starting epoch, is useful if a model is to be '
 parser.add_argument('--weightrot', '-wr', type=float, default=1.0,
                     help='weight of rotation part of pose loss')
 parser.add_argument('--weighttrans', '-wt', type=float, default=100.0,
@@ -119,7 +121,8 @@ train_epoch_log = open('log_e2e_epoch_{0:s}_{1:s}.txt'.format(
 training_start = time.time()
 
 iteration = 0
-for epoch in range(1, epochs+1):
+min_epoch, max_epoch = opt.startepoch + 1, opt.startepoch + epochs + 1
+for epoch in range(min_epoch, max_epoch):
 
     now = datetime.now()
     print("========== Stamp: {0:s} / Epoch: {1:d} =========="
@@ -127,7 +130,7 @@ for epoch in range(1, epochs+1):
 
     count = 0
     mean_loss = 0.0
-    for image, pose, camera_coordinates, focal_length, _, _ in trainset_loader:
+    for image, pose, camera_coordinates, focal_length, time_stamp, file_path in trainset_loader:
 
         start_time = time.time()
 
@@ -181,17 +184,19 @@ for epoch in range(1, epochs+1):
         optimizer.zero_grad()
 
         end_time = time.time()-start_time
-        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:.2f},\tTime: {4:.2f}s\n'
-              .format(epoch, epochs, iteration, loss, end_time), flush=True)
+        print('Epoch: {0:d}/{1:d},\tIteration: {2:6d},\tLoss: {3:4.2f},\tTime: {4:.2f}s,\tTs: {5:s}\n'
+              .format(epoch, epochs, iteration, loss, end_time, time_stamp[0]), flush=True)
 
-        train_iter_log.write('{0:d}\t{1:f}\n'.format(iteration, loss))
+        train_iter_log.write('{0:d}\t{1:f}\t{2:s}\t{3:s}\n'\
+                .format(iteration, loss, time_stamp[0], file_path[0]))
         mean_loss = mean_loss + loss
         count = count + 1
         iteration = iteration + 1
 
     mean_loss = mean_loss / count
     train_epoch_log.write('{0:d}\t{1:f}\n'.format(epoch, mean_loss))
-    if epoch % 5 == 0 or epoch == 1 or epoch == epochs:
+    
+    if epoch % 10 == 0 or epoch == 1 or epoch == epochs:
         model_path = os.path.join(
             model_root, "{0:s}-e{1:d}-e2e.ann".format(opt.network_out, epoch))
         print('Saving snapshot of the network to {:s}.'.format(model_path))
