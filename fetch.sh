@@ -12,8 +12,10 @@ fi
 
 probe=$(command -v xdg-open)
 if [ -n $probe ]; then
-    xdg-open conv-init-epoch.png &
-    xdg-open conv-init-epoch-pvsc.png &
-    xdg-open conv-init-iter.png &
-    xdg-open conv-init-iter-pvsc.png &
+    [ -f conv-init-epoch.png ] && xdg-open conv-init-epoch.png &
+    [ -f conv-init-epoch-pvsc.png ] && xdg-open conv-init-epoch-pvsc.png &
+    [ -f conv-init-iter.png ] && xdg-open conv-init-iter.png &
+    [ -f conv-init-iter-pvsc.png ] && xdg-open conv-init-iter-pvsc.png &
+    [ -f conv-e2e-epoch.png ] && xdg-open conv-e2e-epoch.png &
+    [ -f conv-e2e-iter.png ] && xdg-open conv-e2e-iter.png &
 fi
