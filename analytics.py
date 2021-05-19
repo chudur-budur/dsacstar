@@ -1,5 +1,6 @@
 import os
 import sys
+import multiprocessing
 from itertools import cycle, islice
 import numpy as np
 from matplotlib import pyplot as plt
@@ -105,21 +106,23 @@ def search_dbscan_eps(P):
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
+    pool = multiprocessing.Pool(processes=8)
     n = 10 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
             if j <= i:
                 if mode == 'normalized_root_mse':
-                    D[i,j] = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    D[i,j] = pool.map(nrmse, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
                 elif mode == 'variation_of_information':
-                    p1,p2 = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    p1,p2 = pool.map(voi, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
                     D[i,j] = p1
                 elif mode == 'adapted_rand_error':
-                    are,prec,rec = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    are,prec,rec = pool.map(arerr, 
+                            (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
                     D[i,j] = are
                 elif mode == 'structural_similarity':
-                    d = ssmin(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    d = pool.map(ssmin, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
                     D[i,j] = d
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
