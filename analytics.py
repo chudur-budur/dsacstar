@@ -109,7 +109,8 @@ if __name__ == "__main__":
     else:
         Y = clustering.predict(P)
 
-    print(set(clustering.labels_.astype(int)))
+    L = set(Y)
+    print(L)
     
     # clist = [
     #         '#377eb8', '#ff7f00', '#4daf4a', 
@@ -117,8 +118,7 @@ if __name__ == "__main__":
     #         '#999999', '#e41a1c', '#dede00']
 
     cm = plt.get_cmap('tab20')
-    ncolors = len(set(Y))
-    clist = [cm(1. * i / ncolors) for i in range(ncolors)]
+    clist = [cm(1. * i / len(L)) for i in range(len(L))]
     colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
