@@ -104,10 +104,7 @@ def build_image_dist_matrix(M, dim=(96,54)):
             (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
                     M[j].reshape(dim[1], dim[0]), full=True)
             D[i,j] = score
-            if j % 100 == 0:
-                print('j = {0:d}'.format(j))
-        if i % 100 == 0:
-            print('i = {0:d}'.format(i))
+        print('Finished row i = {0:d}'.format(i))
     return D
 
 if __name__ == "__main__":
