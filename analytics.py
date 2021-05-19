@@ -97,7 +97,7 @@ def search_dbscan_eps(P):
         print(eps, len(L), L)
 
 
-def build_image_dist_matrix(M, dim=()):
+def build_image_dist_matrix(M, dim=(10,10)):
     (score, _) = structural_similarity(before_gray, after_gray, full=True)
 
 if __name__ == "__main__":
