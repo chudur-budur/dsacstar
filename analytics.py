@@ -74,8 +74,8 @@ if __name__ == "__main__":
 
 
     data = load_flat("flat.csv")
-    P = np.array([v[0] for k,v in data]).astype(float)
-    G = np.array([v[1] for k,v in data]).astype(int)
+    P = np.array([data[k][0] for k,v in data]).astype(float)
+    G = np.array([data[k][1] for k,v in data]).astype(int)
 
     tsne = TSNE(n_components=2, random_state=123456, verbose=True)
     U = tsne.fit_transform(P)
