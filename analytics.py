@@ -79,8 +79,8 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     G = np.array([data[k][1] for k in keys]).astype(int)
 
-    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
-    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
+    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=10000)
+    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=10000)
     U = tsne_pose.fit_transform(P)
     V = tsne_image.fit_transform(G)
 
