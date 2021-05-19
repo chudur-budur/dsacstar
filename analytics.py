@@ -29,7 +29,7 @@ def load_raw(map_file_path, n=float('inf'), scale=0.05):
         data[ts] = [pose, image]
 
         count = count + 1
-        if count > n:
+        if count >= n:
             break
         if count % 100 == 0:
             print("Loaded {0:d} images and poses.".format(count))
@@ -44,8 +44,8 @@ def save_flat(data, path):
         ts = key
         pose = data[key][0]
         image = data[key][1]
-        fp.write(key + ',' + ','.join([v for v in pose]) + ',' \
-                + ','.join([v for v in image]) + '\n')
+        fp.write(key + ',' + ','.join([str(v) for v in pose]) + ',' \
+                + ','.join([str(v) for v in image]) + '\n')
     fp.close()
 
 
