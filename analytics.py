@@ -102,7 +102,13 @@ if __name__ == "__main__":
     C = 0.5 * (C + C.T)
     clustering = cluster.AgglomerativeClustering(n_clusters=16, linkage='ward', connectivity=C)
 
-    Y = clustering.fit(P)
+    clustering.fit(P)
+
+    if hasattr(clustering, 'labels_'):
+        Y = clustering.labels_.astype(int)
+    else:
+        Y = clustering.predict(P)
+
     print(set(clustering.labels_.astype(int)))
     
     colors = np.array(list(islice(cycle(
