@@ -138,7 +138,6 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
     D = build_image_dist_matrix(M)
-    print(D)
     np.savetxt("image-dist-matrix.csv", D, delimiter=',')
     sys.exit(1)
 
