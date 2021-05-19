@@ -107,6 +107,7 @@ def build_image_dist_matrix(M, dim=(96,54)):
             if j <= i:
                 D[i,j] = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
         print('Finished row i = {0:d}'.format(i))
+    D = D + D.T - np.diag(np.diag(D))
     return D
 
 if __name__ == "__main__":
