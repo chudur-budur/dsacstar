@@ -9,7 +9,7 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
 import transforms as tr
 import cv2
-from skimage.metrics import structural_similarity
+from skimage.metrics import structural_similarity as ssim
 
 
 __all__ = ['load_raw', 'save_flat', 'load_flat']
@@ -104,9 +104,7 @@ def build_image_dist_matrix(M, dim=(96,54)):
     for i in range(n):
         for j in range(n):
             if j <= i:
-                (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
-                        M[j].reshape(dim[1], dim[0]), full=True)
-                D[i,j] = score
+                D[i,j] = ssim(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
         print('Finished row i = {0:d}'.format(i))
     return D
 
