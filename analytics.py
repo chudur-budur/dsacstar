@@ -84,8 +84,8 @@ if __name__ == "__main__":
     U = tsne_pose.fit_transform(P)
     V = tsne_image.fit_transform(G)
 
-    np.savetxt("pose_tsne.csv", U, delimiter=',')
-    np.savetxt("image_tsne.csv", V, delimiter=',')
+    np.savetxt("pose-tsne.csv", U, delimiter=',')
+    np.savetxt("image-tsne.csv", V, delimiter=',')
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.scatter(U[:,0], U[:,1], s=2)
