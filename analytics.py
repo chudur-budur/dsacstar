@@ -32,18 +32,20 @@ def load_data(map_file_path):
                 img, camera_intrinsics, distortion_coeffs)),
             transforms.Lambda(lambda img: tr.cambridgify(img)),
             transforms.ToPILImage(),
-            transforms.Resize(120),
+            transforms.Resize(32),
             transforms.Grayscale(),
             transforms.ColorJitter(brightness=0.1, contrast=0.1),
             transforms.ToTensor()
             ])
         image = pipeline(image)
         
-        data[ts] = [pose, image.numpy()]
+        data[ts] = [pose, image.numpy()[0]]
 
         count = count + 1
         if count % 100 == 0:
             print("Loaded {0:d} images and poses.".format(count))
+        if count == 100:
+            break
 
     fp.close()
     return data
