@@ -158,3 +158,5 @@ if __name__ == "__main__":
     ax2.scatter(M[:,0], M[:,1], s=2, color=colors[Y])
     
     plt.show()
+
+    plt.savefig("tsne.png", dpi=300, bbox_inches='tight')
