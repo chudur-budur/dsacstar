@@ -129,7 +129,7 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 if __name__ == "__main__":
     np.random.seed(123456)
 
-    clrs = get_colors(set([int(v) for v in range(20)]))
+    clrs = get_colors(set([int(v) for v in range(20)]), cm_name='tab20')
     sys.exit(1)
 
     # data, dim = load_raw("split-files/jellyfish-train-map.csv")
