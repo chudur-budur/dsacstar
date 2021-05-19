@@ -104,6 +104,10 @@ def build_image_dist_matrix(M, dim=(96,54)):
             (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
                     M[j].reshape(dim[1], dim[0]), full=True)
             D[i,j] = score
+            if j % 100 == 0:
+                print('j = {0:d}'.format(j))
+        if i % 100 == 0:
+            print('i = {0:d}'.format(i))
     return D
 
 if __name__ == "__main__":
@@ -121,6 +125,7 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
     D = build_image_dist_matrix(M)
+    np.savetxt("image-dist-matrix.csv", D, delimiter=',')
 
     # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
