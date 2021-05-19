@@ -114,9 +114,11 @@ if __name__ == "__main__":
     # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
     #         bin_seeding=True)
     # clustering = cluster.SpectralClustering(n_clusters=16, eigen_solver='arpack')
-    C = kneighbors_graph(P, n_neighbors=2, include_self=False)
-    C = 0.5 * (C + C.T)
-    clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
+    clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
+            affinity="nearest_neighbors")
+    # C = kneighbors_graph(P, n_neighbors=2, include_self=False)
+    # C = 0.5 * (C + C.T)
+    # clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
 
     clustering.fit(P)
 
