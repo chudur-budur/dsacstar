@@ -32,7 +32,7 @@ def load_data(map_file_path):
                 img, camera_intrinsics, distortion_coeffs)),
             transforms.Lambda(lambda img: tr.cambridgify(img)),
             transforms.ToPILImage(),
-            transforms.Resize(32),
+            transforms.Resize(16),
             transforms.Grayscale(),
             transforms.ColorJitter(brightness=0.1, contrast=0.1),
             transforms.ToTensor()
