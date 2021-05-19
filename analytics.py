@@ -115,7 +115,7 @@ if __name__ == "__main__":
     #         bin_seeding=True)
     # clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
     #         affinity="nearest_neighbors")
-    clustering = cluster.AffinityPropagation(damping=0.75, preference=-220)
+    clustering = cluster.AffinityPropagation(damping=0.75, preference=-10)
     # C = kneighbors_graph(P, n_neighbors=2, include_self=False)
     # C = 0.5 * (C + C.T)
     # clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
