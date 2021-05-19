@@ -90,7 +90,7 @@ if __name__ == "__main__":
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
     # clustering = DBSCAN()
-    clustering = OPTICS(min_samples=20, xi=0.1, min_cluster_size=0.2)
+    clustering = OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
     Y = clustering.fit(P)
     print(set(clustering.labels_.astype(int)))
 
