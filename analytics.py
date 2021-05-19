@@ -157,7 +157,7 @@ if __name__ == "__main__":
     ax2.set_ylabel('v')
     ax2.scatter(M[:,0], M[:,1], s=2, color=colors[Y])
     
-    plt.savefig("tsne.png", dpi=150)
+    plt.savefig("tsne.png", bbox_inches='tight')
     
     plt.show()
 
