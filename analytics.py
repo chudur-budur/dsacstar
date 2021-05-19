@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # clustering = cluster.SpectralClustering(n_clusters=16, eigen_solver='arpack')
     C = kneighbors_graph(P, n_neighbors=2, include_self=False)
     C = 0.5 * (C + C.T)
-    clustering = cluster.AgglomerativeClustering(n_clusters=16, linkage='ward', connectivity=C)
+    clustering = cluster.AgglomerativeClustering(n_clusters=20, linkage='ward', connectivity=C)
 
     clustering.fit(P)
 
@@ -111,10 +111,10 @@ if __name__ == "__main__":
 
     print(set(clustering.labels_.astype(int)))
     
-    colors = np.array(list(islice(cycle(
-        ['#377eb8', '#ff7f00', '#4daf4a', 
-            '#f781bf', '#a65628', '#984ea3', 
-            '#999999', '#e41a1c', '#dede00']), 
+    colors = np.array(list(islice(cycle([
+        '#377eb8', '#ff7f00', '#4daf4a', 
+        '#f781bf', '#a65628', '#984ea3', 
+        '#999999', '#e41a1c', '#dede00']), 
         int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
