@@ -27,11 +27,11 @@ def load_data(map_file_path):
             transforms.Resize(120),
             transforms.Grayscale(),
             transforms.ColorJitter(brightness=0.1, contrast=0.1),
-            transforms.ToTensor().numpy()
+            transforms.ToTensor()
             ])
 
         image = pipeline(image_path)
-        data[ts] = [pose, image]
+        data[ts] = [pose, image.numpy()]
     fp.close()
     return data
 
