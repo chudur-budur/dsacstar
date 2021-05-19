@@ -82,7 +82,8 @@ def get_colors(L, cmap=None):
     else:
         cm = plt.get_cmap(cmap)
         clist = [cm(1. * i / len(L)) for i in range(len(L))]
-    print(cm)
+    
+    print(clist)
     colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
