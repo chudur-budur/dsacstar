@@ -29,7 +29,7 @@ def load_data(map_file_path):
             transforms.ToPILImage(),
             transforms.Resize(120),
             transforms.Grayscale(),
-            transforms.ColorJitter(brightness=0.1, contrast=self.0.1)])
+            transforms.ColorJitter(brightness=0.1, contrast=0.1)])
 
         image = pipeline(image_path)
         data[ts] = [pose, image]
@@ -41,6 +41,8 @@ if __name__ == "__main__":
     # print(data)
 
     digits = datasets.load_digits()
+    print(len(digits))
+    print(digits[0])
     # Take the first 500 data points: it's hard to see 1500 points
     X = digits.data[:500]
     y = digits.target[:500]
