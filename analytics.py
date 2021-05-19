@@ -63,13 +63,27 @@ def load_flat(path):
 
 
 if __name__ == "__main__":
+    np.random.seed(123456)
+
     data, dim = load_raw("split-files/jellyfish-train-map.csv", n=10)
     print(len(data), dim)
     keys = list(data.keys())
     print(keys)
     cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     save_flat(data, "flat.csv")
+
+
     data = load_flat("flat.csv")
+    P = np.array([v[0] for k,v in data]).astype(float)
+    G = np.array([v[1] for k,v in data]).astype(int)
+
+    tsne = TSNE(n_components=2, random_state=123456, verbose=True)
+    U = tsne.fit_transform(P)
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.scatter(U[:,0], U[:,1])
+    plt.show()
 
     # digits = datasets.load_digits()
     # 
