@@ -6,6 +6,7 @@ from sklearn.manifold import TSNE
 from torchvision import transforms
 import transforms as tr
 from skimage import io, color
+import cv2
 
 def make_pileline(img, came):
     pass
@@ -23,29 +24,31 @@ def load_data(map_file_path):
         camera_intrinsics = np.array([float(v) for v in vals[8:12]]).astype(float)
         distortion_coeffs = np.array([float(v) for v in vals[12:-1]]).astype(float)
         
-        image = io.imread(image_path)
-        if len(image.shape) < 3:
-            image = color.gray2rgb(image)
+        # if len(image.shape) < 3:
+        #     image = color.gray2rgb(image)
 
-        pipeline = transforms.Compose([
-            transforms.Lambda(lambda img: tr.unfish(
-                img, camera_intrinsics, distortion_coeffs)),
-            transforms.Lambda(lambda img: tr.cambridgify(img)),
-            transforms.ToPILImage(),
-            transforms.Resize(16),
-            transforms.Grayscale(),
-            transforms.ColorJitter(brightness=0.1, contrast=0.1),
-            transforms.ToTensor()
-            ])
-        image = pipeline(image)
+        # pipeline = transforms.Compose([
+        #     transforms.Lambda(lambda img: tr.unfish(
+        #         img, camera_intrinsics, distortion_coeffs)),
+        #     transforms.Lambda(lambda img: tr.cambridgify(img)),
+        #     transforms.ToPILImage(),
+        #     transforms.Resize(16),
+        #     transforms.Grayscale(),
+        #     transforms.ColorJitter(brightness=0.1, contrast=0.1),
+        #     transforms.ToTensor()
+        #     ])
+        # image = pipeline(image)
         
-        data[ts] = [pose, image.numpy()[0]]
+        image = cv2.imread(image_path, 0)
+        image = tr.unfish(image, camera_intrinsics, distortion_coeffs)
+        
+        data[ts] = [pose, image]
 
         count = count + 1
+        if count == 10:
+            break
         if count % 100 == 0:
             print("Loaded {0:d} images and poses.".format(count))
-        if count == 100:
-            break
 
     fp.close()
     return data
