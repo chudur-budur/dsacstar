@@ -9,7 +9,7 @@ import cv2
 __all__ = ['load_raw', 'save_flat', 'load_flat']
 
 
-def load_raw(map_file_path, n=float('inf')):
+def load_raw(map_file_path, n=float('inf'), scale=0.05):
     data = {}
     fp = open(map_file_path, 'r')
     count = 0
@@ -23,8 +23,7 @@ def load_raw(map_file_path, n=float('inf')):
         
         image = cv2.imread(image_path, 0)
         image = tr.unfish(image, camera_intrinsics, distortion_coeffs)
-        scale_perc = 0.05 # percent of original size
-        w, h = int(image.shape[1] * scale_perc), int(image.shape[0] * scale_perc)
+        w, h = int(image.shape[1] * scale), int(image.shape[0] * scale)
         image = cv2.resize(image, (w, h), interpolation = cv2.INTER_AREA)  
         
         data[ts] = [pose, image]
@@ -65,7 +64,7 @@ def load_flat(path):
 
 if __name__ == "__main__":
     data, dim = load_raw("split-files/jellyfish-train-map.csv", n=10)
-    print(len(data))
+    print(len(data), dim)
     keys = list(data.keys())
     print(keys)
     cv2.imwrite("test.png", data[keys[0]][1].reshape(dim))
