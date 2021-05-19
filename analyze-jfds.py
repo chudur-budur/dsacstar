@@ -31,7 +31,7 @@ def load_data(map_file_path):
             transforms.ToTensor()
             ])
 
-        image = pipeline()
+        image = pipeline(image_path)
         data[ts] = [pose, image.numpy()]
     fp.close()
     return data
