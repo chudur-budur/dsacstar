@@ -80,10 +80,11 @@ if __name__ == "__main__":
 
     tsne = TSNE(n_components=2, random_state=123456, verbose=True)
     U = tsne.fit_transform(P)
+    V = tsne.fit_transform(G)
 
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.scatter(U[:,0], U[:,1], s=5)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.scatter(U[:,0], U[:,1], s=5)
+    ax2.scatter(V[:,0], V[:,1], s=5)
     plt.show()
 
     # digits = datasets.load_digits()
