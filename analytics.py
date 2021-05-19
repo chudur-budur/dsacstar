@@ -111,12 +111,15 @@ if __name__ == "__main__":
 
     print(set(clustering.labels_.astype(int)))
     
-    # color_list = [
+    # clist = [
     #         '#377eb8', '#ff7f00', '#4daf4a', 
     #         '#f781bf', '#a65628', '#984ea3', 
     #         '#999999', '#e41a1c', '#dede00']
+
     cm = plt.cm.get_cmap('tab20')
-    colors = np.array(list(islice(cycle(cm.colors), int(max(Y) + 1))))
+    ncolors = len(set(Y))
+    clist = [cm(1. * i / ncolors) for i in range(ncolors)]
+    colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
     
