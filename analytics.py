@@ -11,6 +11,7 @@ import transforms as tr
 import cv2
 from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import normalized_root_mse as nrmse
+from skimage.metrics import hausdorff_distance as haus
 
 
 __all__ = ['load_raw', 'save_flat', 'load_flat']
@@ -105,8 +106,9 @@ def build_image_dist_matrix(M, dim=(96,54)):
     for i in range(n):
         for j in range(n):
             if j <= i:
-                D[i,j] = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
-        print('Finished row i = {0:d}'.format(i))
+                D[i,j] = haus(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+        if i % 100 == 0:
+            print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
     return D
 
