@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # clustering = cluster.SpectralClustering(n_clusters=16, eigen_solver='arpack')
     C = kneighbors_graph(P, n_neighbors=2, include_self=False)
     C = 0.5 * (C + C.T)
-    clustering = cluster.AgglomerativeClustering(n_clusters=16, linkage='ward', connectivity=C)
+    clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
 
     clustering.fit(P)
 
