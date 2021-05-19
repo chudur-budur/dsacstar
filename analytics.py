@@ -74,7 +74,7 @@ def load_flat(path):
     return data
 
 
-def get_colors(L, cm_name=None):
+def get_label_colors(L, cm_name=None):
     if cm_name is None:
         clist = [
                 '#377eb8', '#ff7f00', '#4daf4a', 
@@ -84,7 +84,6 @@ def get_colors(L, cm_name=None):
         cm = plt.get_cmap(cm_name)
         clist = [mplc.to_hex(cm(1. * i / len(L))) for i in range(len(L))]
     
-    print(clist)
     colors = np.array(list(islice(cycle(clist), int(max(L) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
@@ -145,7 +144,7 @@ if __name__ == "__main__":
     # D = build_image_dist_matrix(M, mode='normalized_root_mse')
     # np.savetxt("dist-matrix.csv", D, delimiter=',')
 
-    D = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
+    D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
     tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000, \
             metric='precomputed')
@@ -180,7 +179,7 @@ if __name__ == "__main__":
     L = set(Y)
     print(len(L), L)
 
-    colors = get_colors(L, cm_name='tab20') 
+    colors = get_label_colors(L, cm_name='tab20') 
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.8, 4.8))
     
