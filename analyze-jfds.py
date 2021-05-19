@@ -15,7 +15,8 @@ def load_data(map_file_path):
     fp = open(map_file_path, 'r')
     for line in fp:
         vals = line.strip().split(',')
-        ts = os.path.split(vals[0])[1].split('.')[0] 
+        image_path = vals[0].strip()
+        ts = os.path.split(image_path)[1].split('.')[0] 
         camera_intrinsics = np.array([float(v) for v in vals[1:8]]).astype(float)
         distortion_coeffs = np.array([float(v) for v in vals[8:-1]]).astype(float)
 
@@ -30,7 +31,7 @@ def load_data(map_file_path):
             transforms.ToTensor()
             ])
 
-        image = pipeline(image_path)
+        image = pipeline()
         data[ts] = [pose, image.numpy()]
     fp.close()
     return data
