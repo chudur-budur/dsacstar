@@ -1,4 +1,5 @@
 import os
+import sys
 from itertools import cycle, islice
 import numpy as np
 from matplotlib import pyplot as plt
@@ -98,12 +99,14 @@ def search_dbscan_eps(P):
 
 
 def build_image_dist_matrix(M, dim=(96,54)):
-    D = np.zeros((M.shape[0], M.shape[0]))
-    for i in range(M.shape[0]):
-        for j in range(M.shape[0]):
-            (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
-                    M[j].reshape(dim[1], dim[0]), full=True)
-            D[i,j] = score
+    n = 6 # M.shape[0]
+    D = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if j <= i:
+                (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
+                        M[j].reshape(dim[1], dim[0]), full=True)
+                D[i,j] = score
         print('Finished row i = {0:d}'.format(i))
     return D
 
@@ -123,6 +126,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(int)
     D = build_image_dist_matrix(M)
     np.savetxt("image-dist-matrix.csv", D, delimiter=',')
+    sys.exit(1)
 
     # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
