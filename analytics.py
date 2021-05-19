@@ -3,6 +3,7 @@ import sys
 from itertools import cycle, islice
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib import colors as mplc
 from sklearn import datasets
 from sklearn.manifold import TSNE
 from sklearn.neighbors import kneighbors_graph
@@ -81,7 +82,7 @@ def get_colors(L, cm_name=None):
                 '#999999', '#e41a1c', '#dede00']
     else:
         cm = plt.get_cmap(cm_name)
-        clist = [cm(1. * i / len(L)) for i in range(len(L))]
+        clist = [mplc.to_hex(cm(1. * i / len(L))) for i in range(len(L))]
     
     print(clist)
     colors = np.array(list(islice(cycle(clist), int(max(L) + 1))))
