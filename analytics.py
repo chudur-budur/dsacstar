@@ -103,8 +103,16 @@ if __name__ == "__main__":
 
     Y = clustering.fit(P)
     print(set(clustering.labels_.astype(int)))
-
+    
+    colors = np.array(list(islice(cycle(
+        ['#377eb8', '#ff7f00', '#4daf4a', 
+            '#f781bf', '#a65628', '#984ea3', 
+            '#999999', '#e41a1c', '#dede00']), 
+        int(max(Y) + 1))))
+    # add black color for outliers (if any)
+    colors = np.append(colors, ["#000000"])
+    
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.scatter(P[:,0], P[:,1], s=2)
-    ax2.scatter(M[:,0], M[:,1], s=2)
+    ax1.scatter(P[:,0], P[:,1], s=2, color=colors[Y])
+    ax2.scatter(M[:,0], M[:,1], s=2, color=colors[Y])
     plt.show()
