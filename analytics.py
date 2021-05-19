@@ -144,7 +144,9 @@ if __name__ == "__main__":
     # D = build_image_dist_matrix(M, mode='normalized_root_mse')
     # np.savetxt("dist-matrix.csv", D, delimiter=',')
 
-    D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
+    A = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
+    B = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
+    D = (A + B) * 0.5
     tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000, \
             metric='precomputed')
