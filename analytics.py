@@ -139,7 +139,7 @@ if __name__ == "__main__":
     keys = list(data.keys())
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
-    D = build_image_dist_matrix(M, mode='adapted_rand_error')
+    D = build_image_dist_matrix(M, mode='normalized_root_mse')
     np.savetxt("image-dist-matrix.csv", D, delimiter=',')
 
     D = np.loadtxt("image-dist-matrix.csv", delimiter=',')
