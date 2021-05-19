@@ -65,6 +65,22 @@ def load_flat(path):
     return data
 
 
+def get_colors(L, cmap=None):
+    if cmap is None:
+        clist = [
+                '#377eb8', '#ff7f00', '#4daf4a', 
+                '#f781bf', '#a65628', '#984ea3', 
+                '#999999', '#e41a1c', '#dede00']
+    else:
+        cm = plt.get_cmap(cmap)
+        clist = [cm(1. * i / len(L)) for i in range(len(L))]
+    
+    colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
+    # add black color for outliers (if any)
+    colors = np.append(colors, ["#000000"])
+    return colors
+
+
 if __name__ == "__main__":
     np.random.seed(123456)
 
@@ -111,17 +127,7 @@ if __name__ == "__main__":
 
     L = set(Y)
     print(L)
-    
-    # clist = [
-    #         '#377eb8', '#ff7f00', '#4daf4a', 
-    #         '#f781bf', '#a65628', '#984ea3', 
-    #         '#999999', '#e41a1c', '#dede00']
-
-    cm = plt.get_cmap('tab20')
-    clist = [cm(1. * i / len(L)) for i in range(len(L))]
-    colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
-    # add black color for outliers (if any)
-    colors = np.append(colors, ["#000000"])
+    colors = get_colors(L) 
     
     fig, (ax1, ax2) = plt.subplots(1, 2)
     
