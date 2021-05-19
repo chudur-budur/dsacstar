@@ -113,9 +113,9 @@ if __name__ == "__main__":
     # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
     # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
     #         bin_seeding=True)
-    # clustering = cluster.SpectralClustering(n_clusters=16, eigen_solver='arpack')
-    clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
-            affinity="nearest_neighbors")
+    # clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
+    #         affinity="nearest_neighbors")
+    clustering = cluster.AffinityPropagation(damping=0.75, preference=-220)
     # C = kneighbors_graph(P, n_neighbors=2, include_self=False)
     # C = 0.5 * (C + C.T)
     # clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
