@@ -9,11 +9,11 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
 import transforms as tr
 import cv2
-from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import normalized_root_mse as nrmse
 # from skimage.metrics import hausdorff_distance as haus
 from skimage.metrics import variation_of_information as voi
 from skimage.metrics import adapted_rand_error as arerr
+from skimage.metrics import structural_similarity as ssim
 
 
 
@@ -103,13 +103,20 @@ def search_dbscan_eps(P):
         print(eps, len(L), L)
 
 
-def build_image_dist_matrix(M, dim=(96,54)):
+def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     n = 6 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
             if j <= i:
-                d = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                if mode == 'normalized_root_mse':
+                    d = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                elif mode == 'variation_of_information':
+                    d = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                elif mode == 'adapted_rand_error':
+                    d = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                elif mode == 'structural_similarity':
+                    d = ssmin(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
                 D[i,j] = d[0] if len(d) > 1 else d
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
