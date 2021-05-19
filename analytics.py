@@ -82,7 +82,7 @@ def get_colors(L, cmap=None):
     else:
         cm = plt.get_cmap(cmap)
         clist = [cm(1. * i / len(L)) for i in range(len(L))]
-    
+    print(cm)
     colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
@@ -127,6 +127,9 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 
 if __name__ == "__main__":
     np.random.seed(123456)
+
+    clrs = get_colors(20)
+    sys.exit(1)
 
     # data, dim = load_raw("split-files/jellyfish-train-map.csv")
     # print(len(data), dim)
