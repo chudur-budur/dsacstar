@@ -73,18 +73,18 @@ if __name__ == "__main__":
     # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     # save_flat(data, "flat.csv")
 
-    # data = load_flat("flat.csv")
-    # keys = list(data.keys())
-    # P = np.array([data[k][0] for k in keys]).astype(float)
-    # M = np.array([data[k][1] for k in keys]).astype(int)
+    data = load_flat("flat.csv")
+    keys = list(data.keys())
+    P = np.array([data[k][0] for k in keys]).astype(float)
+    M = np.array([data[k][1] for k in keys]).astype(int)
 
-    # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
-    # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
-    # P_ = tsne_pose.fit_transform(P)
-    # M_ = tsne_image.fit_transform(M)
+    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
+    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
+    P_ = tsne_pose.fit_transform(P)
+    M_ = tsne_image.fit_transform(M)
 
-    # np.savetxt("pose-tsne.csv", P_, delimiter=',')
-    # np.savetxt("image-tsne.csv", M_, delimiter=',')
+    np.savetxt("pose-tsne.csv", P_, delimiter=',')
+    np.savetxt("image-tsne.csv", M_, delimiter=',')
     
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
@@ -94,6 +94,6 @@ if __name__ == "__main__":
     print(set(dbscan.labels_.astype(int)))
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.scatter(U[:,0], U[:,1], s=2)
-    ax2.scatter(V[:,0], V[:,1], s=2)
+    ax1.scatter(P[:,0], P[:,1], s=2)
+    ax2.scatter(M[:,0], M[:,1], s=2)
     plt.show()
