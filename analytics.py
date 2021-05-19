@@ -84,7 +84,7 @@ def get_colors(L, cmap=None):
         clist = [cm(1. * i / len(L)) for i in range(len(L))]
     
     print(clist)
-    colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
+    colors = np.array(list(islice(cycle(clist), int(max(L) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
     return colors
