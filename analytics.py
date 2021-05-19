@@ -109,7 +109,7 @@ if __name__ == "__main__":
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
-    for eps in np.arange(0.0001, 0.1001, 0.01):
+    for eps in np.arange(0.02, 0.04, 0.001):
         clustering = cluster.DBSCAN(eps=eps)
         # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
         # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
