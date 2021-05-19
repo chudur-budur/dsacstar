@@ -57,6 +57,6 @@ if __name__ == "__main__":
     plt.figure(figsize=(6, 5))
     colors = 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple'
     for i, c, label in zip(target_ids, colors, digits.target_names):
-        plt.scatter(X_2d[y == i, 0], X_2d[y == i, 1], c=c, label=label)
+        plt.scatter(X_2d[y == i, 0], X_2d[y == i, 1], c=c, label=label, s=1)
     plt.legend()
     plt.show()
