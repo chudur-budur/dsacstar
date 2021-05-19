@@ -97,23 +97,30 @@ def search_dbscan_eps(P):
         print(eps, len(L), L)
 
 
-def build_image_dist_matrix(M, dim=(10,10)):
-    (score, _) = structural_similarity(before_gray, after_gray, full=True)
+def build_image_dist_matrix(M, dim=(96,54)):
+    D = np.zeros((M.shape[0], M.shape[0]))
+    for i in range(M.shape[0]):
+        for j in range(M.shape[0]):
+            (score, _) = structural_similarity(M[i].reshape(dim[1], dim[0]), \
+                    M[j].reshape(dim[1], dim[0]), full=True)
+            D[i,j] = score
+    return D
 
 if __name__ == "__main__":
     np.random.seed(123456)
 
-    data, dim = load_raw("split-files/jellyfish-train-map.csv")
-    print(len(data), dim)
-    keys = list(data.keys())
-    print(keys)
-    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
-    save_flat(data, "flat.csv")
-
-    # data = load_flat("flat.csv")
+    # data, dim = load_raw("split-files/jellyfish-train-map.csv")
+    # print(len(data), dim)
     # keys = list(data.keys())
-    # P = np.array([data[k][0] for k in keys]).astype(float)
-    # M = np.array([data[k][1] for k in keys]).astype(int)
+    # print(keys)
+    # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
+    # save_flat(data, "flat.csv")
+
+    data = load_flat("flat.csv")
+    keys = list(data.keys())
+    P = np.array([data[k][0] for k in keys]).astype(float)
+    M = np.array([data[k][1] for k in keys]).astype(int)
+    D = build_image_dist_matrix(M)
 
     # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
