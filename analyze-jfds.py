@@ -17,7 +17,8 @@ def load_data(map_file_path):
     for line in fp:
         vals = line.strip().split(',')
         image_path = vals[0].strip()
-        ts = os.path.split(image_path)[1].split('.')[0] 
+        ts = os.path.split(image_path)[1].split('.')[0]
+        pose = np.array([float(v) for v in vals[1:8]]).astype(float)
         camera_intrinsics = np.array([float(v) for v in vals[8:12]]).astype(float)
         distortion_coeffs = np.array([float(v) for v in vals[12:-1]]).astype(float)
         
