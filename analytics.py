@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import datasets
 from sklearn.manifold import TSNE
+from sklearn.cluster import DBSCAN
 import transforms as tr
 import cv2
 
@@ -82,6 +83,9 @@ if __name__ == "__main__":
     tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
     U = tsne_pose.fit_transform(P)
     V = tsne_image.fit_transform(G)
+
+    np.savetxt("pose_tsne.csv", U, delimiter=',')
+    np.savetxt("image_tsne.csv", V, delimiter=',')
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.scatter(U[:,0], U[:,1], s=2)
