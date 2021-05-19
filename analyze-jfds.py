@@ -48,7 +48,7 @@ if __name__ == "__main__":
     y = digits.target[:500]
 
     tsne = TSNE(n_components=2, random_state=0)
-
+    X_2d = tsne.fit_transform(X)
     target_ids = range(len(digits.target_names))
 
     plt.figure(figsize=(6, 5))
