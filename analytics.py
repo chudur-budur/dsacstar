@@ -151,8 +151,8 @@ if __name__ == "__main__":
     M_ = tsne_image.fit_transform(D)
     P_ = (P_ - np.min(P_)) / np.ptp(P_)
     M_ = (M_ - np.min(M_)) / np.ptp(M_) 
-    # np.savetxt("pose-tsne.csv", P_, delimiter=',')
-    # np.savetxt("image-tsne.csv", M_, delimiter=',')
+    np.savetxt("pose-tsne.csv", P_, delimiter=',')
+    np.savetxt("image-tsne.csv", M_, delimiter=',')
     
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
