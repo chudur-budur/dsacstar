@@ -14,6 +14,7 @@ def load_data(map_file_path):
 
     data = {}
     fp = open(map_file_path, 'r')
+    count = 0
     for line in fp:
         vals = line.strip().split(',')
         image_path = vals[0].strip()
@@ -39,6 +40,11 @@ def load_data(map_file_path):
         image = pipeline(image)
         
         data[ts] = [pose, image.numpy()]
+
+        count = count + 1
+        if count % 100 == 0:
+            print("Loaded {0:d} images and poses.".format(count))
+
     fp.close()
     return data
 
