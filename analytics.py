@@ -45,7 +45,7 @@ def save_flat(data, path):
         ts = key
         pose = data[key][0]
         image = data[key][1]
-        fp.write(key + ',' + ','.join([v for v in pose]) + ',' + ','.join([v for v in image] + '\n')
+        fp.write(key + ',' + ','.join([v for v in pose]) + ',' + ','.join([v for v in image]) + '\n')
     fp.close()
 
 
