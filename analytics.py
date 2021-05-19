@@ -104,7 +104,7 @@ def search_dbscan_eps(P):
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
-    n = 6 # M.shape[0]
+    n = M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
