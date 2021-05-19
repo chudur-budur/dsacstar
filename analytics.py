@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import datasets
 from sklearn.manifold import TSNE
+from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
 import transforms as tr
 import cv2
@@ -73,25 +74,25 @@ if __name__ == "__main__":
     # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     # save_flat(data, "flat.csv")
 
-    data = load_flat("flat.csv")
-    keys = list(data.keys())
-    P = np.array([data[k][0] for k in keys]).astype(float)
-    M = np.array([data[k][1] for k in keys]).astype(int)
+    # data = load_flat("flat.csv")
+    # keys = list(data.keys())
+    # P = np.array([data[k][0] for k in keys]).astype(float)
+    # M = np.array([data[k][1] for k in keys]).astype(int)
 
-    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
-    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
-    P_ = tsne_pose.fit_transform(P)
-    M_ = tsne_image.fit_transform(M)
-    P_ = (P_ - np.min(P_)) / np.ptp(P_)
-    M_ = (M_ - np.min(M_)) / np.ptp(M_) 
+    # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
+    # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
+    # P_ = tsne_pose.fit_transform(P)
+    # M_ = tsne_image.fit_transform(M)
+    # P_ = (P_ - np.min(P_)) / np.ptp(P_)
+    # M_ = (M_ - np.min(M_)) / np.ptp(M_) 
 
-    np.savetxt("pose-tsne.csv", P_, delimiter=',')
-    np.savetxt("image-tsne.csv", M_, delimiter=',')
+    # np.savetxt("pose-tsne.csv", P_, delimiter=',')
+    # np.savetxt("image-tsne.csv", M_, delimiter=',')
     
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
-    clustering = cluster.DBSCAN()
+    # clustering = cluster.DBSCAN()
     # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
     # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
     #         bin_seeding=True)
