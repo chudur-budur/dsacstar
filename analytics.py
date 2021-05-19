@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import datasets
 from sklearn.manifold import TSNE
-from sklearn.cluster import DBSCAN, OPTICS
+from sklearn import cluster 
 import transforms as tr
 import cv2
 
@@ -89,8 +89,10 @@ if __name__ == "__main__":
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
-    # clustering = DBSCAN()
-    clustering = OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
+    # clustering = cluster.DBSCAN()
+    # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
+    bw = cluster.estimate_bandwidth(P, quantile=0.2)
+    clustering = cluster.MeanShift(bandwidth=bw, bin_seeding=True)
     Y = clustering.fit(P)
     print(set(clustering.labels_.astype(int)))
 
