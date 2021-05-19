@@ -65,7 +65,7 @@ def load_flat(path):
 if __name__ == "__main__":
     np.random.seed(123456)
 
-    data, dim = load_raw("split-files/jellyfish-train-map.csv", n=10)
+    data, dim = load_raw("split-files/jellyfish-train-map.csv")
     print(len(data), dim)
     keys = list(data.keys())
     print(keys)
