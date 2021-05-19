@@ -116,7 +116,7 @@ if __name__ == "__main__":
     #         '#f781bf', '#a65628', '#984ea3', 
     #         '#999999', '#e41a1c', '#dede00']
 
-    cm = plt.cm.get_cmap('gist_rainbow')
+    cm = plt.get_cmap('tab20')
     ncolors = len(set(Y))
     clist = [cm(1. * i / ncolors) for i in range(ncolors)]
     colors = np.array(list(islice(cycle(clist), int(max(Y) + 1))))
