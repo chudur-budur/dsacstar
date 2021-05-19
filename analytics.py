@@ -108,7 +108,8 @@ def build_image_dist_matrix(M, dim=(96,54)):
     for i in range(n):
         for j in range(n):
             if j <= i:
-                D[i,j] = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                d = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                D[i,j] = d[0]
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
