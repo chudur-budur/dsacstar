@@ -141,8 +141,9 @@ if __name__ == "__main__":
     # np.savetxt("image-dist-matrix.csv", D, delimiter=',')
 
     D = np.loadtxt("image-dist-matrix.csv", delimiter=',')
-    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000, metric='precomputed')
-    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
+    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
+    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000, \
+            metric='precomputed')
     P_ = tsne_pose.fit_transform(P)
     M_ = tsne_image.fit_transform(D)
     P_ = (P_ - np.min(P_)) / np.ptp(P_)
