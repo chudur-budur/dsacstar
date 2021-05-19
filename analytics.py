@@ -45,7 +45,8 @@ def save_flat(data, path):
         ts = key
         pose = data[key][0]
         image = data[key][1]
-        fp.write(key + ',' + ','.join([v for v in pose]) + ',' + ','.join([v for v in image]) + '\n')
+        fp.write(key + ',' + ','.join([v for v in pose]) + ',' \
+                + ','.join([v for v in image]) + '\n')
     fp.close()
 
 
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     print(len(data))
     keys = list(data.keys())
     print(keys)
-    cv2.imwrite(data[keys[0]][1].reshape(dim), "test.png")
+    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim))
     save_flat(data, "flat.csv")
     data = load_flat("flat.csv")
 
