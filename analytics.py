@@ -110,14 +110,16 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
         for j in range(n):
             if j <= i:
                 if mode == 'normalized_root_mse':
-                    d = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    D[i,j] = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
                 elif mode == 'variation_of_information':
-                    d = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    p1,p2 = voi(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    D[i,j] = p1
                 elif mode == 'adapted_rand_error':
-                    d = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    are,prec,rec = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                    D[i,j] = are
                 elif mode == 'structural_similarity':
                     d = ssmin(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
-                D[i,j] = d[0] if (isinstance(d, list) or isinstance(d, np.ndarray)) else d
+                    D[i,j] = d
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
