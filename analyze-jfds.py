@@ -5,6 +5,7 @@ from sklearn import datasets
 from sklearn.manifold import TSNE
 from torchvision import transforms
 import transforms as tr
+from skimage import io
 
 def make_pileline(img, came):
     pass
@@ -30,8 +31,8 @@ def load_data(map_file_path):
             transforms.ColorJitter(brightness=0.1, contrast=0.1),
             transforms.ToTensor()
             ])
-
-        image = pipeline(image_path)
+        image = io.imread(image_path)
+        image = pipeline(image)
         data[ts] = [pose, image.numpy()]
     fp.close()
     return data
