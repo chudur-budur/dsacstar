@@ -21,8 +21,7 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 
 from skimage.transform import rotate, resize
-from skimage import color
-from skimage import io
+from skimage import io, color
 
 from network import Network
 import transforms as tr

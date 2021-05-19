@@ -5,7 +5,7 @@ from sklearn import datasets
 from sklearn.manifold import TSNE
 from torchvision import transforms
 import transforms as tr
-from skimage import io
+from skimage import io, color
 
 def make_pileline(img, came):
     pass
@@ -20,6 +20,10 @@ def load_data(map_file_path):
         ts = os.path.split(image_path)[1].split('.')[0] 
         camera_intrinsics = np.array([float(v) for v in vals[1:8]]).astype(float)
         distortion_coeffs = np.array([float(v) for v in vals[8:-1]]).astype(float)
+        
+        image = io.imread(image_path)
+        if len(image.shape) < 3:
+            image = color.gray2rgb(image)
 
         pipeline = transforms.Compose([
             transforms.Lambda(lambda img: tr.unfish(
@@ -31,8 +35,8 @@ def load_data(map_file_path):
             transforms.ColorJitter(brightness=0.1, contrast=0.1),
             transforms.ToTensor()
             ])
-        image = io.imread(image_path)
         image = pipeline(image)
+        
         data[ts] = [pose, image.numpy()]
     fp.close()
     return data
