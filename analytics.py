@@ -67,7 +67,7 @@ if __name__ == "__main__":
     print(len(data), dim)
     keys = list(data.keys())
     print(keys)
-    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim))
+    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     save_flat(data, "flat.csv")
     data = load_flat("flat.csv")
 
