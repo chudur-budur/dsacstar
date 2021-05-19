@@ -41,6 +41,9 @@ def load_data(map_file_path):
         
         image = cv2.imread(image_path, 0)
         image = tr.unfish(image, camera_intrinsics, distortion_coeffs)
+        scale_perc = 0.1 # percent of original size
+        w, h = int(image.shape[1] * scale_perc), int(image.shape[0] * scale_perc)
+        image = cv2.resize(image, (w, h), interpolation = cv2.INTER_AREA)  
         
         data[ts] = [pose, image]
 
