@@ -41,8 +41,10 @@ if __name__ == "__main__":
     # print(data)
 
     digits = datasets.load_digits()
-    print(len(digits), type(digits))
-    print(digits.data[0], digits.target[0])
+    
+    print("len(digits):", len(digits), "type(digits):", type(digits))
+    print("digits.data[0]:", digits.data[0], "digits.target[0]:", digits.target[0])
+    
     # Take the first 500 data points: it's hard to see 1500 points
     X = digits.data[:500]
     y = digits.target[:500]
