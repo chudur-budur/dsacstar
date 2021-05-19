@@ -13,6 +13,7 @@ from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import normalized_root_mse as nrmse
 # from skimage.metrics import hausdorff_distance as haus
 from skimage.metrics import variation_of_information as voi
+from skimage.metrics import adapted_rand_error as arerr
 
 
 
@@ -108,8 +109,8 @@ def build_image_dist_matrix(M, dim=(96,54)):
     for i in range(n):
         for j in range(n):
             if j <= i:
-                d = nrmse(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
-                D[i,j] = d[0]
+                d = arerr(M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0]))
+                D[i,j] = d[0] if len(d) > 1 else d
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
