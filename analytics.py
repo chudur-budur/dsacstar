@@ -105,7 +105,7 @@ def search_dbscan_eps(P):
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
-    n = M.shape[0]
+    n = 10 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=0.1)
     print(len(data), dim)
     keys = list(data.keys())
-    print(keys)
+    print(keys[0:5])
     cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     save_flat(data, "flat.csv")
 
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
-    D = build_image_dist_matrix(M, mode='normalized_root_mse')
+    D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     np.savetxt("dist-matrix.csv", D, delimiter=',')
 
     D = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
