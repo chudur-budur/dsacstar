@@ -73,42 +73,23 @@ if __name__ == "__main__":
     # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     # save_flat(data, "flat.csv")
 
+    # data = load_flat("flat.csv")
+    # keys = list(data.keys())
+    # P = np.array([data[k][0] for k in keys]).astype(float)
+    # G = np.array([data[k][1] for k in keys]).astype(int)
 
-    data = load_flat("flat.csv")
-    keys = list(data.keys())
-    P = np.array([data[k][0] for k in keys]).astype(float)
-    G = np.array([data[k][1] for k in keys]).astype(int)
+    # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
+    # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
+    # U = tsne_pose.fit_transform(P)
+    # V = tsne_image.fit_transform(G)
 
-    tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=10000)
-    tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=10000)
-    U = tsne_pose.fit_transform(P)
-    V = tsne_image.fit_transform(G)
-
-    np.savetxt("pose-tsne.csv", U, delimiter=',')
-    np.savetxt("image-tsne.csv", V, delimiter=',')
+    # np.savetxt("pose-tsne.csv", U, delimiter=',')
+    # np.savetxt("image-tsne.csv", V, delimiter=',')
+    
+    U = np.loadtxt("pose-tsne.csv", delimiter=',')
+    V = np.loadtxt("image-tsne.csv", delimiter=',')
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.scatter(U[:,0], U[:,1], s=2)
     ax2.scatter(V[:,0], V[:,1], s=2)
     plt.show()
-
-    # digits = datasets.load_digits()
-    # 
-    # print("len(digits):", len(digits), "type(digits):", type(digits))
-    # print("len(digits.data[0]):", len(digits.data[0]), "digits.data[0]:", \
-    #         digits.data[0], "digits.target[0]:", digits.target[0])
-    # 
-    # # Take the first 500 data points: it's hard to see 1500 points
-    # X = digits.data[:500]
-    # y = digits.target[:500]
-
-    # tsne = TSNE(n_components=2, random_state=0)
-    # X_2d = tsne.fit_transform(X)
-    # target_ids = range(len(digits.target_names))
-
-    # plt.figure(figsize=(6, 5))
-    # colors = 'r', 'g', 'b', 'c', 'm', 'y', 'k', 'w', 'orange', 'purple'
-    # for i, c, label in zip(target_ids, colors, digits.target_names):
-    #     plt.scatter(X_2d[y == i, 0], X_2d[y == i, 1], c=c, label=label, s=5)
-    # plt.legend()
-    # plt.show()
