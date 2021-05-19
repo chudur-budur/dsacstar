@@ -129,7 +129,7 @@ if __name__ == "__main__":
     print(L)
     colors = get_colors(L) 
     
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.8, 9.6))
     
     ax1.set_title("Poses")
     ax1.set_xlabel('u')
