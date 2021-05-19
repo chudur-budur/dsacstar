@@ -73,14 +73,14 @@ def load_flat(path):
     return data
 
 
-def get_colors(L, cmap=None):
-    if cmap is None:
+def get_colors(L, cm_name=None):
+    if cm_name is None:
         clist = [
                 '#377eb8', '#ff7f00', '#4daf4a', 
                 '#f781bf', '#a65628', '#984ea3', 
                 '#999999', '#e41a1c', '#dede00']
     else:
-        cm = plt.get_cmap(cmap)
+        cm = plt.get_cmap(cm_name)
         clist = [cm(1. * i / len(L)) for i in range(len(L))]
     
     print(clist)
