@@ -76,18 +76,22 @@ if __name__ == "__main__":
     # data = load_flat("flat.csv")
     # keys = list(data.keys())
     # P = np.array([data[k][0] for k in keys]).astype(float)
-    # G = np.array([data[k][1] for k in keys]).astype(int)
+    # M = np.array([data[k][1] for k in keys]).astype(int)
 
     # tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     # tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000)
-    # U = tsne_pose.fit_transform(P)
-    # V = tsne_image.fit_transform(G)
+    # P_ = tsne_pose.fit_transform(P)
+    # M_ = tsne_image.fit_transform(M)
 
-    # np.savetxt("pose-tsne.csv", U, delimiter=',')
-    # np.savetxt("image-tsne.csv", V, delimiter=',')
+    # np.savetxt("pose-tsne.csv", P_, delimiter=',')
+    # np.savetxt("image-tsne.csv", M_, delimiter=',')
     
-    U = np.loadtxt("pose-tsne.csv", delimiter=',')
-    V = np.loadtxt("image-tsne.csv", delimiter=',')
+    P = np.loadtxt("pose-tsne.csv", delimiter=',')
+    M = np.loadtxt("image-tsne.csv", delimiter=',')
+
+    dbscan = DBSCAN()
+    Y = dbscan.fit(P)
+    print(set(dbscan.labels_.astype(int)))
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.scatter(U[:,0], U[:,1], s=2)
