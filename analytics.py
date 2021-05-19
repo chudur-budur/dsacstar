@@ -118,12 +118,12 @@ if __name__ == "__main__":
     C = 0.5 * (C + C.T)
     clustering = cluster.AgglomerativeClustering(n_clusters=20, linkage='ward', connectivity=C)
 
-    clustering.fit(P)
+    clustering.fit(M)
 
     if hasattr(clustering, 'labels_'):
         Y = clustering.labels_.astype(int)
     else:
-        Y = clustering.predict(P)
+        Y = clustering.predict(M)
 
     L = set(Y)
     print(L)
