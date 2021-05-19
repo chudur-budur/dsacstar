@@ -81,6 +81,19 @@ def get_colors(L, cmap=None):
     return colors
 
 
+def search_dbscan_eps(P):
+    for eps in np.arange(0.02, 0.04, 0.001):
+        clustering = cluster.DBSCAN(eps=eps)
+        clustering.fit(P)
+
+        if hasattr(clustering, 'labels_'):
+            Y = clustering.labels_.astype(int)
+        else:
+            Y = clustering.predict(P)
+
+        L = set(Y)
+        print(eps, len(L), L)
+
 if __name__ == "__main__":
     np.random.seed(123456)
 
@@ -109,27 +122,26 @@ if __name__ == "__main__":
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
-    for eps in np.arange(0.02, 0.04, 0.001):
-        clustering = cluster.DBSCAN(eps=eps)
-        # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
-        # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
-        #         bin_seeding=True)
-        # clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
-        #         affinity="nearest_neighbors")
-        # clustering = cluster.AffinityPropagation(damping=0.75, preference=-10)
-        # C = kneighbors_graph(P, n_neighbors=2, include_self=False)
-        # C = 0.5 * (C + C.T)
-        # clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
+    clustering = cluster.DBSCAN(eps=0.029)
+    # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
+    # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
+    #         bin_seeding=True)
+    # clustering = cluster.SpectralClustering(n_clusters=12, eigen_solver='arpack', \
+    #         affinity="nearest_neighbors")
+    # clustering = cluster.AffinityPropagation(damping=0.75, preference=-10)
+    # C = kneighbors_graph(P, n_neighbors=2, include_self=False)
+    # C = 0.5 * (C + C.T)
+    # clustering = cluster.AgglomerativeClustering(n_clusters=12, linkage='ward', connectivity=C)
 
-        clustering.fit(P)
+    clustering.fit(P)
 
-        if hasattr(clustering, 'labels_'):
-            Y = clustering.labels_.astype(int)
-        else:
-            Y = clustering.predict(P)
+    if hasattr(clustering, 'labels_'):
+        Y = clustering.labels_.astype(int)
+    else:
+        Y = clustering.predict(P)
 
-        L = set(Y)
-        print(eps, len(L), L)
+    L = set(Y)
+    print(eps, len(L), L)
 
     colors = get_colors(L) 
     
