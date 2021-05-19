@@ -26,7 +26,7 @@ def load_raw(map_file_path, n=float('inf'), scale=0.05):
         w, h = int(image.shape[1] * scale), int(image.shape[0] * scale)
         image = cv2.resize(image, (w, h), interpolation = cv2.INTER_AREA)  
         
-        data[ts] = [pose, image]
+        data[ts] = [pose, image.reshape(-1)]
 
         count = count + 1
         if count >= n:
