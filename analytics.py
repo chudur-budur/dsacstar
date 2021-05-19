@@ -118,8 +118,20 @@ if __name__ == "__main__":
         int(max(Y) + 1))))
     # add black color for outliers (if any)
     colors = np.append(colors, ["#000000"])
+
+    cm = plt.cm.get_cmap('tab20')
+    print(len(cm.colors))
     
     fig, (ax1, ax2) = plt.subplots(1, 2)
+    
+    ax1.set_title("Poses")
+    ax1.set_xlabel('u')
+    ax1.set_ylabel('v')
     ax1.scatter(P[:,0], P[:,1], s=2, color=colors[Y])
+    
+    ax2.set_title("Images")
+    ax2.set_xlabel('u')
+    ax2.set_ylabel('v')
     ax2.scatter(M[:,0], M[:,1], s=2, color=colors[Y])
+    
     plt.show()
