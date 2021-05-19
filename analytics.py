@@ -91,8 +91,9 @@ if __name__ == "__main__":
 
     # clustering = cluster.DBSCAN()
     # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
-    bw = cluster.estimate_bandwidth(P, quantile=0.2)
-    clustering = cluster.MeanShift(bandwidth=bw, bin_seeding=True)
+    # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
+    #         bin_seeding=True)
+    clustering = cluster.SpectralClustering(n_clusters=16, eigen_solver='arpack')
     Y = clustering.fit(P)
     print(set(clustering.labels_.astype(int)))
 
