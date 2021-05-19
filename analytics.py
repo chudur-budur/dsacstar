@@ -141,7 +141,7 @@ if __name__ == "__main__":
         Y = clustering.predict(P)
 
     L = set(Y)
-    print(eps, len(L), L)
+    print(len(L), L)
 
     colors = get_colors(L) 
     
