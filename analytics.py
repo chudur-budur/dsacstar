@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors as mplc
 from sklearn import datasets
-from sklearn.metrics import pairwise_distances
+from sklearn import metrics 
 from sklearn.manifold import TSNE
 from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
@@ -121,7 +121,7 @@ def dist_metric(A, B, dim, mode):
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     func = lambda A,B : dist_metric(A, B, dim, mode)
-    D = pairwise_distances(M, metric=func, n_jobs=8)
+    D = metrics.pairwise_distances(M, metric=func, n_jobs=-1)
     return D
 
 
@@ -143,6 +143,7 @@ if __name__ == "__main__":
     dim = (192, 108)
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     np.savetxt("dist-matrix-nrmse.csv", D, delimiter=',')
+    sys.exit(1)
 
     D = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
     # D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
