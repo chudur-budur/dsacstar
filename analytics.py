@@ -115,13 +115,13 @@ def dist_metric(A, B, dim, mode):
     elif mode == 'adapted_rand_error':
         d,_,_ = arerr(a,b)
     elif mode == 'structural_similarity':
-        d = ssmin(a,b)
+        d = ssim(a,b)
     return d
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     func = lambda A,B : dist_metric(A, B, dim, mode)
-    D = pairwise_distances(M[0:10,:], M[0:10,0], metric=func, n_jobs=8)
+    D = pairwise_distances(M[0:10,:], metric=func, n_jobs=8)
     print(D)
 
 
