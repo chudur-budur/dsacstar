@@ -209,7 +209,7 @@ class JellyfishDataset(Dataset):
                 transforms.ToPILImage(),
                 transforms.Resize(self.image_height),
                 transforms.Grayscale(),
-                cvtransforms.ToTensor()
+                transforms.ToTensor()
             ])
             image = pipeline(image)
 
