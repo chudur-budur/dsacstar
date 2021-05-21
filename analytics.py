@@ -150,6 +150,7 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
+    dim = (192, 108)
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     print(D)
     np.savetxt("dist-matrix.csv", D, delimiter=',')
