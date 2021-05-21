@@ -142,10 +142,11 @@ if __name__ == "__main__":
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
-    # print("Computing pairwise distance matrix")
-    # dim = (192, 108)
-    # D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
-    # np.savetxt("dist-matrix-nrmse.csv", D, delimiter=',')
+    print("Computing pairwise distance matrix")
+    dim = (192, 108)
+    D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
+    np.savetxt("dist-matrix-arerr-s0.1.csv", D, delimiter=',')
+    sys.exit(1)
 
     print("Computing tSNE")
     D = np.loadtxt("dist-matrix-nrmse-s0.1.csv", delimiter=',')
