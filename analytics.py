@@ -106,22 +106,21 @@ def search_dbscan_eps(P):
         print(eps, len(L), L)
 
 
-def dist_metric(A, B, dim, mode):
-    a, b = A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0])
+def dist_metric(A, B, mode):
     if mode == 'normalized_root_mse':
-        d = nrmse(a,b)
+        d = nrmse(A,B)
     elif mode == 'variation_of_information':
-        d,_ = voi(a,b)
+        d,_ = voi(A,B)
     elif mode == 'adapted_rand_error':
-        d,_,_ = arerr(a,b)
+        d,_,_ = arerr(A,B)
     elif mode == 'structural_similarity':
-        d = ssim(a,b)
+        d = ssim(A,B)
     return d
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
-    func = lambda A,B : dist_metric(A, B, dim, mode)
-    D = metrics.pairwise_distances(M, metric=func, n_jobs=-1)
+    metric = lambda A,B : dist_metric(A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0]), mode)
+    D = metrics.pairwise_distances(M, metric=metric, n_jobs=-1)
     return D
 
 
@@ -144,13 +143,15 @@ if __name__ == "__main__":
 
     print("Computing pairwise distance matrix")
     dim = (192, 108)
+    # D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
+    # np.savetxt("dist-matrix-nrmse-s0.1.csv", D, delimiter=',')
     D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
     np.savetxt("dist-matrix-arerr-s0.1.csv", D, delimiter=',')
     sys.exit(1)
 
     print("Computing tSNE")
-    D = np.loadtxt("dist-matrix-nrmse-s0.1.csv", delimiter=',')
-    # D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
+    # D = np.loadtxt("dist-matrix-nrmse-s0.1.csv", delimiter=',')
+    D = np.loadtxt("dist-matrix-arerr-s0.1.csv", delimiter=',')
     tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
     tsne_image = TSNE(n_components=2, random_state=333333, verbose=True, n_iter=5000, \
             metric='precomputed')
