@@ -104,26 +104,30 @@ def search_dbscan_eps(P):
         L = set(Y)
         print(eps, len(L), L)
 
+def do_columns(M, i, j, D, mode):
+    for j in range(n):
+        if j <= i:
+            a, b = M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])
+            if mode == 'normalized_root_mse':
+                D[i,j] = pool.map(nrmse, (a,b))
+            elif mode == 'variation_of_information':
+                D[i,j],_ = pool.map(voi, (a,b))
+                # D[i,j] = p1
+            elif mode == 'adapted_rand_error':
+                D[i,j],_,_ = pool.map(arerr, (a,b))
+                # D[i,j] = are
+            elif mode == 'structural_similarity':
+                D[i,j] = pool.map(ssmin, (a,b))
+                # D[i,j] = d
+
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     pool = multiprocessing.Pool(processes=8)
     n = 10 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
-        for j in range(n):
-            if j <= i:
-                if mode == 'normalized_root_mse':
-                    D[i,j] = pool.map(nrmse, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
-                elif mode == 'variation_of_information':
-                    p1,p2 = pool.map(voi, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
-                    D[i,j] = p1
-                elif mode == 'adapted_rand_error':
-                    are,prec,rec = pool.map(arerr, 
-                            (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
-                    D[i,j] = are
-                elif mode == 'structural_similarity':
-                    d = pool.map(ssmin, (M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])))
-                    D[i,j] = d
+        func = partial(do_columns, M, i, j, D, mode)
+        pool.map(do_columns, M, i, j, D, mode)
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
