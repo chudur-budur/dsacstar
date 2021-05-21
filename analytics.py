@@ -151,6 +151,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
+    print(D)
     np.savetxt("dist-matrix.csv", D, delimiter=',')
     sys.exit(1)
 
