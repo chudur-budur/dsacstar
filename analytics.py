@@ -128,6 +128,7 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 if __name__ == "__main__":
     np.random.seed(123456)
 
+    # print("Loading raw image and pose data")
     # data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=0.1)
     # print(len(data), dim)
     # keys = list(data.keys())
@@ -135,16 +136,19 @@ if __name__ == "__main__":
     # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     # save_flat(data, "flat.csv")
 
+    print("Loading flattened image and pose data")
     data = load_flat("flat.csv")
     keys = list(data.keys())
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
+    print("Computing pairwise distance matrix")
     dim = (192, 108)
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     np.savetxt("dist-matrix-nrmse.csv", D, delimiter=',')
     sys.exit(1)
 
+    print("Computing tSNE")
     D = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
     # D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
     tsne_pose = TSNE(n_components=2, random_state=111111, verbose=True, n_iter=5000)
@@ -157,9 +161,11 @@ if __name__ == "__main__":
     np.savetxt("pose-tsne.csv", P_, delimiter=',')
     np.savetxt("image-tsne.csv", M_, delimiter=',')
     
+    print("Load precomputed tSNE coordinates")
     P = np.loadtxt("pose-tsne.csv", delimiter=',')
     M = np.loadtxt("image-tsne.csv", delimiter=',')
 
+    print("Doing clustering")
     clustering = cluster.DBSCAN(eps=0.029)
     # clustering = cluster.OPTICS(min_samples=100, xi=0.35, min_cluster_size=0.3)
     # clustering = cluster.MeanShift(bandwidth=cluster.estimate_bandwidth(P, quantile-0.2), \
