@@ -138,12 +138,12 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 if __name__ == "__main__":
     np.random.seed(123456)
 
-    data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=0.1)
-    print(len(data), dim)
-    keys = list(data.keys())
-    print(keys[0:5])
-    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
-    save_flat(data, "flat.csv")
+    # data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=0.1)
+    # print(len(data), dim)
+    # keys = list(data.keys())
+    # print(keys[0:5])
+    # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
+    # save_flat(data, "flat.csv")
 
     data = load_flat("flat.csv")
     keys = list(data.keys())
