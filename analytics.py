@@ -121,7 +121,7 @@ def dist_metric(A, B, dim, mode):
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     func = lambda A,B : dist_metric(A, B, dim, mode)
-    D = pairwise_distances(M[0:10,:], metric=func, n_jobs=8)
+    D = pairwise_distances(M[0:10,:], M[0:10,0], metric=func, n_jobs=8)
     print(D)
 
 
