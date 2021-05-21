@@ -142,7 +142,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(float)
 
     print("Computing pairwise distance matrix")
-    dim = (192, 108)
+    # dim = (192, 108)
     # D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     # np.savetxt("dist-matrix-nrmse-s0.1.csv", D, delimiter=',')
     D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
