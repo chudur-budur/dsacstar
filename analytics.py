@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors as mplc
 from sklearn import datasets
+from sklearn.metrics import pairwise_distances
 from sklearn.manifold import TSNE
 from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
@@ -104,34 +105,35 @@ def search_dbscan_eps(P):
         L = set(Y)
         print(eps, len(L), L)
 
-def do_columns(M, i, j, D, mode):
-    for j in range(n):
-        if j <= i:
-            a, b = M[i].reshape(dim[1], dim[0]), M[j].reshape(dim[1], dim[0])
-            if mode == 'normalized_root_mse':
-                D[i,j] = pool.map(nrmse, (a,b))
-            elif mode == 'variation_of_information':
-                D[i,j],_ = pool.map(voi, (a,b))
-                # D[i,j] = p1
-            elif mode == 'adapted_rand_error':
-                D[i,j],_,_ = pool.map(arerr, (a,b))
-                # D[i,j] = are
-            elif mode == 'structural_similarity':
-                D[i,j] = pool.map(ssmin, (a,b))
-                # D[i,j] = d
+
+def dist_metric(A, B, dim, mode):
+    a, b = A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0])
+    if mode == 'normalized_root_mse':
+        d = nrmse(a,b)
+    elif mode == 'variation_of_information':
+        d,_ = voi(a,b)
+    elif mode == 'adapted_rand_error':
+        d,_,_ = arerr(a,b)
+    elif mode == 'structural_similarity':
+        d = ssmin(a,b)
+    return d
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
-    pool = multiprocessing.Pool(processes=8)
+    func = lambda A,B : dist_metric(A, B, dim, mode)
+    
     n = 10 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
-        func = partial(do_columns, M, i, j, D, mode)
-        pool.map(do_columns, M, i, j, D, mode)
+        for j in range(n):
+            if j <= i:
+                D[i,j] = func(M[i], M[j])
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
+    
     return D
+
 
 if __name__ == "__main__":
     np.random.seed(123456)
@@ -150,6 +152,7 @@ if __name__ == "__main__":
 
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
     np.savetxt("dist-matrix.csv", D, delimiter=',')
+    sys.exit(1)
 
     D = np.loadtxt("dist-matrix-nrmse.csv", delimiter=',')
     # D = np.loadtxt("dist-matrix-arerr.csv", delimiter=',')
