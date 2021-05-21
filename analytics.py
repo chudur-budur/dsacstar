@@ -137,12 +137,13 @@ if __name__ == "__main__":
     np.random.seed(123456)
 
     print("Loading raw image and pose data")
-    data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=0.1)
+    scale = 0.1
+    data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=scale)
     print(len(data), dim)
     keys = list(data.keys())
     print(keys[0:5])
     cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
-    save_flat(data, "flat-s0.1.csv")
+    save_flat(data, "flat-s{0:f}.csv".format(scale))
     sys.exit(1)
 
     print("Loading flattened image and pose data")
