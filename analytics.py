@@ -121,7 +121,10 @@ def dist_metric(A, B, dim, mode):
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     func = lambda A,B : dist_metric(A, B, dim, mode)
-    
+    D = pairwise_distances(M[0:10,:], metric=func, n_jobs=8)
+    print(D)
+
+
     n = 10 # M.shape[0]
     D = np.zeros((n, n))
     for i in range(n):
@@ -131,7 +134,7 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
         if i % 100 == 0:
             print('Finished row, i = {0:d}'.format(i))
     D = D + D.T - np.diag(np.diag(D))
-    
+    print(D) 
     return D
 
 
@@ -152,7 +155,6 @@ if __name__ == "__main__":
 
     dim = (192, 108)
     D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
-    print(D)
     np.savetxt("dist-matrix.csv", D, delimiter=',')
     sys.exit(1)
 
