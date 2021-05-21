@@ -87,10 +87,10 @@ pct1 = 0
 
 with torch.no_grad():
 
-    for image, gt_pose, init, focal_length, _, timestamp in testset_loader:
+    for image, gt_pose, init, focal_length, timestamp, file_path in testset_loader:
 
         focal_length = float(focal_length[0])
-        file_ = file_[0].split('/')[-1]  # remove path from file name
+        file_path = file_path[0].split('/')[-1]  # remove path from file name
         gt_pose = gt_pose[0]
         image = image.cuda()
 

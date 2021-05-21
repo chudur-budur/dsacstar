@@ -380,7 +380,7 @@ if __name__ == "__main__":
         now = datetime.now()
         print("========== Stamp: {0:s} / Epoch: {1:d} =========="
               .format(now.strftime("%d/%m/%y [%H-%M-%S]"), epoch))
-
+        
         count = 0
         losses, num_valid_scs = [], []
         for image, gt_pose, gt_coords, focal_length, time_stamp, file_path in trainset_loader:
