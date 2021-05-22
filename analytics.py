@@ -130,6 +130,7 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
             print("Computed row, i = {0:d}".format(i))
     D = D + D.T - np.diag(np.diag(D))
     print(D)
+    print()
     
     D = metrics.pairwise_distances(M[0:n], metric=metric, n_jobs=-1)
     print(D)
