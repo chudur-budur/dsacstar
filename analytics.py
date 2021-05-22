@@ -18,6 +18,8 @@ from skimage.metrics import normalized_root_mse as nrmse
 from skimage.metrics import variation_of_information as voi
 from skimage.metrics import adapted_rand_error as arerr
 from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import normalized_mutual_information as nmi
+
 
 
 
@@ -110,28 +112,27 @@ def search_dbscan_eps(P):
 def dist_metric(A, B, mode):
     if mode == 'mean_squared_error':
         d = mse(A,B)
-    if mode == 'normalized_root_mse':
-        d = nrmse(A,B)
-    elif mode == 'variation_of_information':
-        d,_ = voi(A,B)
     elif mode == 'adapted_rand_error':
         d,_,_ = arerr(A,B)
     elif mode == 'structural_similarity':
         d = 1.0 - ssim(A,B)
+    elif mode == 'mormalized_mutual_info':
+        d = nmi(A, B)
     return d
 
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     metric = lambda A,B : dist_metric(A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0]), mode)
     n = 4 # M.shape[0]
+
     D = np.zeros((n,n))
     for i in range(n):
         for j in range(n):
-            #if j <= i:
-            D[i,j] = metric(M[i], M[j])
+            if j <= i:
+                D[i,j] = metric(M[i], M[j])
         if i % 100 == 0:
             print("Computed row, i = {0:d}".format(i))
-    # D = D + D.T - np.diag(np.diag(D))
+    D = D + D.T - np.diag(np.diag(D))
     print(D)
     print()
     
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     print("Computing pairwise distance matrix")
-    D = build_image_dist_matrix(M, dim=dim, mode='mean_squared_error')
+    D = build_image_dist_matrix(M, dim=dim, mode='normalized_mutual_info')
     # np.savetxt("dist-matrix-nrmse-s{0:.3f}.csv".format(scale), D, delimiter=',')
     # D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
     # np.savetxt("dist-matrix-arerr-s{0:.3f}.csv".format(scale), D, delimiter=',')
