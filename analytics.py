@@ -120,8 +120,7 @@ def dist_metric(A, B, mode):
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     metric = lambda A,B : dist_metric(A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0]), mode)
-    # D = metrics.pairwise_distances(M, metric=metric, n_jobs=-1)
-    n = M.shape[0]
+    n = 6 # M.shape[0]
     D = np.zeros((n,n))
     for i in range(n):
         for j in range(n):
@@ -129,7 +128,10 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
                 D[i,j] = metric(M[i], M[j])
         if i % 100 == 0:
             print("Computed row, i = {0:d}".format(i))
-    D = D + D.T 
+    D = D + D.T - np.diag(np.diag(D))
+    print(D)
+    
+    # D = metrics.pairwise_distances(M, metric=metric, n_jobs=-1)
     return D
 
 
@@ -141,27 +143,26 @@ if __name__ == "__main__":
     dim = dims[str(scale)]
     print(scale, dim)
 
-    print("Loading raw image and pose data")
-    data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=scale)
-    print(len(data), dim)
-    keys = list(data.keys())
-    print(keys[0:5])
-    cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
-    save_flat(data, "flat-s{0:f}.csv".format(scale))
-    sys.exit(1)
+    # print("Loading raw image and pose data")
+    # data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=scale)
+    # print(len(data), dim)
+    # keys = list(data.keys())
+    # print(keys[0:5])
+    # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
+    # save_flat(data, "flat-s{0:.3f}.csv".format(scale))
+    # sys.exit(1)
 
     print("Loading flattened image and pose data")
-    data = load_flat("flat.csv")
+    data = load_flat("flat-s{0:.3f}.csv".format(scale))
     keys = list(data.keys())
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     print("Computing pairwise distance matrix")
-    # dim = (144, 81)
-    # D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
-    # np.savetxt("dist-matrix-nrmse-s0.1.csv", D, delimiter=',')
-    D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
-    np.savetxt("dist-matrix-arerr-s0.1.csv", D, delimiter=',')
+    D = build_image_dist_matrix(M, dim=dim, mode='normalized_root_mse')
+    # np.savetxt("dist-matrix-nrmse-s{0:.3f}.csv".format(scale), D, delimiter=',')
+    # D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
+    # np.savetxt("dist-matrix-arerr-s{0:.3f}.csv".format(scale), D, delimiter=',')
     sys.exit(1)
 
     print("Computing tSNE")
