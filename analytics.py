@@ -114,7 +114,7 @@ def dist_metric(A, B, mode):
     elif mode == 'adapted_rand_error':
         d,_,_ = arerr(A,B)
     elif mode == 'structural_similarity':
-        d = ssim(A,B)
+        d = 1.0 - ssim(A,B)
     return d
 
 
