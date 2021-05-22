@@ -13,12 +13,8 @@ from sklearn import cluster
 import transforms as tr
 import cv2
 from skimage.metrics import mean_squared_error as mse
-from skimage.metrics import normalized_root_mse as nrmse
-# from skimage.metrics import hausdorff_distance as haus
-from skimage.metrics import variation_of_information as voi
 from skimage.metrics import adapted_rand_error as arerr
 from skimage.metrics import structural_similarity as ssim
-from skimage.metrics import normalized_mutual_information as nmi
 
 
 
@@ -116,8 +112,6 @@ def dist_metric(A, B, mode):
         d,_,_ = arerr(A,B)
     elif mode == 'structural_similarity':
         d = 1.0 - ssim(A,B)
-    elif mode == 'mormalized_mutual_info':
-        d = nmi(A, B)
     return d
 
 
