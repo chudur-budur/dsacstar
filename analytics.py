@@ -124,11 +124,11 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     D = np.zeros((n,n))
     for i in range(n):
         for j in range(n):
-            if j <= i:
-                D[i,j] = metric(M[i], M[j])
+            #if j <= i:
+            D[i,j] = metric(M[i], M[j])
         if i % 100 == 0:
             print("Computed row, i = {0:d}".format(i))
-    D = D + D.T - np.diag(np.diag(D))
+    # D = D + D.T - np.diag(np.diag(D))
     print(D)
     print()
     
