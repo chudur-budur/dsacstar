@@ -131,7 +131,9 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     D = D + D.T - np.diag(np.diag(D))
     print(D)
     
-    # D = metrics.pairwise_distances(M, metric=metric, n_jobs=-1)
+    D = metrics.pairwise_distances(M, metric=metric, n_jobs=-1)
+    print(D)
+
     return D
 
 
