@@ -136,8 +136,10 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 if __name__ == "__main__":
     np.random.seed(123456)
 
+    dims = {"0.1": (192, 108)}
+
     print("Loading raw image and pose data")
-    scale = 0.1
+    scale = 0.075
     data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=scale)
     print(len(data), dim)
     keys = list(data.keys())
