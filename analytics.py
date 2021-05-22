@@ -120,7 +120,7 @@ def dist_metric(A, B, mode):
 
 def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
     metric = lambda A,B : dist_metric(A.reshape(dim[1], dim[0]), B.reshape(dim[1], dim[0]), mode)
-    n = 6 # M.shape[0]
+    n = 4 # M.shape[0]
     D = np.zeros((n,n))
     for i in range(n):
         for j in range(n):
