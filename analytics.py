@@ -162,7 +162,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     print("Computing pairwise distance matrix")
-    D = build_image_dist_matrix(M, dim=dim, mode='variation_of_information')
+    D = build_image_dist_matrix(M, dim=dim, mode='structural_similarity')
     # np.savetxt("dist-matrix-nrmse-s{0:.3f}.csv".format(scale), D, delimiter=',')
     # D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
     # np.savetxt("dist-matrix-arerr-s{0:.3f}.csv".format(scale), D, delimiter=',')
