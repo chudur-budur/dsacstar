@@ -12,6 +12,7 @@ from sklearn.neighbors import kneighbors_graph
 from sklearn import cluster 
 import transforms as tr
 import cv2
+from skimage.metrics import mean_squared_error as mse
 from skimage.metrics import normalized_root_mse as nrmse
 # from skimage.metrics import hausdorff_distance as haus
 from skimage.metrics import variation_of_information as voi
@@ -107,6 +108,8 @@ def search_dbscan_eps(P):
 
 
 def dist_metric(A, B, mode):
+    if mode == 'mean_squared_error':
+        d = mse(A,B)
     if mode == 'normalized_root_mse':
         d = nrmse(A,B)
     elif mode == 'variation_of_information':
@@ -162,7 +165,7 @@ if __name__ == "__main__":
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     print("Computing pairwise distance matrix")
-    D = build_image_dist_matrix(M, dim=dim, mode='structural_similarity')
+    D = build_image_dist_matrix(M, dim=dim, mode='mean_squared_error')
     # np.savetxt("dist-matrix-nrmse-s{0:.3f}.csv".format(scale), D, delimiter=',')
     # D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
     # np.savetxt("dist-matrix-arerr-s{0:.3f}.csv".format(scale), D, delimiter=',')
