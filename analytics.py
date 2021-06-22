@@ -139,6 +139,9 @@ def build_image_dist_matrix(M, dim=(96,54), mode='normalized_root_mse'):
 if __name__ == "__main__":
     np.random.seed(123456)
 
+    if not os.path.exists('analytics'):
+        makedirs('analytics')
+
     scale = 0.05
     dims = {"0.1": (192, 108), "0.075": (144, 81), "0.05": (96, 54)}
     dim = dims[str(scale)]
@@ -147,20 +150,20 @@ if __name__ == "__main__":
     # print("Loading raw image and pose data")
     # data, dim = load_raw("split-files/jellyfish-train-map.csv", scale=scale)
     # print(len(data), dim)
-    # keys = list(data.keys())
+    # keys = sorted(list(data.keys()))
     # print(keys[0:5])
     # cv2.imwrite("test.png", data[keys[0]][1].reshape(dim[1], dim[0]))
     # save_flat(data, "flat-s{0:.3f}.csv".format(scale))
     # sys.exit(1)
 
     print("Loading flattened image and pose data")
-    data = load_flat("flat-s{0:.3f}.csv".format(scale))
+    data = load_flat("analtyics/flat-s{0:.3f}.csv".format(scale))
     keys = list(data.keys())
     P = np.array([data[k][0] for k in keys]).astype(float)
     M = np.array([data[k][1] for k in keys]).astype(int)
 
     print("Computing pairwise distance matrix")
-    D = build_image_dist_matrix(M, dim=dim, mode='normalized_mutual_info')
+    D = build_image_dist_matrix(M, dim=dim, mode='mean_squared_error')
     # np.savetxt("dist-matrix-nrmse-s{0:.3f}.csv".format(scale), D, delimiter=',')
     # D = build_image_dist_matrix(M, dim=dim, mode='adapted_rand_error')
     # np.savetxt("dist-matrix-arerr-s{0:.3f}.csv".format(scale), D, delimiter=',')
